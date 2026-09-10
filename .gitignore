@@ -24,8 +24,10 @@ dist-ssr
 *.sw?
 
 # Environment variables
-.env
-server/.env
+# .env
+# server/.env
 
 # Dataset files
-datasets/
+datasets/*.csv
+datasets/*.xlsx
+datasets/*.xls
