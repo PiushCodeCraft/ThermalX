@@ -1,0 +1,698 @@
+/* =========================================================
+   THERMAL X - LANDING PAGE
+   LandingPage.jsx ONLY
+   ========================================================= */
+
+
+/* =========================================================
+   LANDING PAGE
+   ========================================================= */
+
+.landing-page {
+  width: 100%;
+  min-height: 100vh;
+
+  margin: 0;
+  padding: 0;
+
+  overflow-x: hidden;
+
+  background: #f5f9fc;
+}
+
+
+/* =========================================================
+   HERO SECTION
+   ========================================================= */
+
+.hero-section {
+ /*position: relative;*/
+
+  width: 100%;
+  height: 100svh;
+
+  min-height: 720px;
+
+  overflow: hidden;
+
+  background: #eef5f8;
+
+  isolation: isolate;
+}
+
+
+/* =========================================================
+   EARTH / SPACE VIDEO
+   ========================================================= */
+
+.hero-space-video {
+  position: absolute;
+
+  inset: 0;
+
+  width: 100%;
+  height: 100%;
+
+  display: block;
+
+  object-fit: cover;
+
+  object-position: center center;
+
+  /*
+    IMPORTANT:
+    Keep video inside the hero stacking context.
+    Do NOT use a negative z-index here.
+  */
+  z-index: 0;
+
+  opacity: 1;
+
+  filter:
+    brightness(0.92)
+    contrast(1.08)
+    saturate(1.08);
+
+  pointer-events: none;
+}
+
+
+/* =========================================================
+   VIDEO OVERLAY
+   ========================================================= */
+
+.hero-video-blend {
+  position: absolute;
+
+  inset: 0;
+
+  /*
+    Overlay stays above video,
+    but below hero content.
+  */
+  z-index: 1;
+
+  pointer-events: none;
+
+  background:
+    linear-gradient(
+      90deg,
+      rgba(245, 249, 252, 0.92) 0%,
+      rgba(245, 249, 252, 0.72) 22%,
+      rgba(245, 249, 252, 0.38) 45%,
+      rgba(245, 249, 252, 0.12) 68%,
+      rgba(245, 249, 252, 0.02) 100%
+    ),
+    linear-gradient(
+      180deg,
+      rgba(245, 249, 252, 0.10) 0%,
+      rgba(245, 249, 252, 0.00) 45%,
+      rgba(245, 249, 252, 0.28) 100%
+    );
+}
+
+
+/* =========================================================
+   HERO ATMOSPHERE
+   ========================================================= */
+
+.hero-section::after {
+  content: "";
+
+  position: absolute;
+
+  inset: 0;
+
+  z-index: 2;
+
+  pointer-events: none;
+
+  background:
+    radial-gradient(
+      circle at 78% 50%,
+      rgba(255, 255, 255, 0.04),
+      transparent 38%
+    );
+}
+
+
+/* =========================================================
+   HERO CONTAINER
+   ========================================================= */
+
+.hero-container {
+  position: relative;
+
+  z-index: 10;
+
+  width: 100%;
+  height: 100%;
+
+  max-width: 1800px;
+
+  margin: 0 auto;
+
+  padding:
+    128px
+    90px
+    30px;
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: flex-start;
+}
+
+
+/* =========================================================
+   HERO CONTENT
+   ========================================================= */
+
+.hero-content {
+  position: relative;
+
+  z-index: 20;
+
+  width: 100%;
+
+  max-width: 920px;
+
+  margin-top: 25px;
+}
+
+
+/* =========================================================
+   HERO EYEBROW
+   ========================================================= */
+
+.hero-eyebrow {
+  margin: 0 0 22px;
+
+  color: #16445f;
+
+  font-family:
+    Inter,
+    Arial,
+    Helvetica,
+    sans-serif;
+
+  font-size: 14px;
+
+  font-weight: 800;
+
+  letter-spacing: 0.22em;
+
+  line-height: 1.4;
+
+  text-transform: uppercase;
+}
+
+
+/* =========================================================
+   HERO TITLE
+   ========================================================= */
+
+.hero-title {
+  display: flex;
+
+  flex-direction: column;
+
+  align-items: flex-start;
+
+  width: fit-content;
+
+  max-width: 1050px;
+
+  margin: 0;
+  padding: 0;
+
+  color: #10364e;
+
+  font-family:
+    Arial Black,
+    Inter,
+    Arial,
+    Helvetica,
+    sans-serif;
+
+  font-size:
+    clamp(
+      64px,
+      6.4vw,
+      108px
+    );
+
+  font-weight: 900;
+
+  line-height: 0.88;
+
+  letter-spacing: -0.065em;
+
+  text-transform: uppercase;
+}
+
+
+/* =========================================================
+   HERO TITLE LINES
+   ========================================================= */
+
+.hero-line {
+  display: block;
+
+  margin: 0;
+  padding: 0;
+
+  white-space: nowrap;
+}
+
+
+/* =========================================================
+   HEAT WORD
+   ========================================================= */
+
+.heat-word {
+  color: #e52b32;
+
+  font-weight: 900;
+}
+
+
+/* =========================================================
+   HERO DESCRIPTION
+   ========================================================= */
+
+.hero-description {
+  max-width: 760px;
+
+  margin:
+    38px
+    0
+    0;
+
+  color: #315f78;
+
+  font-family:
+    Inter,
+    Arial,
+    Helvetica,
+    sans-serif;
+
+  font-size: 17px;
+
+  font-weight: 500;
+
+  line-height: 1.7;
+
+  letter-spacing: 0.005em;
+}
+
+
+/* =========================================================
+   TECHNICAL INFORMATION LINE
+   ========================================================= */
+
+.hero-technical-line {
+  margin-top: 24px;
+
+  display: flex;
+
+  align-items: center;
+
+  flex-wrap: wrap;
+
+  gap: 12px;
+
+  color: #174b67;
+
+  font-family:
+    Inter,
+    Arial,
+    Helvetica,
+    sans-serif;
+
+  font-size: 11px;
+
+  font-weight: 800;
+
+  letter-spacing: 0.16em;
+
+  line-height: 1.5;
+}
+
+
+/* =========================================================
+   TECHNICAL SEPARATOR
+   ========================================================= */
+
+.technical-separator {
+  color: #e52b32;
+
+  font-weight: 900;
+}
+
+
+/* =========================================================
+   LARGE DESKTOP
+   ========================================================= */
+
+@media (min-width: 1700px) {
+
+  .hero-container {
+    padding-left: 110px;
+    padding-right: 110px;
+  }
+
+
+  .hero-content {
+    max-width: 1000px;
+  }
+
+
+  .hero-eyebrow {
+    font-size: 15px;
+  }
+
+
+  .hero-description {
+    font-size: 18px;
+
+    max-width: 800px;
+  }
+
+
+  .hero-technical-line {
+    font-size: 12px;
+  }
+}
+
+
+/* =========================================================
+   TABLET / SMALL DESKTOP
+   ========================================================= */
+
+@media (max-width: 1250px) {
+
+  .hero-container {
+    padding:
+      110px
+      55px
+      25px;
+  }
+
+
+  .hero-content {
+    max-width: 780px;
+  }
+
+
+  .hero-eyebrow {
+    font-size: 12px;
+
+    letter-spacing: 0.18em;
+  }
+
+
+  .hero-title {
+    font-size:
+      clamp(
+        58px,
+        7vw,
+        90px
+      );
+  }
+
+
+  .hero-description {
+    max-width: 680px;
+
+    font-size: 16px;
+  }
+}
+
+
+/* =========================================================
+   MOBILE
+   ========================================================= */
+
+@media (max-width: 900px) {
+
+  .hero-section {
+    height: auto;
+
+    min-height: 820px;
+  }
+
+
+  .hero-container {
+    width: 100%;
+
+    height: auto;
+
+    min-height: 820px;
+
+    padding:
+      150px
+      25px
+      70px;
+
+    display: flex;
+
+    align-items: flex-start;
+
+    justify-content: flex-start;
+  }
+
+
+  .hero-content {
+    width: 100%;
+
+    max-width: 100%;
+
+    margin-top: 0;
+  }
+
+
+  /* ---------------------------------------------
+     MOBILE VIDEO
+  --------------------------------------------- */
+
+  .hero-space-video {
+    position: absolute;
+
+    inset: 0;
+
+    width: 100%;
+    height: 100%;
+
+    object-position: center center;
+
+    opacity: 0.85;
+
+    filter:
+      brightness(0.90)
+      contrast(1.05)
+      saturate(1.06);
+
+    z-index: 0;
+  }
+
+
+  /* ---------------------------------------------
+     MOBILE VIDEO OVERLAY
+  --------------------------------------------- */
+
+  .hero-video-blend {
+    z-index: 1;
+
+    background:
+      linear-gradient(
+        180deg,
+        rgba(245, 249, 252, 0.30) 0%,
+        rgba(245, 249, 252, 0.08) 42%,
+        rgba(245, 249, 252, 0.30) 100%
+      ),
+      linear-gradient(
+        90deg,
+        rgba(245, 249, 252, 0.65) 0%,
+        rgba(245, 249, 252, 0.20) 65%,
+        rgba(245, 249, 252, 0.04) 100%
+      );
+  }
+
+
+  /* ---------------------------------------------
+     MOBILE EYEBROW
+  --------------------------------------------- */
+
+  .hero-eyebrow {
+    margin-bottom: 18px;
+
+    font-size: 9px;
+
+    letter-spacing: 0.15em;
+
+    line-height: 1.5;
+  }
+
+
+  /* ---------------------------------------------
+     MOBILE TITLE
+  --------------------------------------------- */
+
+  .hero-title {
+    width: 100%;
+
+    max-width: 100%;
+
+    font-size:
+      clamp(
+        46px,
+        11.5vw,
+        72px
+      );
+
+    line-height: 0.9;
+
+    letter-spacing: -0.055em;
+  }
+
+
+  .hero-line {
+    white-space: nowrap;
+  }
+
+
+  /* ---------------------------------------------
+     MOBILE DESCRIPTION
+  --------------------------------------------- */
+
+  .hero-description {
+    width: 100%;
+
+    max-width: 100%;
+
+    margin-top: 28px;
+
+    color: #315f78;
+
+    font-size: 14px;
+
+    line-height: 1.65;
+  }
+
+
+  /* ---------------------------------------------
+     MOBILE TECHNICAL LINE
+  --------------------------------------------- */
+
+  .hero-technical-line {
+    margin-top: 22px;
+
+    gap: 7px;
+
+    font-size: 8px;
+
+    letter-spacing: 0.09em;
+
+    line-height: 1.6;
+  }
+}
+
+
+/* =========================================================
+   SMALL MOBILE
+   ========================================================= */
+
+@media (max-width: 520px) {
+
+  .hero-section {
+    min-height: 780px;
+  }
+
+
+  .hero-container {
+    min-height: 780px;
+
+    padding:
+      140px
+      20px
+      60px;
+  }
+
+
+  .hero-eyebrow {
+    font-size: 8px;
+
+    letter-spacing: 0.13em;
+  }
+
+
+  .hero-title {
+    font-size: 43px;
+
+    line-height: 0.91;
+
+    letter-spacing: -0.05em;
+  }
+
+
+  .hero-description {
+    margin-top: 26px;
+
+    font-size: 13px;
+
+    line-height: 1.6;
+  }
+
+
+  .hero-technical-line {
+    margin-top: 20px;
+
+    gap: 6px;
+
+    font-size: 7px;
+
+    letter-spacing: 0.08em;
+  }
+}
+
+
+/* =========================================================
+   VERY SMALL PHONES
+   ========================================================= */
+
+@media (max-width: 380px) {
+
+  .hero-container {
+    padding-left: 16px;
+    padding-right: 16px;
+  }
+
+
+  .hero-title {
+    font-size: 38px;
+  }
+
+
+  .hero-description {
+    font-size: 12px;
+  }
+
+
+  .hero-technical-line {
+    font-size: 6.5px;
+  }
+}
+
+
+/* =========================================================
+   REDUCED MOTION
+   ========================================================= */
+
+@media (prefers-reduced-motion: reduce) {
+
+  .hero-space-video {
+    animation: none;
+  }
+}
