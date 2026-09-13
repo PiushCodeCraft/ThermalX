@@ -1,14 +1,10 @@
 import "./App.css";
 
-import {
-  BrowserRouter,
-  Routes,
-  Route,
-  Navigate,
-} from "react-router-dom";
+import {BrowserRouter, Routes, Route, Navigate} from "react-router-dom";
 
 import LandingPage from "./pages/LandingPage";
 import AuthPage from "./pages/AuthPage";
+
 
 
 function App() {
