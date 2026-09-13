@@ -5,7 +5,7 @@ from pathlib import Path
 
 # ============================================================
 # THERMAL-X
-# Feature Engineering
+# FEATURE ENGINEERING
 # ============================================================
 
 BASE_DIR = Path(__file__).resolve().parent
@@ -34,6 +34,8 @@ print(f"Columns loaded: {len(df.columns)}")
 # 2. Convert timestamp
 # ============================================================
 
+print("\nConverting timestamp...")
+
 df["timestamp"] = pd.to_datetime(
     df["timestamp"],
     errors="coerce"
@@ -41,126 +43,49 @@ df["timestamp"] = pd.to_datetime(
 
 
 # ============================================================
-# 3. Temporal features
+# 3. Create day of week
 # ============================================================
 
-print("\nCreating temporal features...")
+print("Creating temporal feature...")
+
+# Monday = 0
+# Tuesday = 1
+# ...
+# Sunday = 6
 
 df["day_of_week"] = df["timestamp"].dt.dayofweek
 
-df["is_weekend"] = (
-    df["day_of_week"] >= 5
-).astype(int)
-
 
 # ============================================================
-# 4. Cyclical time features
-# ============================================================
-
-# Time is cyclical:
-#
-# 23:00 and 00:00 are close in reality,
-# but numerically 23 and 0 are far apart.
-#
-# Sin/Cos encoding solves this problem.
-
-df["hour_sin"] = np.sin(
-    2 * np.pi * df["hour"] / 24
-)
-
-df["hour_cos"] = np.cos(
-    2 * np.pi * df["hour"] / 24
-)
-
-
-df["day_of_year_sin"] = np.sin(
-    2 * np.pi * df["day_of_year"] / 365
-)
-
-df["day_of_year_cos"] = np.cos(
-    2 * np.pi * df["day_of_year"] / 365
-)
-
-
-# ============================================================
-# 5. Thermal features
+# 4. Create thermal feature
 # ============================================================
 
 print("Creating thermal features...")
 
-# Difference between fire-channel brightness
-# and thermal background.
+# Difference between observed brightness
+# and background brightness.
 
 df["brightness_difference"] = (
     df["brightness"] - df["bright_t31"]
 )
 
 
-# FRP can be highly skewed.
-# log1p reduces the effect of very large FRP values.
+# ============================================================
+# 5. Transform FRP
+# ============================================================
+
+# FRP can contain very large values.
+# log1p reduces the effect of extreme values
+# while keeping zero values valid.
 
 df["frp_log"] = np.log1p(df["frp"])
 
 
-# Brightness difference can also be transformed.
-
-df["brightness_difference_abs"] = (
-    df["brightness_difference"].abs()
-)
-
-
 # ============================================================
-# 6. Basic spatial features
+# 6. Sort chronologically
 # ============================================================
 
-print("Creating spatial features...")
-
-# Latitude converted to radians.
-
-lat_rad = np.radians(df["latitude"])
-
-# Approximate distance from the equator.
-# This is NOT used as a classification label.
-# It is simply a derived geographic feature.
-
-EARTH_RADIUS_KM = 6371.0
-
-df["latitude_distance_km"] = (
-    EARTH_RADIUS_KM * lat_rad
-)
-
-
-# ============================================================
-# 7. Data quality indicators
-# ============================================================
-
-print("Creating data-quality features...")
-
-df["has_high_confidence"] = (
-    df["confidence"] == "HIGH"
-).astype(int)
-
-df["has_nominal_confidence"] = (
-    df["confidence"] == "NOMINAL"
-).astype(int)
-
-df["has_low_confidence"] = (
-    df["confidence"] == "LOW"
-).astype(int)
-
-
-# ============================================================
-# 8. Satellite observation features
-# ============================================================
-
-df["is_day"] = (
-    df["daynight"] == "D"
-).astype(int)
-
-
-# ============================================================
-# 9. Sort by time
-# ============================================================
+print("Sorting observations chronologically...")
 
 df = df.sort_values(
     by=["timestamp", "latitude", "longitude"]
@@ -168,7 +93,58 @@ df = df.sort_values(
 
 
 # ============================================================
-# 10. Final validation
+# 7. Select only required columns
+# ============================================================
+
+required_columns = [
+    "latitude",
+    "longitude",
+    "brightness",
+    "bright_t31",
+    "frp",
+    "scan",
+    "track",
+    "confidence",
+    "daynight",
+    "timestamp",
+    "hour",
+    "day",
+    "month",
+    "day_of_year",
+    "brightness_difference",
+    "frp_log",
+    "day_of_week"
+]
+
+
+# Check that all required columns exist
+
+missing_columns = [
+    column
+    for column in required_columns
+    if column not in df.columns
+]
+
+if missing_columns:
+
+    print("\nERROR: Required columns are missing:")
+
+    for column in missing_columns:
+        print(f"  - {column}")
+
+    raise ValueError(
+        "Feature engineering cannot continue because "
+        "required columns are missing."
+    )
+
+
+# Keep only the required columns
+
+df = df[required_columns]
+
+
+# ============================================================
+# 8. Final validation
 # ============================================================
 
 print("\n" + "=" * 60)
@@ -177,51 +153,75 @@ print("=" * 60)
 
 print(f"\nFinal shape: {df.shape}")
 
-print("\nNew columns:")
+print("\nFinal columns:")
 
-new_columns = [
-    "day_of_week",
-    "is_weekend",
-    "hour_sin",
-    "hour_cos",
-    "day_of_year_sin",
-    "day_of_year_cos",
-    "frp_log",
-    "brightness_difference_abs",
-    "latitude_distance_km",
-    "has_high_confidence",
-    "has_nominal_confidence",
-    "has_low_confidence",
-    "is_day"
-]
-
-for column in new_columns:
+for column in df.columns:
     print(f"  {column}")
 
 
 # ============================================================
-# 11. Missing-value check
+# 9. Missing-value check
 # ============================================================
 
-missing = df.isnull().sum().sum()
+missing_values = df.isnull().sum()
 
-print(f"\nTotal missing values: {missing}")
+print("\nMissing values per column:")
+
+print(missing_values)
+
+total_missing = missing_values.sum()
+
+print(f"\nTotal missing values: {total_missing}")
 
 
 # ============================================================
-# 12. Duplicate check
+# 10. Duplicate check
 # ============================================================
 
 duplicates = df.duplicated().sum()
 
-print(f"Duplicate rows: {duplicates}")
+print(f"\nDuplicate rows: {duplicates}")
 
 
 # ============================================================
-# 13. Feature statistics
+# 11. Basic validation
 # ============================================================
 
-print("\nThermal feature statistics:")
+invalid_coordinates = (
+    (~df["latitude"].between(-90, 90))
+    |
+    (~df["longitude"].between(-180, 180))
+).sum()
+
+print(f"Invalid coordinates: {invalid_coordinates}")
+
+
+invalid_frp = (
+    df["frp"] < 0
+).sum()
+
+print(f"Invalid FRP values: {invalid_frp}")
+
+
+invalid_day_of_week = (
+    ~df["day_of_week"].between(0, 6)
+).sum()
+
+print(
+    f"Invalid day_of_week values: "
+    f"{invalid_day_of_week}"
+)
+
+
+# ============================================================
+# 12. Feature statistics
+# ============================================================
+
+print("\n" + "=" * 60)
+print("FEATURE STATISTICS")
+print("=" * 60)
+
+print("\nThermal features:")
 
 print(
     df[
@@ -229,7 +229,6 @@ print(
             "brightness",
             "bright_t31",
             "brightness_difference",
-            "brightness_difference_abs",
             "frp",
             "frp_log"
         ]
@@ -238,7 +237,40 @@ print(
 
 
 # ============================================================
-# 14. Save feature-engineered dataset
+# 13. Categorical information
+# ============================================================
+
+print("\nConfidence values:")
+
+print(
+    df["confidence"].value_counts()
+)
+
+
+print("\nDay/Night values:")
+
+print(
+    df["daynight"].value_counts()
+)
+
+
+# ============================================================
+# 14. Timestamp range
+# ============================================================
+
+print("\nTimestamp range:")
+
+print(
+    f"Start: {df['timestamp'].min()}"
+)
+
+print(
+    f"End:   {df['timestamp'].max()}"
+)
+
+
+# ============================================================
+# 15. Save feature-engineered dataset
 # ============================================================
 
 df.to_csv(
@@ -246,9 +278,23 @@ df.to_csv(
     index=False
 )
 
+
+# ============================================================
+# 16. Completion message
+# ============================================================
+
 print("\n" + "=" * 60)
 print("FEATURE ENGINEERING COMPLETE")
 print("=" * 60)
 
-print(f"\nSaved:")
+print(
+    f"\nSaved feature-engineered dataset:"
+)
+
 print(OUTPUT_FILE)
+
+print(
+    f"\nFinal dataset contains "
+    f"{len(df):,} observations and "
+    f"{len(df.columns)} features."
+)
