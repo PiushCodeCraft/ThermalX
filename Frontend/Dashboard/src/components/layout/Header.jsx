@@ -14,6 +14,7 @@ import {
   Satellite,
   BarChart3
 } from 'lucide-react';
+import thermalXLogo from '../../assets/thermal-x-logo.png';
 
 export const Header = ({ activeTab, setActiveTab }) => {
   const [showNotifications, setShowNotifications] = useState(false);
@@ -61,14 +62,16 @@ export const Header = ({ activeTab, setActiveTab }) => {
         {/* Brand & Nav */}
         <div className="flex items-center gap-6">
           <div className="flex items-center gap-3 pr-6 border-r border-slate-200">
-            <div className="w-9 h-9 rounded bg-[#00236F] flex items-center justify-center text-white shadow-sm">
-              <Flame className="w-5 h-5 text-amber-400 fill-amber-400" />
-            </div>
-            <div className="flex flex-col">
-              <span className="font-semibold text-[15px] text-[#00236F] leading-tight tracking-tight">
+            <img
+              src={thermalXLogo}
+              alt="ThermalX — Emergency Operations & Wildfire Intelligence System"
+              className="h-11 w-auto object-contain shrink-0 select-none drop-shadow-xs cursor-pointer"
+            />
+            <div className="flex flex-col hidden sm:flex">
+              <span className="font-bold text-[16px] text-[#00236F] leading-tight tracking-tight">
                 ThermalX
               </span>
-              <span className="text-[11px] font-medium text-slate-500">
+              <span className="text-[10.5px] font-semibold text-slate-500 uppercase tracking-wider">
                 Fire Intelligence Platform
               </span>
             </div>
