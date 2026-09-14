@@ -1,5 +1,6 @@
 import Navbar from "../components/landing/Navbar";
 import Workflow from "../components/landing/Workflow";
+import Footer from "../components/common/Footer";
 import "./LandingPage.css";
 
 function LandingPage() {
@@ -119,8 +120,8 @@ function LandingPage() {
           WORKFLOW SECTION
           ================================================= */}
 
-      <Workflow />
-
+      {/* <Workflow /> */}
+      <Footer />
     </main>
   );
 }
