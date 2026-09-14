@@ -14,7 +14,6 @@ import {
   Satellite,
   BarChart3
 } from 'lucide-react';
-import thermalXLogo from '../../assets/thermal-x-logo.png';
 
 export const Header = ({ activeTab, setActiveTab }) => {
   const [showNotifications, setShowNotifications] = useState(false);
@@ -63,7 +62,7 @@ export const Header = ({ activeTab, setActiveTab }) => {
         <div className="flex items-center gap-6">
           <div className="flex items-center gap-3 pr-6 border-r border-slate-200">
             <img
-              src={thermalXLogo}
+              src="/assets/thermal-x-logo.png"
               alt="ThermalX — Emergency Operations & Wildfire Intelligence System"
               className="h-11 w-auto object-contain shrink-0 select-none drop-shadow-xs cursor-pointer"
             />
