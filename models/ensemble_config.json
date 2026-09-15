@@ -1,0 +1,74 @@
+{
+    "target_column": "confidence",
+    "features": [
+        "latitude",
+        "longitude",
+        "brightness",
+        "bright_t31",
+        "frp",
+        "scan",
+        "track",
+        "daynight",
+        "hour",
+        "day",
+        "month",
+        "day_of_year",
+        "brightness_difference",
+        "frp_log",
+        "day_of_week"
+    ],
+    "classes": [
+        "HIGH",
+        "LOW",
+        "NOMINAL"
+    ],
+    "ensemble": {
+        "xgboost_weight": 0.4,
+        "lightgbm_weight": 0.4,
+        "random_forest_weight": 0.2
+    },
+    "train_end": "2025-12-31 23:59:59",
+    "validation_end": "2026-06-30 23:59:59",
+    "validation_metrics": {
+        "xgboost": {
+            "accuracy": 0.9253865255821762,
+            "balanced_accuracy": 0.955851046556451,
+            "precision_macro": 0.9018166615727377,
+            "recall_macro": 0.955851046556451,
+            "f1_macro": 0.9234654118895023,
+            "f1_weighted": 0.9285899439193249
+        },
+        "lightgbm": {
+            "accuracy": 0.9248520561636673,
+            "balanced_accuracy": 0.955529089404128,
+            "precision_macro": 0.9016750803447532,
+            "recall_macro": 0.955529089404128,
+            "f1_macro": 0.923118511429962,
+            "f1_weighted": 0.9281127228315752
+        },
+        "random_forest": {
+            "accuracy": 0.9282865527880202,
+            "balanced_accuracy": 0.9532068865968935,
+            "precision_macro": 0.910242085301776,
+            "recall_macro": 0.9532068865968935,
+            "f1_macro": 0.9274204514032851,
+            "f1_weighted": 0.9310918599217262
+        },
+        "ensemble": {
+            "accuracy": 0.9260637774446188,
+            "balanced_accuracy": 0.9558412629622638,
+            "precision_macro": 0.9038600000432316,
+            "recall_macro": 0.9558412629622638,
+            "f1_macro": 0.9246173450815264,
+            "f1_weighted": 0.9292064158286678
+        }
+    },
+    "test_metrics": {
+        "accuracy": 0.9837368991687748,
+        "balanced_accuracy": 0.9534128915920776,
+        "precision_macro": 0.9300383995189812,
+        "recall_macro": 0.9534128915920776,
+        "f1_macro": 0.9411667089253105,
+        "f1_weighted": 0.9840823730154644
+    }
+}

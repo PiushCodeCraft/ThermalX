@@ -33,7 +33,7 @@ except (ImportError, AttributeError) as exc:
 # XGBoost + LightGBM + Random Forest
 # ============================================================
 
-DATA_PATH = r"D:\Hackthon💻\SIH\project\ThermalX\datasets\feature_engineered_fire_data.csv"
+DATA_PATH = r"D:\Hackthon💻\SIH\project\ThermalX\datasets\thermalx_future_fire_dataset.csv"
 
 MODEL_DIR = r"D:\Hackthon💻\SIH\project\ThermalX\models"
 
