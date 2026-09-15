@@ -3,10 +3,13 @@ import { KPIStatCard } from './KPIStatCard';
 import { Flame, AlertTriangle, Radio, Satellite } from 'lucide-react';
 import { kpiMetrics } from '../../data/incidents';
 
-export const KPISummary = () => {
+export const KPISummary = ({
+  className = '',
+  gridClassName = 'grid grid-cols-1 sm:grid-cols-2 gap-3'
+}) => {
   return (
-    <section className="mb-4">
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+    <section className={className}>
+      <div className={gridClassName}>
         <KPIStatCard
           title={kpiMetrics.totalIncidents.label}
           value={kpiMetrics.totalIncidents.value}

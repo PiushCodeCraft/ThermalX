@@ -2,9 +2,16 @@ import React from 'react';
 import { BellRing, ArrowRight } from 'lucide-react';
 import { RiskBadge } from '../common/RiskBadge';
 
-export const ActiveIncidentAlerts = ({ alerts = [], selectedLocationId, onSelectAlert }) => {
+export const ActiveIncidentAlerts = ({
+  alerts = [],
+  selectedLocationId,
+  onSelectAlert,
+  className = '',
+  maxHeight = 'max-h-[290px]',
+  footerText
+}) => {
   return (
-    <div className="bg-white border border-slate-200 shadow-sm p-4 rounded flex flex-col justify-between h-full">
+    <div className={`bg-white border border-slate-200 shadow-sm p-4 rounded flex flex-col justify-between h-full ${className}`}>
       <div>
         {/* Header */}
         <div className="flex items-center justify-between pb-2 mb-3 bg-slate-50 p-2 rounded border border-slate-200">
@@ -18,7 +25,7 @@ export const ActiveIncidentAlerts = ({ alerts = [], selectedLocationId, onSelect
         </div>
 
         {/* Alerts Feed List */}
-        <div className="space-y-2 max-h-[290px] overflow-y-auto pr-1">
+        <div className={`space-y-2 ${maxHeight} overflow-y-auto pr-1`}>
           {alerts.map((item) => {
             const isSelected = item.locationId === selectedLocationId;
             return (
@@ -54,7 +61,7 @@ export const ActiveIncidentAlerts = ({ alerts = [], selectedLocationId, onSelect
         href="#alerts"
         className="mt-3 pt-2 text-[#1E3A8A] text-[12px] font-semibold hover:underline flex items-center justify-between border-t border-slate-100"
       >
-        <span>View all {alerts.length} priority emergency alerts</span>
+        <span>{footerText || `View all ${alerts.length} alerts in incident database`}</span>
         <ArrowRight className="w-4 h-4" />
       </a>
     </div>

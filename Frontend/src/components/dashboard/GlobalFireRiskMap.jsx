@@ -16,13 +16,20 @@ const REGION_COORDINATES = {
   australia_newzealand: { center: [-26.0, 134.0], zoom: 4 }
 };
 
-export const GlobalFireRiskMap = ({ locations = [], selectedId, onSelectLocation }) => {
+export const GlobalFireRiskMap = ({
+  locations = [],
+  selectedId,
+  onSelectLocation,
+  mapHeight = 'h-[500px]',
+  className = '',
+  showMapPopup = false
+}) => {
   const [activeLayer, setActiveLayer] = useState('thermal');
   const [activeSensor, setActiveSensor] = useState('noaa-20-viirs-c2');
   const [dateSpan, setDateSpan] = useState('24h');
   const [selectedRegion, setSelectedRegion] = useState('south_asia');
   const [basemapType, setBasemapType] = useState('satellite'); // 'satellite' | 'carto' | 'dark'
-  const [showPopup, setShowPopup] = useState(true);
+  const [showPopup, setShowPopup] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
 
   // Live NASA FIRMS KML state
@@ -58,7 +65,7 @@ export const GlobalFireRiskMap = ({ locations = [], selectedId, onSelectLocation
       const map = L.map(mapContainerRef.current, {
         center: initialRegion.center,
         zoom: initialRegion.zoom,
-        minZoom: 2,
+        minZoom: 1,
         maxZoom: 18,
         zoomControl: false,
         attributionControl: false
@@ -256,26 +263,38 @@ export const GlobalFireRiskMap = ({ locations = [], selectedId, onSelectLocation
         color: '#FFFFFF',
         weight: 1,
         opacity: 0.9,
-        fillOpacity: 0.85
+        fillOpacity: 0.85,
+        interactive: true
       });
 
-      circle.on('click', () => {
-        setSelectedNasaPoint({
-          isNasaHotspot: true,
-          name: `NASA VIIRS Thermal Detection`,
+      circle.on('click', (e) => {
+        if (e && e.originalEvent) {
+          L.DomEvent.stopPropagation(e.originalEvent);
+        }
+        const nasaIncident = {
+          id: pt.id,
+          name: `NASA Hotspot (${pt.lat.toFixed(2)}°, ${pt.lng.toFixed(2)}°)`,
           location: `${selectedRegion.replace('_', ' ').toUpperCase()} Hotspot`,
-          coordinates: `${pt.lat.toFixed(4)}°N, ${pt.lng.toFixed(4)}°E`,
+          coordinates: `Lat ${pt.lat.toFixed(4)}, ${pt.lng.toFixed(4)}`,
           latitude: pt.lat,
           longitude: pt.lng,
           brightnessC: pt.brightnessC,
           brightnessK: pt.brightnessK,
+          temperature: pt.brightnessC || Math.round((pt.brightnessK - 273.15) * 10) / 10 || 42.0,
+          humidity: pt.frp >= 15 ? 18 : pt.frp >= 4 ? 24 : 35,
+          power: pt.frp || 4.2,
+          confidence: typeof pt.confidence === 'number' ? pt.confidence : parseFloat(pt.confidence) || (pt.frp >= 15 ? 89.4 : 78.2),
           frp: pt.frp,
-          confidence: pt.confidence,
           time: pt.time,
           sensor: `${pt.sensor} (375m)`,
-          risk: pt.frp > 10 ? 'HIGH' : pt.frp > 3 ? 'MEDIUM' : 'LOW'
-        });
-        setShowPopup(true);
+          risk: pt.frp >= 15 ? 'HIGH' : pt.frp >= 4 ? 'MEDIUM' : 'LOW',
+          lastSync: pt.time || 'Live Telemetry'
+        };
+
+        setSelectedNasaPoint(nasaIncident);
+        if (onSelectLocation) {
+          onSelectLocation(pt.id, nasaIncident);
+        }
       });
 
       group.addLayer(circle);
@@ -315,29 +334,55 @@ export const GlobalFireRiskMap = ({ locations = [], selectedId, onSelectLocation
         iconAnchor: [14, 14]
       });
 
-      const marker = L.marker([loc.latitude, loc.longitude], { icon, zIndexOffset: 1000 });
+      const marker = L.marker([loc.latitude, loc.longitude], {
+        icon,
+        zIndexOffset: 3000,
+        riseOnHover: true
+      });
 
-      marker.on('click', () => {
+      marker.on('click', (e) => {
+        if (e && e.originalEvent) {
+          L.DomEvent.stopPropagation(e.originalEvent);
+        }
         setSelectedNasaPoint(null);
         if (onSelectLocation) {
-          onSelectLocation(loc.id);
+          onSelectLocation(loc.id, loc);
         }
-        setShowPopup(true);
       });
 
       markersGroup.addLayer(marker);
     });
   }, [locations, selectedId, onSelectLocation]);
 
-  // Center/Fly to Selected Target when selectedId changes
+  // Center/Fly smoothly to Selected Target when selectedId changes
   useEffect(() => {
-    if (!mapInstanceRef.current || !selectedLocation || selectedNasaPoint) return;
+    if (!mapInstanceRef.current || !selectedLocation) return;
     const map = mapInstanceRef.current;
-    map.flyTo([selectedLocation.latitude, selectedLocation.longitude], 6, {
-      duration: 1.2
-    });
-    setShowPopup(true);
-  }, [selectedId, selectedLocation, selectedNasaPoint]);
+    setSelectedNasaPoint(null);
+
+    const lat = selectedLocation.latitude;
+    const lng = selectedLocation.longitude;
+    if (typeof lat !== 'number' || typeof lng !== 'number') return;
+
+    try {
+      map.stop(); // Gracefully stop any active animation
+
+      const currentCenter = map.getCenter();
+      // Calculate shortest-path longitude across the spherical antimeridian
+      let targetLng = lng;
+      while (targetLng - currentCenter.lng > 180) targetLng -= 360;
+      while (targetLng - currentCenter.lng < -180) targetLng += 360;
+
+      // Cinematic smooth flyTo animation with parabolic zoom arc
+      map.flyTo([lat, targetLng], 6, {
+        duration: 1.8,
+        easeLinearity: 0.25
+      });
+    } catch (err) {
+      console.warn('flyTo animation fallback:', err);
+      map.panTo([lat, lng], { animate: true, duration: 1.2 });
+    }
+  }, [selectedId, selectedLocation]);
 
   const handleDownloadKmlFootprints = () => {
     const kmlUrl = `https://firms.modaps.eosdis.nasa.gov/api/kml_fire_footprints/?map_key=${NASA_FIRMS_KEY}&region=${selectedRegion}&date_span=${dateSpan}&sensor=${activeSensor}`;
@@ -371,9 +416,18 @@ export const GlobalFireRiskMap = ({ locations = [], selectedId, onSelectLocation
 
   const activePopupTarget = selectedNasaPoint || selectedLocation;
 
+  // Invalidate map size on height change or fullscreen toggle
+  useEffect(() => {
+    if (mapInstanceRef.current) {
+      setTimeout(() => {
+        mapInstanceRef.current?.invalidateSize();
+      }, 150);
+    }
+  }, [mapHeight, isFullscreen]);
+
   return (
     <div
-      className={`bg-white border border-slate-200 shadow-sm flex flex-col rounded overflow-hidden ${
+      className={`bg-white border border-slate-200 shadow-sm flex flex-col rounded overflow-hidden ${className} ${
         isFullscreen ? 'fixed inset-0 z-50 p-4 bg-slate-900' : ''
       }`}
     >
@@ -429,11 +483,11 @@ export const GlobalFireRiskMap = ({ locations = [], selectedId, onSelectLocation
       </div>
 
       {/* Map Viewport Canvas */}
-      <div className="relative w-full h-[500px] bg-[#0F172A] overflow-hidden select-none">
-        <div ref={mapContainerRef} style={{ width: '100%', height: '500px' }} className="w-full h-full z-0" />
+      <div className={`relative w-full ${mapHeight || 'h-[500px]'} bg-[#0F172A] overflow-hidden select-none flex-1`}>
+        <div ref={mapContainerRef} style={{ width: '100%', height: '100%', minHeight: '400px' }} className="w-full h-full z-0" />
 
-        {/* Floating Selected Detail Card (Target Sector or NASA Hotspot) */}
-        {showPopup && activePopupTarget && (
+        {/* Floating Selected Detail Card (Disabled by default as incident intelligence is rendered in the side panel) */}
+        {showMapPopup && showPopup && activePopupTarget && (
           <IncidentMapPopup
             location={activePopupTarget}
             onClose={() => {
