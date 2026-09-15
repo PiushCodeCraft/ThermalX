@@ -2,7 +2,11 @@ import React, { useState, useRef, useEffect } from 'react';
 import { Download, ChevronDown, FileText, Table, BarChart3, CheckCircle2 } from 'lucide-react';
 import { mapLocations } from '../../data/mapLocations';
 
-export const ExportReport = () => {
+export const ExportReport = ({
+  label = 'Export Report',
+  variant = 'default',
+  className = ''
+}) => {
   const [isOpen, setIsOpen] = useState(false);
   const [notification, setNotification] = useState('');
   const menuRef = useRef(null);
@@ -107,26 +111,37 @@ export const ExportReport = () => {
         </div>
       )}
 
-      {/* Split Button */}
-      <div className="inline-flex items-center rounded shadow-sm overflow-hidden border border-[#00236F]">
+      {variant === 'outline' || variant === 'tactical' ? (
         <button
           onClick={() => setIsOpen((prev) => !prev)}
-          className="h-10 px-3.5 bg-[#00236F] hover:bg-[#1E3A8A] text-white text-[12px] font-semibold transition-colors flex items-center gap-2 whitespace-nowrap focus:outline-none"
+          className={`h-9 px-4 bg-white hover:bg-slate-50 text-slate-800 border border-slate-300 rounded font-semibold text-[13px] tracking-normal transition-colors flex items-center gap-1.5 focus:outline-none shadow-xs ${className}`}
           type="button"
         >
-          <Download className="w-4 h-4 text-blue-200" />
-          <span>Export Report</span>
+          <span>{label}</span>
+          <ChevronDown className={`w-3.5 h-3.5 text-slate-600 transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`} />
         </button>
+      ) : (
+        /* Split Button */
+        <div className="inline-flex items-center rounded shadow-sm overflow-hidden border border-[#00236F]">
+          <button
+            onClick={() => setIsOpen((prev) => !prev)}
+            className="h-10 px-3.5 bg-[#00236F] hover:bg-[#1E3A8A] text-white text-[12px] font-semibold transition-colors flex items-center gap-2 whitespace-nowrap focus:outline-none"
+            type="button"
+          >
+            <Download className="w-4 h-4 text-blue-200" />
+            <span>{label}</span>
+          </button>
 
-        <button
-          onClick={() => setIsOpen((prev) => !prev)}
-          className="h-10 px-2.5 bg-[#1E3A8A] hover:bg-[#00236F] text-white border-l border-blue-900/80 transition-colors flex items-center justify-center focus:outline-none"
-          type="button"
-          aria-label="Toggle export options"
-        >
-          <ChevronDown className={`w-4 h-4 text-blue-200 transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`} />
-        </button>
-      </div>
+          <button
+            onClick={() => setIsOpen((prev) => !prev)}
+            className="h-10 px-2.5 bg-[#1E3A8A] hover:bg-[#00236F] text-white border-l border-blue-900/80 transition-colors flex items-center justify-center focus:outline-none"
+            type="button"
+            aria-label="Toggle export options"
+          >
+            <ChevronDown className={`w-4 h-4 text-blue-200 transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`} />
+          </button>
+        </div>
+      )}
 
       {/* Menu Tray */}
       {isOpen && (
