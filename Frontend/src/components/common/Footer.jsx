@@ -5,7 +5,6 @@ import {
   Map,
   BarChart3,
   ShieldCheck,
-  Mail,
   ExternalLink,
 } from "lucide-react";
 
@@ -39,7 +38,7 @@ const Footer = () => {
 
           margin: 0 auto;
 
-          padding: 55px 0 45px;
+          padding: 60px 0 50px;
 
           display: grid;
 
@@ -49,7 +48,9 @@ const Footer = () => {
             1fr
             1fr;
 
-          gap: 55px;
+          gap: 65px;
+
+          align-items: start;
         }
 
 
@@ -58,7 +59,7 @@ const Footer = () => {
         ====================================================== */
 
         .thermal-footer-brand {
-          max-width: 360px;
+          max-width: 380px;
         }
 
         .thermal-footer-logo-link {
@@ -70,7 +71,7 @@ const Footer = () => {
         }
 
         .thermal-footer-logo {
-          width: 185px;
+          width: 205px;
 
           height: auto;
 
@@ -80,23 +81,25 @@ const Footer = () => {
         }
 
         .thermal-footer-description {
-          margin: 20px 0 0;
+          margin: 22px 0 0;
 
           color: #607d96;
 
-          font-size: 13px;
+          font-size: 15px;
 
           line-height: 1.75;
 
           font-weight: 400;
+
+          max-width: 370px;
         }
 
         .thermal-footer-tagline {
-          margin-top: 20px;
+          margin-top: 22px;
 
           color: #e63232;
 
-          font-size: 8px;
+          font-size: 9px;
 
           font-weight: 800;
 
@@ -116,18 +119,27 @@ const Footer = () => {
           flex-direction: column;
 
           align-items: flex-start;
+
+          padding-top: 4px;
         }
 
+
+        /* =====================================================
+           COLUMN HEADINGS
+        ====================================================== */
+
         .thermal-footer-column h3 {
-          margin: 5px 0 20px;
+          margin: 0 0 25px;
 
           color: #0f3550;
 
-          font-size: 10px;
+          font-size: 14px;
 
           font-weight: 800;
 
-          letter-spacing: 0.2em;
+          letter-spacing: 0.18em;
+
+          line-height: 1.3;
 
           text-transform: uppercase;
         }
@@ -142,17 +154,19 @@ const Footer = () => {
 
           align-items: center;
 
-          gap: 8px;
+          gap: 10px;
 
-          margin-bottom: 13px;
+          margin-bottom: 17px;
 
           color: #607d96;
 
           text-decoration: none;
 
-          font-size: 12px;
+          font-size: 15px;
 
-          line-height: 1.4;
+          line-height: 1.45;
+
+          font-weight: 400;
 
           transition:
             color 0.2s ease,
@@ -160,9 +174,9 @@ const Footer = () => {
         }
 
         .thermal-footer-column a svg {
-          width: 14px;
+          width: 16px;
 
-          height: 14px;
+          height: 16px;
 
           flex-shrink: 0;
 
@@ -174,7 +188,7 @@ const Footer = () => {
         .thermal-footer-column a:hover {
           color: #0f3550;
 
-          transform: translateX(2px);
+          transform: translateX(3px);
         }
 
         .thermal-footer-column a:hover svg {
@@ -195,7 +209,7 @@ const Footer = () => {
         .thermal-footer-bottom-container {
           width: min(1250px, calc(100% - 48px));
 
-          min-height: 58px;
+          min-height: 62px;
 
           margin: 0 auto;
 
@@ -209,7 +223,7 @@ const Footer = () => {
 
           color: #718697;
 
-          font-size: 9px;
+          font-size: 10px;
 
           font-weight: 600;
 
@@ -226,11 +240,11 @@ const Footer = () => {
 
           align-items: center;
 
-          gap: 8px;
+          gap: 9px;
 
           color: #718697;
 
-          font-size: 8px;
+          font-size: 9px;
 
           font-weight: 800;
 
@@ -238,9 +252,9 @@ const Footer = () => {
         }
 
         .thermal-footer-status-dot {
-          width: 7px;
+          width: 8px;
 
-          height: 7px;
+          height: 8px;
 
           border-radius: 50%;
 
@@ -263,7 +277,7 @@ const Footer = () => {
               1fr
               1fr;
 
-            gap: 35px;
+            gap: 40px;
           }
 
           .thermal-footer-brand {
@@ -276,141 +290,325 @@ const Footer = () => {
 
 
         /* =====================================================
-           MOBILE
-        ====================================================== */
+          MOBILE FOOTER
+        ===================================================== */
 
         @media (max-width: 650px) {
 
           .thermal-footer-container {
-            width: calc(100% - 36px);
+            width: calc(100% - 30px);
 
-            padding: 40px 0 35px;
+            margin: 0 auto;
 
-            grid-template-columns:
-              1fr 1fr;
+            padding: 38px 0 32px;
 
-            gap: 32px 25px;
+            display: grid;
+
+            grid-template-columns: 1fr 1fr;
+
+            column-gap: 25px;
+
+            row-gap: 30px;
+
+            align-items: start;
           }
 
-          .thermal-footer-brand {
-            grid-column: span 2;
 
-            max-width: none;
+          /* =================================================
+            BRAND
+          ================================================= */
+
+          .thermal-footer-brand {
+            grid-column: 1 / -1;
+
+            max-width: 100%;
           }
 
           .thermal-footer-logo {
-            width: 165px;
+            width: 155px;
+
+            height: auto;
           }
 
           .thermal-footer-description {
-            max-width: 450px;
+            margin-top: 16px;
 
-            font-size: 12px;
+            max-width: 100%;
+
+            font-size: 13px;
+
+            line-height: 1.65;
           }
 
-          .thermal-footer-bottom-container {
-            width: calc(100% - 36px);
+          .thermal-footer-tagline {
+            margin-top: 16px;
 
-            padding: 18px 0;
+            font-size: 7px;
+
+            letter-spacing: 0.16em;
+
+            line-height: 1.5;
+          }
+
+
+          /* =================================================
+            PLATFORM + RESOURCES
+          ================================================= */
+
+          .thermal-footer-column {
+            padding-top: 0;
+
+            width: 100%;
+          }
+
+          .thermal-footer-column h3 {
+            margin: 0 0 16px;
+
+            font-size: 12px;
+
+            letter-spacing: 0.16em;
+
+            line-height: 1.3;
+          }
+
+          .thermal-footer-column a {
+            gap: 8px;
+
+            margin-bottom: 12px;
+
+            font-size: 13px;
+
+            line-height: 1.4;
+          }
+
+          .thermal-footer-column a svg {
+            width: 14px;
+
+            height: 14px;
+          }
+
+
+          /* =================================================
+            SUPPORT
+            FULL WIDTH
+          ================================================= */
+
+          .thermal-footer-column:nth-child(4) {
+            grid-column: 1 / -1;
+
+            margin-top: 2px;
+          }
+
+
+          /* =================================================
+            BOTTOM BAR
+          ================================================= */
+
+          .thermal-footer-bottom-container {
+            width: calc(100% - 30px);
+
+            min-height: auto;
+
+            padding: 17px 0 19px;
+
+            margin: 0 auto;
+
+            display: flex;
 
             flex-direction: column;
 
             align-items: flex-start;
 
+            justify-content: center;
+
             gap: 12px;
-          }
-
-        }
-
-
-        /* =====================================================
-           SMALL MOBILE
-        ====================================================== */
-
-        @media (max-width: 420px) {
-
-          .thermal-footer-container {
-            width: calc(100% - 30px);
-
-            grid-template-columns: 1fr;
-
-            gap: 28px;
-          }
-
-          .thermal-footer-brand {
-            grid-column: span 1;
-          }
-
-          .thermal-footer-logo {
-            width: 150px;
-          }
-
-          .thermal-footer-description {
-            font-size: 11px;
-
-            line-height: 1.7;
-          }
-
-          .thermal-footer-tagline {
-            font-size: 7px;
-
-            line-height: 1.6;
-          }
-
-          .thermal-footer-column h3 {
-            margin-bottom: 15px;
-          }
-
-          .thermal-footer-column a {
-            font-size: 11px;
-          }
-
-          .thermal-footer-bottom-container {
-            width: calc(100% - 30px);
 
             font-size: 8px;
+
+            line-height: 1.5;
           }
 
+
+          /* =================================================
+            SYSTEM STATUS
+          ================================================= */
+
           .thermal-footer-system {
+            gap: 7px;
+
             font-size: 7px;
 
-            letter-spacing: 0.1em;
+            letter-spacing: 0.10em;
+          }
+
+          .thermal-footer-status-dot {
+            width: 7px;
+
+            height: 7px;
           }
 
         }
 
 
         /* =====================================================
-           EXTRA SMALL MOBILE
-        ====================================================== */
+   SMALL MOBILE
+===================================================== */
 
-        @media (max-width: 350px) {
+@media (max-width: 420px) {
 
-          .thermal-footer-container {
-            width: calc(100% - 24px);
+  .thermal-footer-container {
+    width: calc(100% - 24px);
 
-            padding-top: 32px;
+    padding: 32px 0 28px;
 
-            padding-bottom: 28px;
-          }
+    grid-template-columns: 1fr 1fr;
 
-          .thermal-footer-logo {
-            width: 140px;
-          }
+    column-gap: 18px;
 
-          .thermal-footer-description {
-            font-size: 10px;
-          }
+    row-gap: 27px;
+  }
 
-          .thermal-footer-column a {
-            font-size: 10px;
-          }
 
-          .thermal-footer-bottom-container {
-            width: calc(100% - 24px);
-          }
+  /* =================================================
+     BRAND
+  ================================================= */
 
-        }
+  .thermal-footer-brand {
+    grid-column: 1 / -1;
+  }
+
+  .thermal-footer-logo {
+    width: 145px;
+  }
+
+  .thermal-footer-description {
+    margin-top: 14px;
+
+    font-size: 12px;
+
+    line-height: 1.65;
+  }
+
+  .thermal-footer-tagline {
+    margin-top: 14px;
+
+    font-size: 6px;
+
+    letter-spacing: 0.14em;
+  }
+
+
+  /* =================================================
+     COLUMNS
+  ================================================= */
+
+  .thermal-footer-column h3 {
+    margin-bottom: 14px;
+
+    font-size: 11px;
+
+    letter-spacing: 0.14em;
+  }
+
+  .thermal-footer-column a {
+    gap: 7px;
+
+    margin-bottom: 11px;
+
+    font-size: 12px;
+  }
+
+  .thermal-footer-column a svg {
+    width: 13px;
+
+    height: 13px;
+  }
+
+
+  /* =================================================
+     SUPPORT
+  ================================================= */
+
+  .thermal-footer-column:nth-child(4) {
+    grid-column: 1 / -1;
+
+    margin-top: 0;
+  }
+
+
+  /* =================================================
+     BOTTOM
+  ================================================= */
+
+  .thermal-footer-bottom-container {
+    width: calc(100% - 24px);
+
+    padding: 15px 0 17px;
+
+    font-size: 7px;
+
+    gap: 10px;
+  }
+
+  .thermal-footer-system {
+    font-size: 6px;
+
+    letter-spacing: 0.08em;
+  }
+
+}
+
+@media (max-width: 350px) {
+
+  .thermal-footer-container {
+    width: calc(100% - 20px);
+
+    padding: 28px 0 25px;
+
+    column-gap: 14px;
+
+    row-gap: 24px;
+  }
+
+  .thermal-footer-logo {
+    width: 135px;
+  }
+
+  .thermal-footer-description {
+    font-size: 11px;
+  }
+
+  .thermal-footer-tagline {
+    font-size: 5.5px;
+  }
+
+  .thermal-footer-column h3 {
+    font-size: 10px;
+  }
+
+  .thermal-footer-column a {
+    font-size: 11px;
+
+    margin-bottom: 10px;
+  }
+
+  .thermal-footer-column a svg {
+    width: 12px;
+
+    height: 12px;
+  }
+
+  .thermal-footer-bottom-container {
+    width: calc(100% - 20px);
+
+    font-size: 6.5px;
+  }
+
+  .thermal-footer-system {
+    font-size: 5.5px;
+  }
+
+}
 
       `}</style>
 
@@ -538,11 +736,6 @@ const Footer = () => {
             <h3>
               SUPPORT
             </h3>
-
-            <a href="mailto:support@thermalx.in">
-              <Mail />
-              Contact Support
-            </a>
 
             <a href="#about">
               <ShieldCheck />
