@@ -3,7 +3,7 @@ const cors = require("cors");
 require("dotenv").config();
 
 const connectMongoDB = require("./db");
-const connectPostgreSQL = require("./postgres");
+const { connectPostgreSQL } = require("./postgres");
 
 // Fire detection routes
 const fireRoutes = require("./routes/fire");
