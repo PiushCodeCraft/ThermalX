@@ -12,9 +12,9 @@ export const ActiveIncidentAlerts = ({
 }) => {
   return (
     <div className={`bg-white border border-slate-200 shadow-sm p-4 rounded flex flex-col justify-between h-full ${className}`}>
-      <div>
+      <div className="flex-1 flex flex-col min-h-0">
         {/* Header */}
-        <div className="flex items-center justify-between pb-2 mb-3 bg-slate-50 p-2 rounded border border-slate-200">
+        <div className="flex items-center justify-between pb-2 mb-3 bg-slate-50 p-2 rounded border border-slate-200 shrink-0">
           <div className="flex items-center gap-1.5">
             <BellRing className="w-4 h-4 text-red-600" />
             <h3 className="font-semibold text-[14px] text-slate-900">Active Incident Alerts</h3>
@@ -25,7 +25,7 @@ export const ActiveIncidentAlerts = ({
         </div>
 
         {/* Alerts Feed List */}
-        <div className={`space-y-2 ${maxHeight} overflow-y-auto pr-1`}>
+        <div className={`space-y-2 ${maxHeight} overflow-y-auto pr-1 flex-1 min-h-0`}>
           {alerts.map((item) => {
             const isSelected = item.locationId === selectedLocationId;
             return (
@@ -59,7 +59,7 @@ export const ActiveIncidentAlerts = ({
       {/* Footer Link */}
       <a
         href="#alerts"
-        className="mt-3 pt-2 text-[#1E3A8A] text-[12px] font-semibold hover:underline flex items-center justify-between border-t border-slate-100"
+        className="mt-3 pt-2 text-[#1E3A8A] text-[12px] font-semibold hover:underline flex items-center justify-between border-t border-slate-100 shrink-0"
       >
         <span>{footerText || `View all ${alerts.length} alerts in incident database`}</span>
         <ArrowRight className="w-4 h-4" />

@@ -60,14 +60,14 @@ export default function AdminUserMgmt({ onNavigate }) {
   );
 
   return (
-    <div className="min-h-screen bg-white text-slate-900 flex flex-col font-sans select-none antialiased">
+    <div className="min-h-screen bg-[#F1F5F9] text-slate-900 flex flex-col font-sans select-none antialiased">
       {/* =========================================================================
           UNIFIED ADMIN HEADER BAR
           ========================================================================= */}
       <AdminNavbar activeNav="USER MANAGE" onNavigate={onNavigate} />
 
       {/* Main Content */}
-      <main className="w-full flex-1 p-4 bg-white flex flex-col gap-4 max-w-7xl mx-auto">
+      <main className="w-full flex-1 p-4 bg-[#F1F5F9] flex flex-col gap-4 max-w-7xl mx-auto">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-200">
           <div>
             <h2 className="text-lg font-bold text-slate-900 flex items-center gap-2">

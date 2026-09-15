@@ -68,7 +68,7 @@ export default function UserDashboard() {
   };
 
   return (
-    <div className="min-h-screen bg-white text-slate-900 flex flex-col font-sans select-none antialiased">
+    <div className="min-h-screen bg-[#F1F5F9] text-slate-900 flex flex-col font-sans select-none antialiased">
       {/* =========================================================================
           TOP OPERATIONAL HEADER BAR (Strictly matching USER DASHBOARD.png)
           ========================================================================= */}
@@ -121,7 +121,7 @@ export default function UserDashboard() {
       {/* =========================================================================
           MAIN OPERATIONAL BODY (Map on Left, Incidents on Right)
           ========================================================================= */}
-      <main className="w-full flex-1 p-3 bg-white">
+      <main className="w-full flex-1 p-3.5 bg-[#F1F5F9]">
         <div className="grid grid-cols-12 gap-3 h-full">
           {/* Left: Global Fire Risk Map Viewport (Primary Visual Focus) */}
           <section className="col-span-12 lg:col-span-8 flex flex-col">
