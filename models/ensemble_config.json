@@ -1,74 +1,67 @@
 {
-    "target_column": "confidence",
+    "data_source": "Local PostgreSQL",
+    "database": "thermalx",
+    "schema": "public",
+    "training_table": "fire_detections",
+    "target_column": "future_fire_24h",
+    "target_type": "binary",
+    "classes": {
+        "0": "No Future Fire",
+        "1": "Future Fire"
+    },
     "features": [
+        "brightness_difference",
         "latitude",
         "longitude",
-        "brightness",
-        "bright_t31",
         "frp",
-        "scan",
-        "track",
-        "daynight",
-        "hour",
-        "day",
-        "month",
         "day_of_year",
-        "brightness_difference",
+        "brightness",
+        "scan",
+        "bright_t31",
+        "day",
+        "track",
+        "day_of_week",
         "frp_log",
-        "day_of_week"
+        "hour",
+        "month",
+        "daynight"
     ],
-    "classes": [
-        "HIGH",
-        "LOW",
-        "NOMINAL"
-    ],
-    "ensemble": {
-        "xgboost_weight": 0.4,
-        "lightgbm_weight": 0.4,
-        "random_forest_weight": 0.2
+    "model_weights": {
+        "xgboost": 0.4,
+        "lightgbm": 0.4,
+        "random_forest": 0.2
     },
-    "train_end": "2025-12-31 23:59:59",
-    "validation_end": "2026-06-30 23:59:59",
-    "validation_metrics": {
+    "models": {
         "xgboost": {
-            "accuracy": 0.9253865255821762,
-            "balanced_accuracy": 0.955851046556451,
-            "precision_macro": 0.9018166615727377,
-            "recall_macro": 0.955851046556451,
-            "f1_macro": 0.9234654118895023,
-            "f1_weighted": 0.9285899439193249
+            "n_estimators": 500,
+            "max_depth": 8,
+            "learning_rate": 0.05,
+            "subsample": 0.8,
+            "colsample_bytree": 0.8
         },
         "lightgbm": {
-            "accuracy": 0.9248520561636673,
-            "balanced_accuracy": 0.955529089404128,
-            "precision_macro": 0.9016750803447532,
-            "recall_macro": 0.955529089404128,
-            "f1_macro": 0.923118511429962,
-            "f1_weighted": 0.9281127228315752
+            "n_estimators": 500,
+            "num_leaves": 63,
+            "learning_rate": 0.05,
+            "subsample": 0.8,
+            "colsample_bytree": 0.8
         },
         "random_forest": {
-            "accuracy": 0.9282865527880202,
-            "balanced_accuracy": 0.9532068865968935,
-            "precision_macro": 0.910242085301776,
-            "recall_macro": 0.9532068865968935,
-            "f1_macro": 0.9274204514032851,
-            "f1_weighted": 0.9310918599217262
-        },
-        "ensemble": {
-            "accuracy": 0.9260637774446188,
-            "balanced_accuracy": 0.9558412629622638,
-            "precision_macro": 0.9038600000432316,
-            "recall_macro": 0.9558412629622638,
-            "f1_macro": 0.9246173450815264,
-            "f1_weighted": 0.9292064158286678
+            "n_estimators": 200,
+            "max_depth": 20,
+            "min_samples_leaf": 2,
+            "max_features": "sqrt"
         }
     },
-    "test_metrics": {
-        "accuracy": 0.9837368991687748,
-        "balanced_accuracy": 0.9534128915920776,
-        "precision_macro": 0.9300383995189812,
-        "recall_macro": 0.9534128915920776,
-        "f1_macro": 0.9411667089253105,
-        "f1_weighted": 0.9840823730154644
-    }
+    "training_split": {
+        "end": "2025-12-31 23:59:59"
+    },
+    "validation_split": {
+        "start": "2025-12-31 23:59:59",
+        "end": "2026-06-30 23:59:59"
+    },
+    "test_split": {
+        "start": "2026-06-30 23:59:59"
+    },
+    "scale_pos_weight": 5.820137144084841
 }

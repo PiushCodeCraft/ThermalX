@@ -1,15 +1,33 @@
-import React from 'react';
-import { Header } from './Header';
+import React from "react";
+import Sidebar from "./Sidebar";
 
-export const DashboardLayout = ({ children, activeTab, setActiveTab }) => {
+import "./DashboardLayout.css";
+
+const DashboardLayout = ({
+  children,
+  role = "basic",
+  activePage,
+  onNavigate,
+}) => {
   return (
-    <div className="min-h-screen bg-[#F8FAFC]">
-      <Header activeTab={activeTab} setActiveTab={setActiveTab} />
-      <main className="w-full min-h-[calc(100vh-68px)] pt-[68px]">
-        <div className="max-w-[1440px] mx-auto p-4 md:p-6">
+    <div className="tx-dashboard-layout">
+
+      <Sidebar
+        role={role}
+        activePage={activePage}
+        onNavigate={onNavigate}
+      />
+
+      <div className="tx-dashboard-main">
+
+        <main className="tx-dashboard-page">
           {children}
-        </div>
-      </main>
+        </main>
+
+      </div>
+
     </div>
   );
 };
+
+export default DashboardLayout;
