@@ -15,6 +15,29 @@ OUTPUT_FILE = BASE_DIR / "feature_engineered_fire_data.csv"
 
 
 # ============================================================
+# EXACT 15 ML FEATURES
+# ============================================================
+
+FEATURES = [
+    "brightness_difference",
+    "latitude",
+    "longitude",
+    "frp",
+    "day_of_year",
+    "brightness",
+    "scan",
+    "bright_t31",
+    "day",
+    "track",
+    "day_of_week",
+    "frp_log",
+    "hour",
+    "month",
+    "daynight"
+]
+
+
+# ============================================================
 # 1. Load processed data
 # ============================================================
 
@@ -43,10 +66,10 @@ df["timestamp"] = pd.to_datetime(
 
 
 # ============================================================
-# 3. Create day of week
+# 3. Create temporal features
 # ============================================================
 
-print("Creating temporal feature...")
+print("Creating temporal features...")
 
 # Monday = 0
 # Tuesday = 1
@@ -62,9 +85,6 @@ df["day_of_week"] = df["timestamp"].dt.dayofweek
 
 print("Creating thermal features...")
 
-# Difference between observed brightness
-# and background brightness.
-
 df["brightness_difference"] = (
     df["brightness"] - df["bright_t31"]
 )
@@ -74,11 +94,12 @@ df["brightness_difference"] = (
 # 5. Transform FRP
 # ============================================================
 
-# FRP can contain very large values.
-# log1p reduces the effect of extreme values
-# while keeping zero values valid.
+print("Creating FRP log feature...")
 
-df["frp_log"] = np.log1p(df["frp"])
+# Protect against negative FRP values
+df["frp_log"] = np.log1p(
+    np.maximum(df["frp"], 0)
+)
 
 
 # ============================================================
@@ -93,58 +114,39 @@ df = df.sort_values(
 
 
 # ============================================================
-# 7. Select only required columns
+# 7. Check required features
 # ============================================================
 
-required_columns = [
-    "latitude",
-    "longitude",
-    "brightness",
-    "bright_t31",
-    "frp",
-    "scan",
-    "track",
-    "confidence",
-    "daynight",
-    "timestamp",
-    "hour",
-    "day",
-    "month",
-    "day_of_year",
-    "brightness_difference",
-    "frp_log",
-    "day_of_week"
-]
-
-
-# Check that all required columns exist
+print("\nChecking required features...")
 
 missing_columns = [
-    column
-    for column in required_columns
-    if column not in df.columns
+    feature
+    for feature in FEATURES
+    if feature not in df.columns
 ]
 
 if missing_columns:
 
-    print("\nERROR: Required columns are missing:")
+    print("\nERROR: Required features are missing:")
 
-    for column in missing_columns:
-        print(f"  - {column}")
+    for feature in missing_columns:
+        print(f"  - {feature}")
 
     raise ValueError(
         "Feature engineering cannot continue because "
-        "required columns are missing."
+        "required features are missing."
     )
 
 
-# Keep only the required columns
+# ============================================================
+# 8. Keep ONLY the 15 ML features
+# ============================================================
 
-df = df[required_columns]
+df = df[FEATURES]
 
 
 # ============================================================
-# 8. Final validation
+# 9. Final validation
 # ============================================================
 
 print("\n" + "=" * 60)
@@ -153,19 +155,32 @@ print("=" * 60)
 
 print(f"\nFinal shape: {df.shape}")
 
-print("\nFinal columns:")
+print("\nFinal 15 features:")
 
-for column in df.columns:
-    print(f"  {column}")
+for i, feature in enumerate(df.columns, start=1):
+    print(f"{i:2}. {feature}")
 
 
 # ============================================================
-# 9. Missing-value check
+# 10. Verify exact feature order
+# ============================================================
+
+if list(df.columns) != FEATURES:
+
+    raise ValueError(
+        "Feature order does not match the ML FEATURES list."
+    )
+
+print("\n✓ Feature order verified.")
+
+
+# ============================================================
+# 11. Missing-value check
 # ============================================================
 
 missing_values = df.isnull().sum()
 
-print("\nMissing values per column:")
+print("\nMissing values per feature:")
 
 print(missing_values)
 
@@ -175,7 +190,7 @@ print(f"\nTotal missing values: {total_missing}")
 
 
 # ============================================================
-# 10. Duplicate check
+# 12. Duplicate check
 # ============================================================
 
 duplicates = df.duplicated().sum()
@@ -184,7 +199,7 @@ print(f"\nDuplicate rows: {duplicates}")
 
 
 # ============================================================
-# 11. Basic validation
+# 13. Coordinate validation
 # ============================================================
 
 invalid_coordinates = (
@@ -196,12 +211,20 @@ invalid_coordinates = (
 print(f"Invalid coordinates: {invalid_coordinates}")
 
 
+# ============================================================
+# 14. FRP validation
+# ============================================================
+
 invalid_frp = (
     df["frp"] < 0
 ).sum()
 
 print(f"Invalid FRP values: {invalid_frp}")
 
+
+# ============================================================
+# 15. Day-of-week validation
+# ============================================================
 
 invalid_day_of_week = (
     ~df["day_of_week"].between(0, 6)
@@ -214,14 +237,12 @@ print(
 
 
 # ============================================================
-# 12. Feature statistics
+# 16. Feature statistics
 # ============================================================
 
 print("\n" + "=" * 60)
 print("FEATURE STATISTICS")
 print("=" * 60)
-
-print("\nThermal features:")
 
 print(
     df[
@@ -237,15 +258,8 @@ print(
 
 
 # ============================================================
-# 13. Categorical information
+# 17. Day/Night information
 # ============================================================
-
-print("\nConfidence values:")
-
-print(
-    df["confidence"].value_counts()
-)
-
 
 print("\nDay/Night values:")
 
@@ -255,23 +269,10 @@ print(
 
 
 # ============================================================
-# 14. Timestamp range
+# 18. Save dataset
 # ============================================================
 
-print("\nTimestamp range:")
-
-print(
-    f"Start: {df['timestamp'].min()}"
-)
-
-print(
-    f"End:   {df['timestamp'].max()}"
-)
-
-
-# ============================================================
-# 15. Save feature-engineered dataset
-# ============================================================
+print("\nSaving feature-engineered dataset...")
 
 df.to_csv(
     OUTPUT_FILE,
@@ -280,21 +281,17 @@ df.to_csv(
 
 
 # ============================================================
-# 16. Completion message
+# 19. Completion
 # ============================================================
 
 print("\n" + "=" * 60)
 print("FEATURE ENGINEERING COMPLETE")
 print("=" * 60)
 
-print(
-    f"\nSaved feature-engineered dataset:"
-)
-
-print(OUTPUT_FILE)
+print(f"\nSaved: {OUTPUT_FILE}")
 
 print(
     f"\nFinal dataset contains "
     f"{len(df):,} observations and "
-    f"{len(df.columns)} features."
+    f"{len(df.columns)} ML features."
 )
