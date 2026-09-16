@@ -1,0 +1,365 @@
+.tx-india-map-wrapper {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  min-height: 480px;
+  overflow: hidden;
+  background: #e9edf2;
+  border-radius: 0 0 10px 10px;
+}
+
+.tx-india-map {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  min-height: 480px;
+  background: #e9edf2;
+}
+
+/* =========================================================
+   OPENLAYERS
+========================================================= */
+
+.tx-india-map .ol-viewport {
+  width: 100%;
+  height: 100%;
+}
+
+.tx-india-map .ol-layer {
+  position: absolute;
+}
+
+.tx-india-map canvas {
+  display: block;
+}
+
+/* =========================================================
+   ZOOM CONTROL
+========================================================= */
+
+.tx-openlayers-zoom {
+  position: absolute !important;
+  left: 16px !important;
+  bottom: 16px !important;
+  top: auto !important;
+  right: auto !important;
+
+  display: flex !important;
+  flex-direction: column;
+
+  width: 36px;
+  overflow: hidden;
+
+  border: 1px solid #d8dee8;
+  border-radius: 8px;
+
+  background: #ffffff;
+
+  box-shadow:
+    0 3px 12px rgba(15, 23, 42, 0.14);
+}
+
+.tx-openlayers-zoom button {
+  width: 36px;
+  height: 36px;
+
+  padding: 0;
+
+  border: 0;
+  border-bottom: 1px solid #e5e7eb;
+
+  background: #ffffff;
+
+  color: #172033;
+
+  font-size: 20px;
+  font-weight: 600;
+
+  cursor: pointer;
+}
+
+.tx-openlayers-zoom button:last-child {
+  border-bottom: 0;
+}
+
+.tx-openlayers-zoom button:hover {
+  background: #f5f7fa;
+}
+
+/* =========================================================
+   TOP MAP CONTROLS
+========================================================= */
+
+.tx-map-top-controls {
+  position: absolute;
+
+  top: 14px;
+  right: 14px;
+
+  z-index: 1000;
+
+  pointer-events: none;
+}
+
+.tx-map-mode-switch {
+  display: flex;
+
+  padding: 3px;
+
+  gap: 2px;
+
+  background: #ffffff;
+
+  border: 1px solid #dfe4eb;
+
+  border-radius: 8px;
+
+  box-shadow:
+    0 3px 12px rgba(15, 23, 42, 0.16);
+
+  pointer-events: auto;
+}
+
+.tx-map-mode-switch button {
+  display: flex;
+
+  align-items: center;
+  justify-content: center;
+
+  gap: 6px;
+
+  height: 32px;
+
+  padding: 0 11px;
+
+  border: 0;
+
+  border-radius: 6px;
+
+  background: transparent;
+
+  color: #64748b;
+
+  font-family: inherit;
+
+  font-size: 11px;
+
+  font-weight: 600;
+
+  cursor: pointer;
+}
+
+.tx-map-mode-switch button:hover {
+  background: #f4f6f8;
+  color: #172033;
+}
+
+.tx-map-mode-switch button.active {
+  background: #172033;
+  color: #ffffff;
+}
+
+/* =========================================================
+   NASA FIRMS STATUS
+========================================================= */
+
+.tx-firms-status {
+  position: absolute;
+
+  top: 14px;
+  left: 14px;
+
+  z-index: 1000;
+
+  display: flex;
+
+  align-items: center;
+
+  gap: 6px;
+}
+
+.tx-firms-status-indicator {
+  display: flex;
+
+  align-items: center;
+
+  gap: 6px;
+
+  padding: 7px 10px;
+
+  border-radius: 7px;
+
+  background: rgba(255, 255, 255, 0.96);
+
+  border: 1px solid #dfe4eb;
+
+  box-shadow:
+    0 2px 8px rgba(15, 23, 42, 0.1);
+
+  font-size: 10px;
+
+  font-weight: 700;
+
+  letter-spacing: 0.02em;
+}
+
+.tx-firms-live {
+  color: #16803c;
+}
+
+.tx-firms-loading {
+  color: #c77700;
+}
+
+.tx-firms-error {
+  color: #c62828;
+}
+
+.tx-firms-refresh {
+  width: 30px;
+  height: 30px;
+
+  display: flex;
+
+  align-items: center;
+  justify-content: center;
+
+  border: 1px solid #dfe4eb;
+
+  border-radius: 7px;
+
+  background: #ffffff;
+
+  color: #475569;
+
+  cursor: pointer;
+
+  box-shadow:
+    0 2px 8px rgba(15, 23, 42, 0.1);
+}
+
+.tx-firms-refresh:hover {
+  background: #f5f7fa;
+}
+
+/* =========================================================
+   LEGEND
+========================================================= */
+
+.tx-map-legend {
+  position: absolute;
+
+  left: 14px;
+  bottom: 14px;
+
+  z-index: 1000;
+
+  min-width: 190px;
+
+  padding: 10px 12px;
+
+  border: 1px solid #dfe4eb;
+
+  border-radius: 8px;
+
+  background: rgba(255, 255, 255, 0.96);
+
+  box-shadow:
+    0 3px 12px rgba(15, 23, 42, 0.12);
+}
+
+.tx-map-legend-title {
+  margin-bottom: 8px;
+
+  color: #172033;
+
+  font-size: 11px;
+
+  font-weight: 700;
+}
+
+.tx-map-legend-item {
+  display: flex;
+
+  align-items: center;
+
+  gap: 8px;
+
+  margin-top: 6px;
+
+  color: #64748b;
+
+  font-size: 10px;
+}
+
+.tx-legend-fire {
+  width: 9px;
+  height: 9px;
+
+  display: block;
+
+  border-radius: 50%;
+
+  background: #ef4444;
+
+  box-shadow:
+    0 0 0 3px rgba(239, 68, 68, 0.15);
+}
+
+.tx-legend-boundary {
+  width: 18px;
+  height: 0;
+
+  display: block;
+
+  border-top: 2px solid #ff7a00;
+}
+
+/* =========================================================
+   ATTRIBUTION
+========================================================= */
+
+.tx-india-map .ol-attribution {
+  right: 8px;
+  bottom: 5px;
+
+  font-size: 9px;
+
+  background: rgba(
+    255,
+    255,
+    255,
+    0.85
+  );
+}
+
+.tx-india-map .ol-attribution button {
+  display: none;
+}
+
+/* =========================================================
+   RESPONSIVE
+========================================================= */
+
+@media (max-width: 768px) {
+  .tx-india-map-wrapper {
+    min-height: 400px;
+  }
+
+  .tx-india-map {
+    min-height: 400px;
+  }
+
+  .tx-map-legend {
+    min-width: 165px;
+  }
+
+  .tx-firms-status-indicator {
+    padding: 6px 8px;
+  }
+
+  .tx-map-mode-switch button {
+    padding: 0 8px;
+  }
+}

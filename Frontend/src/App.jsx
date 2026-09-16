@@ -1,100 +1,255 @@
-import React, { useState, useMemo } from 'react';
-import { DashboardLayout } from './components/layout/DashboardLayout';
-import { DashboardHeader } from './components/dashboard/DashboardHeader';
-import { KPISummary } from './components/dashboard/KPISummary';
-import { GlobalFireRiskMap } from './components/dashboard/GlobalFireRiskMap';
-import { IncidentIntelligence } from './components/dashboard/IncidentIntelligence';
-import { ActiveIncidentAlerts } from './components/dashboard/ActiveIncidentAlerts';
-import { SevenDayIncidentTrend } from './components/dashboard/SevenDayIncidentTrend';
-import { MonitoredZoneStatus } from './components/dashboard/MonitoredZoneStatus';
+import React, { useState } from "react";
+import {
+  BrowserRouter,
+  useLocation,
+  useNavigate,
+} from "react-router-dom";
 
-import { mapLocations } from './data/mapLocations';
-import { alerts } from './data/alerts';
-import './styles/global.css';
+import LandingPage from "./pages/LandingPage";
+import AuthPage from "./pages/AuthPage";
+import Feedback from "./pages/Feedback";
 
-export function App() {
-  const [activeTab, setActiveTab] = useState('dashboard');
-  const [selectedLocationId, setSelectedLocationId] = useState('blr-01');
-  const [searchQuery, setSearchQuery] = useState('Industrial Zone A, Bengaluru');
+import DashboardLayout from "./components/layout/DashboardLayout";
 
-  // Filter map locations based on search query
-  const filteredLocations = useMemo(() => {
-    if (!searchQuery.trim()) return mapLocations;
-    const query = searchQuery.toLowerCase();
-    return mapLocations.filter(
-      (loc) =>
-        loc.name.toLowerCase().includes(query) ||
-        loc.location.toLowerCase().includes(query) ||
-        loc.risk.toLowerCase().includes(query)
-    );
-  }, [searchQuery]);
+import LiveMap from "./pages/LiveMap";
+import Alerts from "./pages/Alerts";
 
-  // Active selected location for Incident Intelligence dossier
-  const activeIncident = useMemo(() => {
-    return (
-      mapLocations.find((loc) => loc.id === selectedLocationId) || mapLocations[0]
-    );
-  }, [selectedLocationId]);
+import "./App.css";
 
-  const handleQuickSelect = (id, label) => {
-    setSelectedLocationId(id);
-    setSearchQuery(label);
-  };
 
-  const handleSelectLocation = (id) => {
-    setSelectedLocationId(id);
-    const found = mapLocations.find((loc) => loc.id === id);
-    if (found) {
-      setSearchQuery(`${found.name}, ${found.location}`);
+function AppContent() {
+  const location = useLocation();
+  const navigate = useNavigate();
+
+  const [role, setRole] = useState("basic");
+  const [feedbacks, setFeedbacks] = useState([]);
+
+
+  /* =====================================================
+     SIDEBAR NAVIGATION
+  ===================================================== */
+
+  const handleNavigate = (page) => {
+    const routes = {
+      "live-map": "/live-map",
+      alerts: "/alerts",
+      "ai-analysis": "/ai-analysis",
+      reports: "/reports",
+      users: "/users",
+      system: "/system",
+    };
+
+    if (routes[page]) {
+      navigate(routes[page]);
     }
   };
 
-  return (
-    <DashboardLayout activeTab={activeTab} setActiveTab={setActiveTab}>
-      {/* Top Header & Search Control */}
-      <DashboardHeader
-        searchQuery={searchQuery}
-        setSearchQuery={setSearchQuery}
-        onQuickSelect={handleQuickSelect}
+
+  /* =====================================================
+     FEEDBACK
+  ===================================================== */
+
+  const handleSubmitFeedback = (feedback) => {
+    setFeedbacks((previous) => [
+      ...previous,
+      feedback,
+    ]);
+  };
+
+
+  /* =====================================================
+     LOGIN
+  ===================================================== */
+
+  const handleLogin = (selectedRole = "basic") => {
+    setRole(selectedRole);
+    navigate("/live-map");
+  };
+
+
+  /* =====================================================
+     LANDING
+  ===================================================== */
+
+  if (location.pathname === "/") {
+    return <LandingPage />;
+  }
+
+
+  /* =====================================================
+     FEEDBACK
+  ===================================================== */
+
+  if (location.pathname === "/feedback") {
+    return (
+      <Feedback
+        onSubmitFeedback={handleSubmitFeedback}
       />
+    );
+  }
 
-      {/* KPI Stats Bar */}
-      <KPISummary />
 
-      {/* Main Operational Workspace: GIS Map + ML Incident Intelligence */}
-      <div className="grid grid-cols-12 gap-4 mb-4">
-        {/* Left GIS Map Viewport (8 of 12 columns) */}
-        <div className="col-span-12 xl:col-span-8">
-          <GlobalFireRiskMap
-            locations={filteredLocations.length > 0 ? filteredLocations : mapLocations}
-            selectedId={selectedLocationId}
-            onSelectLocation={handleSelectLocation}
-          />
-        </div>
+  /* =====================================================
+     AUTH
+  ===================================================== */
 
-        {/* Right Incident Intelligence Panel (4 of 12 columns) */}
-        <div className="col-span-12 xl:col-span-4">
-          <IncidentIntelligence incident={activeIncident} />
-        </div>
-      </div>
+  if (location.pathname === "/auth") {
+    return (
+      <AuthPage
+        onLogin={handleLogin}
+      />
+    );
+  }
 
-      {/* Lower Dashboard Section: 3-Column Modular Feeds */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        {/* Column 1: Active Alerts */}
-        <ActiveIncidentAlerts
-          alerts={alerts}
-          selectedLocationId={selectedLocationId}
-          onSelectAlert={handleSelectLocation}
+
+  /* =====================================================
+     LIVE MAP
+  ===================================================== */
+
+  if (location.pathname === "/live-map") {
+    return (
+      <DashboardLayout
+        role={role}
+        activePage="live-map"
+        onNavigate={handleNavigate}
+      >
+        <LiveMap
+          role={role}
         />
+      </DashboardLayout>
+    );
+  }
 
-        {/* Column 2: 7-Day Observation Trend */}
-        <SevenDayIncidentTrend />
 
-        {/* Column 3: Monitored Zone Status */}
-        <MonitoredZoneStatus />
-      </div>
-    </DashboardLayout>
+  /* =====================================================
+     ALERTS
+  ===================================================== */
+
+  if (location.pathname === "/alerts") {
+    return (
+      <DashboardLayout
+        role={role}
+        activePage="alerts"
+        onNavigate={handleNavigate}
+      >
+        <Alerts
+          role={role}
+          feedbacks={feedbacks}
+        />
+      </DashboardLayout>
+    );
+  }
+
+
+  /* =====================================================
+     AI ANALYSIS
+  ===================================================== */
+
+  if (location.pathname === "/ai-analysis") {
+    return (
+      <DashboardLayout
+        role={role}
+        activePage="ai-analysis"
+        onNavigate={handleNavigate}
+      >
+        <div className="tx-placeholder-page">
+          <h1>AI Analysis</h1>
+
+          <p>
+            AI analysis module will be connected here.
+          </p>
+        </div>
+      </DashboardLayout>
+    );
+  }
+
+
+  /* =====================================================
+     REPORTS
+  ===================================================== */
+
+  if (location.pathname === "/reports") {
+    return (
+      <DashboardLayout
+        role={role}
+        activePage="reports"
+        onNavigate={handleNavigate}
+      >
+        <div className="tx-placeholder-page">
+          <h1>Reports</h1>
+
+          <p>
+            Reports module will be connected here.
+          </p>
+        </div>
+      </DashboardLayout>
+    );
+  }
+
+
+  /* =====================================================
+     USERS
+  ===================================================== */
+
+  if (location.pathname === "/users") {
+    return (
+      <DashboardLayout
+        role={role}
+        activePage="users"
+        onNavigate={handleNavigate}
+      >
+        <div className="tx-placeholder-page">
+          <h1>Users</h1>
+
+          <p>
+            User management module will be connected here.
+          </p>
+        </div>
+      </DashboardLayout>
+    );
+  }
+
+
+  /* =====================================================
+     SYSTEM
+  ===================================================== */
+
+  if (location.pathname === "/system") {
+    return (
+      <DashboardLayout
+        role={role}
+        activePage="system"
+        onNavigate={handleNavigate}
+      >
+        <div className="tx-placeholder-page">
+          <h1>System</h1>
+
+          <p>
+            System settings will be connected here.
+          </p>
+        </div>
+      </DashboardLayout>
+    );
+  }
+
+
+  /* =====================================================
+     FALLBACK
+  ===================================================== */
+
+  navigate("/");
+
+  return null;
+}
+
+
+function App() {
+  return (
+    <BrowserRouter>
+      <AppContent />
+    </BrowserRouter>
   );
 }
 
-export default App
+
+export default App;
