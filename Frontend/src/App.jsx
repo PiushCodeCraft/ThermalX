@@ -1,25 +1,18 @@
-import React, { useState } from "react";
-import {
-  BrowserRouter,
-  useLocation,
-  useNavigate,
-} from "react-router-dom";
+import React, { useState, useEffect } from 'react';
+import AdminDashboard from './pages/admin_dashboard';
+import AdminReport from './pages/admin_report';
+import AdminUserMgmt from './pages/admin_user_mgmt';
+import UserDashboard from './pages/user_dashboard';
+import './styles/global.css';
 
-import LandingPage from "./pages/LandingPage";
-import AuthPage from "./pages/AuthPage";
-import Feedback from "./pages/Feedback";
-
-import DashboardLayout from "./components/layout/DashboardLayout";
-
-import LiveMap from "./pages/LiveMap";
-import Alerts from "./pages/Alerts";
-
-import "./App.css";
-
-
-function AppContent() {
-  const location = useLocation();
-  const navigate = useNavigate();
+export function App() {
+  const getPageFromHash = () => {
+    const hash = window.location.hash.toLowerCase();
+    if (hash === '#report') return 'REPORT';
+    if (hash === '#user-manage' || hash === '#users') return 'USER MANAGE';
+    if (hash === '#user' || hash === '#user-dashboard') return 'USER DASHBOARD';
+    return 'DASHBOARD';
+  };
 
   const [role, setRole] = useState("basic");
   const [feedbacks, setFeedbacks] = useState([]);
@@ -162,93 +155,6 @@ function AppContent() {
       </DashboardLayout>
     );
   }
-
-
-  /* =====================================================
-     REPORTS
-  ===================================================== */
-
-  if (location.pathname === "/reports") {
-    return (
-      <DashboardLayout
-        role={role}
-        activePage="reports"
-        onNavigate={handleNavigate}
-      >
-        <div className="tx-placeholder-page">
-          <h1>Reports</h1>
-
-          <p>
-            Reports module will be connected here.
-          </p>
-        </div>
-      </DashboardLayout>
-    );
-  }
-
-
-  /* =====================================================
-     USERS
-  ===================================================== */
-
-  if (location.pathname === "/users") {
-    return (
-      <DashboardLayout
-        role={role}
-        activePage="users"
-        onNavigate={handleNavigate}
-      >
-        <div className="tx-placeholder-page">
-          <h1>Users</h1>
-
-          <p>
-            User management module will be connected here.
-          </p>
-        </div>
-      </DashboardLayout>
-    );
-  }
-
-
-  /* =====================================================
-     SYSTEM
-  ===================================================== */
-
-  if (location.pathname === "/system") {
-    return (
-      <DashboardLayout
-        role={role}
-        activePage="system"
-        onNavigate={handleNavigate}
-      >
-        <div className="tx-placeholder-page">
-          <h1>System</h1>
-
-          <p>
-            System settings will be connected here.
-          </p>
-        </div>
-      </DashboardLayout>
-    );
-  }
-
-
-  /* =====================================================
-     FALLBACK
-  ===================================================== */
-
-  navigate("/");
-
-  return null;
-}
-
-
-function App() {
-  return (
-    <BrowserRouter>
-      <AppContent />
-    </BrowserRouter>
-  );
 }
 
 
