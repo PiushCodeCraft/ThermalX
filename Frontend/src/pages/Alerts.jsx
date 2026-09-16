@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 
 import {
   AlertTriangle,
@@ -11,10 +11,15 @@ import {
   Flame,
   Search,
   ShieldAlert,
+  RefreshCw,
   X,
 } from "lucide-react";
 
 import StatCard from "../components/common/StatCard";
+
+import {
+  getIncidents,
+} from "../services/api";
 
 import "./Alerts.css";
 
@@ -23,176 +28,19 @@ const Alerts = ({
 }) => {
   const isAdmin = role === "admin";
 
-  /* =========================================================
-     SUMMARY STATISTICS
-  ========================================================= */
+  const [incidents, setIncidents] = useState([]);
 
-  const statistics = [
-    {
-      label: "Active Alerts",
-      value: "24",
-      change: "+12.5%",
-      description: "vs previous period",
-      icon: Flame,
-      variant: "orange",
-      changeType: "up",
-    },
-    {
-      label: "High Risk",
-      value: "08",
-      change: "+4.2%",
-      description: "risk zones detected",
-      icon: ShieldAlert,
-      variant: "red",
-      changeType: "up",
-    },
-    {
-      label: "Monitoring",
-      value: "11",
-      change: "+3",
-      description: "under observation",
-      icon: Activity,
-      variant: "blue",
-      changeType: "up",
-    },
-    {
-      label: "Resolved",
-      value: "05",
-      change: "+2",
-      description: "recently resolved",
-      icon: CheckCircle2,
-      variant: "green",
-      changeType: "up",
-    },
-  ];
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
 
-  /* =========================================================
-     ACTIVE ALERTS
-  ========================================================= */
+  const [searchTerm, setSearchTerm] =
+    useState("");
 
-  const alerts = [
-    {
-      id: "ALT-2048",
-      title: "High Thermal Activity",
-      location: "Odisha Forest Region",
-      region: "Odisha",
-      time: "12 minutes ago",
-      severity: "high",
-      status: "active",
-      confidence: "96%",
-    },
-    {
-      id: "ALT-2047",
-      title: "Potential Fire Cluster",
-      location: "Chhattisgarh Sector 04",
-      region: "Chhattisgarh",
-      time: "28 minutes ago",
-      severity: "high",
-      status: "active",
-      confidence: "93%",
-    },
-    {
-      id: "ALT-2046",
-      title: "Thermal Anomaly Detected",
-      location: "Jharkhand Reserve",
-      region: "Jharkhand",
-      time: "46 minutes ago",
-      severity: "medium",
-      status: "monitoring",
-      confidence: "87%",
-    },
-    {
-      id: "ALT-2045",
-      title: "Elevated Thermal Signal",
-      location: "West Bengal Region",
-      region: "West Bengal",
-      time: "58 minutes ago",
-      severity: "medium",
-      status: "monitoring",
-      confidence: "84%",
-    },
-  ];
+  const [riskFilter, setRiskFilter] =
+    useState("all");
 
-  /* =========================================================
-     INCIDENTS
-  ========================================================= */
-
-  const incidents = [
-    {
-      id: "TX-1048",
-      location: "Odisha Forest",
-      region: "Odisha",
-      risk: "high",
-      confidence: "96%",
-      detected: "12 min ago",
-      status: "active",
-      source: "NASA FIRMS",
-      satellite: "VIIRS NOAA-21",
-    },
-    {
-      id: "TX-1047",
-      location: "Chhattisgarh Sector 04",
-      region: "Chhattisgarh",
-      risk: "high",
-      confidence: "93%",
-      detected: "28 min ago",
-      status: "active",
-      source: "NASA FIRMS",
-      satellite: "VIIRS NOAA-21",
-    },
-    {
-      id: "TX-1046",
-      location: "Jharkhand Reserve",
-      region: "Jharkhand",
-      risk: "medium",
-      confidence: "87%",
-      detected: "46 min ago",
-      status: "monitoring",
-      source: "NASA FIRMS",
-      satellite: "VIIRS NOAA-21",
-    },
-    {
-      id: "TX-1045",
-      location: "West Bengal Region",
-      region: "West Bengal",
-      risk: "low",
-      confidence: "91%",
-      detected: "1 hour ago",
-      status: "resolved",
-      source: "NASA FIRMS",
-      satellite: "VIIRS NOAA-21",
-    },
-    {
-      id: "TX-1044",
-      location: "Madhya Pradesh Forest",
-      region: "Madhya Pradesh",
-      risk: "medium",
-      confidence: "89%",
-      detected: "2 hours ago",
-      status: "monitoring",
-      source: "NASA FIRMS",
-      satellite: "VIIRS NOAA-21",
-    },
-    {
-      id: "TX-1043",
-      location: "Assam Forest Belt",
-      region: "Assam",
-      risk: "low",
-      confidence: "88%",
-      detected: "3 hours ago",
-      status: "resolved",
-      source: "NASA FIRMS",
-      satellite: "VIIRS NOAA-21",
-    },
-  ];
-
-  /* =========================================================
-     STATE
-  ========================================================= */
-
-  const [searchTerm, setSearchTerm] = useState("");
-  const [riskFilter, setRiskFilter] = useState("all");
-  const [statusFilter, setStatusFilter] = useState("all");
+  const [statusFilter, setStatusFilter] =
+    useState("all");
 
   const [selectedIncident, setSelectedIncident] =
     useState(null);
@@ -200,44 +48,516 @@ const Alerts = ({
   const [showRequestModal, setShowRequestModal] =
     useState(false);
 
-  const [requestType, setRequestType] =
-    useState("export");
+  const [requestForm, setRequestForm] =
+    useState({
+      name: "",
+      email: "",
+      reason: "",
+    });
 
-  const [requestForm, setRequestForm] = useState({
-    name: "",
-    email: "",
-    reason: "",
-  });
+  const [requestSubmitting, setRequestSubmitting] =
+    useState(false);
+
+  /* =========================================================
+     HELPERS
+  ========================================================= */
+
+  const getValue = (
+    object,
+    keys,
+    fallback = "N/A"
+  ) => {
+    if (!object) return fallback;
+
+    for (const key of keys) {
+      if (
+        object[key] !== undefined &&
+        object[key] !== null &&
+        object[key] !== ""
+      ) {
+        return object[key];
+      }
+    }
+
+    return fallback;
+  };
+
+  const normalizeStatus = (value) => {
+    if (
+      value === undefined ||
+      value === null
+    ) {
+      return "unknown";
+    }
+
+    return String(value)
+      .trim()
+      .toLowerCase()
+      .replace(/\s+/g, "_");
+  };
+
+  const normalizeRisk = (value) => {
+    if (
+      value === undefined ||
+      value === null
+    ) {
+      return "unknown";
+    }
+
+    return String(value)
+      .trim()
+      .toLowerCase();
+  };
+
+  const formatConfidence = (value) => {
+    if (
+      value === undefined ||
+      value === null ||
+      value === ""
+    ) {
+      return "N/A";
+    }
+
+    const numericValue = Number(value);
+
+    if (Number.isNaN(numericValue)) {
+      const stringValue = String(value);
+
+      return stringValue.includes("%")
+        ? stringValue
+        : `${stringValue}%`;
+    }
+
+    const percentage =
+      numericValue <= 1
+        ? numericValue * 100
+        : numericValue;
+
+    return `${percentage.toFixed(1)}%`;
+  };
+
+  const formatDateTime = (value) => {
+    if (
+      value === undefined ||
+      value === null ||
+      value === ""
+    ) {
+      return "N/A";
+    }
+
+    const date = new Date(value);
+
+    if (Number.isNaN(date.getTime())) {
+      return String(value);
+    }
+
+    return date.toLocaleString([], {
+      day: "2-digit",
+      month: "short",
+      year: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+  };
+
+  const formatRelativeTime = (value) => {
+    if (
+      value === undefined ||
+      value === null ||
+      value === ""
+    ) {
+      return "N/A";
+    }
+
+    const date = new Date(value);
+
+    if (Number.isNaN(date.getTime())) {
+      return String(value);
+    }
+
+    const difference =
+      Date.now() - date.getTime();
+
+    const minutes = Math.floor(
+      difference / 60000
+    );
+
+    if (minutes < 1) {
+      return "Just now";
+    }
+
+    if (minutes < 60) {
+      return `${minutes} min ago`;
+    }
+
+    const hours = Math.floor(
+      minutes / 60
+    );
+
+    if (hours < 24) {
+      return `${hours} hour${
+        hours === 1 ? "" : "s"
+      } ago`;
+    }
+
+    const days = Math.floor(
+      hours / 24
+    );
+
+    return `${days} day${
+      days === 1 ? "" : "s"
+    } ago`;
+  };
+
+  /* =========================================================
+     NORMALIZE BACKEND RESPONSE
+  ========================================================= */
+
+  const normalizeIncidents = (
+    response
+  ) => {
+    if (Array.isArray(response)) {
+      return response;
+    }
+
+    if (
+      Array.isArray(response?.incidents)
+    ) {
+      return response.incidents;
+    }
+
+    if (
+      Array.isArray(response?.data)
+    ) {
+      return response.data;
+    }
+
+    if (
+      Array.isArray(response?.results)
+    ) {
+      return response.results;
+    }
+
+    return [];
+  };
+
+  const normalizeIncident = (
+    incident
+  ) => {
+    const detectedAt = getValue(
+      incident,
+      [
+        "detectedAt",
+        "detected_at",
+        "createdAt",
+        "created_at",
+        "timestamp",
+        "time",
+      ],
+      null
+    );
+
+    return {
+      raw: incident,
+
+      id: getValue(
+        incident,
+        [
+          "id",
+          "incidentId",
+          "incident_id",
+          "detectionId",
+          "detection_id",
+        ]
+      ),
+
+      title: getValue(
+        incident,
+        [
+          "title",
+          "name",
+          "alertTitle",
+          "alert_title",
+          "classification",
+        ],
+        "Thermal Detection"
+      ),
+
+      location: getValue(
+        incident,
+        [
+          "location",
+          "area",
+          "place",
+          "detectedLocation",
+          "detected_location",
+        ]
+      ),
+
+      region: getValue(
+        incident,
+        [
+          "region",
+          "state",
+          "stateName",
+          "state_name",
+        ]
+      ),
+
+      risk: normalizeRisk(
+        getValue(
+          incident,
+          [
+            "risk",
+            "riskLevel",
+            "risk_level",
+            "severity",
+          ],
+          "unknown"
+        )
+      ),
+
+      confidence: formatConfidence(
+        getValue(
+          incident,
+          [
+            "confidence",
+            "aiConfidence",
+            "ai_confidence",
+            "modelConfidence",
+            "model_confidence",
+            "confidenceScore",
+            "confidence_score",
+          ],
+          null
+        )
+      ),
+
+      detected: formatRelativeTime(
+        detectedAt
+      ),
+
+      detectedAt,
+
+      status: normalizeStatus(
+        getValue(
+          incident,
+          [
+            "status",
+            "state",
+          ],
+          "unknown"
+        )
+      ),
+
+      source: getValue(
+        incident,
+        [
+          "source",
+          "dataSource",
+          "data_source",
+        ],
+        "N/A"
+      ),
+
+      satellite: getValue(
+        incident,
+        [
+          "satellite",
+          "satelliteName",
+          "satellite_name",
+        ],
+        "N/A"
+      ),
+    };
+  };
+
+  /* =========================================================
+     LOAD INCIDENTS
+  ========================================================= */
+
+  const loadIncidents = async () => {
+    setLoading(true);
+    setError("");
+
+    try {
+      const response =
+        await getIncidents();
+
+      const backendIncidents =
+        normalizeIncidents(response);
+
+      setIncidents(
+        backendIncidents
+      );
+    } catch (err) {
+      console.error(
+        "Incident loading failed:",
+        err
+      );
+
+      setIncidents([]);
+
+      setError(
+        err?.message ||
+          "Unable to load thermal incidents."
+      );
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    loadIncidents();
+  }, []);
+
+  /* =========================================================
+     NORMALIZED INCIDENTS
+  ========================================================= */
+
+  const normalizedIncidents =
+    useMemo(
+      () =>
+        incidents.map(
+          normalizeIncident
+        ),
+      [incidents]
+    );
+
+  /* =========================================================
+     STATISTICS
+  ========================================================= */
+
+  const statistics = useMemo(() => {
+    const activeCount =
+      normalizedIncidents.filter(
+        (incident) =>
+          incident.status ===
+            "active" ||
+          incident.status ===
+            "open"
+      ).length;
+
+    const highRiskCount =
+      normalizedIncidents.filter(
+        (incident) =>
+          incident.risk === "high" ||
+          incident.risk === "critical"
+      ).length;
+
+    const monitoringCount =
+      normalizedIncidents.filter(
+        (incident) =>
+          incident.status ===
+          "monitoring"
+      ).length;
+
+    const resolvedCount =
+      normalizedIncidents.filter(
+        (incident) =>
+          incident.status ===
+            "resolved" ||
+          incident.status ===
+            "closed"
+      ).length;
+
+    return [
+      {
+        label: "Active Alerts",
+        value: activeCount,
+        description:
+          "currently active incidents",
+        icon: Flame,
+        variant: "orange",
+      },
+      {
+        label: "High Risk",
+        value: highRiskCount,
+        description:
+          "high-risk incidents",
+        icon: ShieldAlert,
+        variant: "red",
+      },
+      {
+        label: "Monitoring",
+        value: monitoringCount,
+        description:
+          "under observation",
+        icon: Activity,
+        variant: "blue",
+      },
+      {
+        label: "Resolved",
+        value: resolvedCount,
+        description:
+          "resolved incidents",
+        icon: CheckCircle2,
+        variant: "green",
+      },
+    ];
+  }, [normalizedIncidents]);
+
+  /* =========================================================
+     ACTIVE ALERTS
+  ========================================================= */
+
+  const activeAlerts = useMemo(
+    () =>
+      normalizedIncidents.filter(
+        (incident) =>
+          incident.status ===
+            "active" ||
+          incident.status ===
+            "open" ||
+          incident.status ===
+            "monitoring"
+      ),
+    [normalizedIncidents]
+  );
 
   /* =========================================================
      FILTER INCIDENTS
   ========================================================= */
 
   const filteredIncidents = useMemo(() => {
-    const search = searchTerm.trim().toLowerCase();
+    const search =
+      searchTerm
+        .trim()
+        .toLowerCase();
 
-    return incidents.filter((incident) => {
-      const matchesSearch =
-        !search ||
-        incident.id.toLowerCase().includes(search) ||
-        incident.location.toLowerCase().includes(search) ||
-        incident.region.toLowerCase().includes(search);
+    return normalizedIncidents.filter(
+      (incident) => {
+        const matchesSearch =
+          !search ||
+          String(incident.id)
+            .toLowerCase()
+            .includes(search) ||
+          String(incident.location)
+            .toLowerCase()
+            .includes(search) ||
+          String(incident.region)
+            .toLowerCase()
+            .includes(search);
 
-      const matchesRisk =
-        riskFilter === "all" ||
-        incident.risk === riskFilter;
+        const matchesRisk =
+          riskFilter === "all" ||
+          incident.risk ===
+            riskFilter;
 
-      const matchesStatus =
-        statusFilter === "all" ||
-        incident.status === statusFilter;
+        const matchesStatus =
+          statusFilter === "all" ||
+          incident.status ===
+            statusFilter;
 
-      return (
-        matchesSearch &&
-        matchesRisk &&
-        matchesStatus
-      );
-    });
+        return (
+          matchesSearch &&
+          matchesRisk &&
+          matchesStatus
+        );
+      }
+    );
   }, [
+    normalizedIncidents,
     searchTerm,
     riskFilter,
     statusFilter,
@@ -247,29 +567,44 @@ const Alerts = ({
      HELPERS
   ========================================================= */
 
-  const getSeverityIcon = (severity) => {
-    if (severity === "high") {
-      return <ShieldAlert size={16} />;
+  const getSeverityIcon = (
+    severity
+  ) => {
+    if (
+      severity === "high" ||
+      severity === "critical"
+    ) {
+      return (
+        <ShieldAlert size={16} />
+      );
     }
 
-    if (severity === "medium") {
-      return <AlertTriangle size={16} />;
+    if (
+      severity === "medium"
+    ) {
+      return (
+        <AlertTriangle size={16} />
+      );
     }
 
-    return <CheckCircle2 size={16} />;
+    return (
+      <CheckCircle2 size={16} />
+    );
   };
 
-const handleRequestExport = () => {
-    setRequestType("export");
-    setShowRequestModal(true);
-  };
+  /* =========================================================
+     EXPORT REQUEST
+  ========================================================= */
 
-  const openRequestModal = (type) => {
-    setRequestType(type);
+  const openRequestModal = () => {
     setShowRequestModal(true);
   };
 
   const closeRequestModal = () => {
+    if (requestSubmitting) {
+      return;
+    }
+
     setShowRequestModal(false);
 
     setRequestForm({
@@ -279,68 +614,116 @@ const handleRequestExport = () => {
     });
   };
 
-  const handleRequestChange = (event) => {
-    const { name, value } = event.target;
+  const handleRequestChange = (
+    event
+  ) => {
+    const {
+      name,
+      value,
+    } = event.target;
 
-    setRequestForm((previous) => ({
-      ...previous,
-      [name]: value,
-    }));
+    setRequestForm(
+      (previous) => ({
+        ...previous,
+        [name]: value,
+      })
+    );
   };
 
-  const handleRequestSubmit = async (event) => {
-    event.preventDefault();
+  const handleRequestSubmit =
+    async (event) => {
+      event.preventDefault();
 
-    try {
-      console.log("📤 Submitting export request:", requestForm);
+      const name =
+        requestForm.name.trim();
 
-      const response = await fetch(
-        "http://localhost:5000/api/user-requests",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            name: requestForm.name.trim(),
-            email: requestForm.email.trim(),
-            reason: requestForm.reason.trim(),
-          }),
-        }
-      );
+      const email =
+        requestForm.email.trim();
 
-      const data = await response.json();
+      const reason =
+        requestForm.reason.trim();
 
-      console.log("📤 Export request response:", data);
-
-      if (!response.ok) {
-        throw new Error(
-          data.message || "Failed to submit export request."
-        );
+      if (
+        !name ||
+        !email ||
+        !reason
+      ) {
+        return;
       }
 
-      alert("Export request submitted successfully.");
-      closeRequestModal();
-    } catch (error) {
-      console.error("❌ Export request error:", error);
+      setRequestSubmitting(true);
 
-      alert(
-        error.message ||
-          "Failed to submit export request. Please try again."
-      );
-    }
-  };
+      try {
+        const API_URL =
+          import.meta.env
+            .VITE_API_URL ||
+          "http://localhost:5000";
+
+        const response =
+          await fetch(
+            `${API_URL}/api/user-requests`,
+            {
+              method: "POST",
+              headers: {
+                Accept:
+                  "application/json",
+                "Content-Type":
+                  "application/json",
+              },
+              body: JSON.stringify({
+                name,
+                email,
+                reason,
+                type: "export",
+              }),
+            }
+          );
+
+        const data =
+          await response.json();
+
+        if (!response.ok) {
+          throw new Error(
+            data?.message ||
+              "Failed to submit export request."
+          );
+        }
+
+        alert(
+          "Export request submitted successfully."
+        );
+
+        closeRequestModal();
+      } catch (err) {
+        console.error(
+          "Export request failed:",
+          err
+        );
+
+        alert(
+          err?.message ||
+            "Failed to submit export request."
+        );
+      } finally {
+        setRequestSubmitting(false);
+      }
+    };
+
+  /* =========================================================
+     ADMIN EXPORT
+  ========================================================= */
 
   const handleExport = () => {
     /*
-      Temporary frontend export behaviour.
-
-      Later this should call the backend
-      report/export API and generate the
-      actual PDF.
-    */
-
-    window.print();
+     * The existing API service does not yet
+     * contain a report/export endpoint.
+     *
+     * Until the backend exposes that endpoint,
+     * do not generate fake PDF data.
+     */
+    alert(
+      "Report export will be connected when the backend export endpoint is available."
+    );
   };
 
   /* =========================================================
@@ -350,11 +733,10 @@ const handleRequestExport = () => {
   return (
     <main className="tx-alerts-page">
 
-      {/* =====================================================
-          BACKGROUND
-      ===================================================== */}
+      {/* BACKGROUND */}
 
       <div className="tx-alerts-background">
+
         <video
           className="tx-alerts-background-video"
           autoPlay
@@ -371,17 +753,15 @@ const handleRequestExport = () => {
         </video>
 
         <div className="tx-alerts-video-overlay" />
+
       </div>
 
-      {/* =====================================================
-          CONTENT
-      ===================================================== */}
+
+      {/* CONTENT */}
 
       <div className="tx-alerts-content">
 
-        {/* ===================================================
-            HEADER
-        =================================================== */}
+        {/* HEADER */}
 
         <section className="tx-alerts-header">
 
@@ -398,12 +778,13 @@ const handleRequestExport = () => {
             </h1>
 
             <p>
-              Monitor active thermal alerts and review
-              incident history across monitored regions
-              of India.
+              Monitor active thermal alerts and
+              review incident history across
+              monitored regions of India.
             </p>
 
           </div>
+
 
           <div className="tx-alerts-header-actions">
 
@@ -420,7 +801,9 @@ const handleRequestExport = () => {
               <button
                 type="button"
                 className="tx-alerts-request-button"
-                onClick={handleRequestExport}
+                onClick={
+                  openRequestModal
+                }
               >
                 <FileDown size={15} />
                 Request Export
@@ -431,30 +814,72 @@ const handleRequestExport = () => {
 
         </section>
 
-        {/* ===================================================
-            STATISTICS
-        =================================================== */}
+
+        {/* API ERROR */}
+
+        {error && (
+          <div className="tx-alerts-api-error">
+
+            <div>
+              <strong>
+                Unable to load incidents
+              </strong>
+
+              <span>
+                {error}
+              </span>
+            </div>
+
+            <button
+              type="button"
+              onClick={loadIncidents}
+              disabled={loading}
+            >
+              <RefreshCw
+                size={14}
+                className={
+                  loading
+                    ? "tx-alerts-refresh-spin"
+                    : ""
+                }
+              />
+
+              Retry
+            </button>
+
+          </div>
+        )}
+
+
+        {/* STATISTICS */}
 
         <section className="tx-alerts-stat-grid">
 
-          {statistics.map((stat) => (
-            <StatCard
-              key={stat.label}
-              label={stat.label}
-              value={stat.value}
-              change={stat.change}
-              description={stat.description}
-              icon={stat.icon}
-              variant={stat.variant}
-              changeType={stat.changeType}
-            />
-          ))}
+          {statistics.map(
+            (stat) => (
+              <StatCard
+                key={stat.label}
+                label={stat.label}
+                value={
+                  loading
+                    ? "..."
+                    : stat.value
+                }
+                description={
+                  stat.description
+                }
+                icon={stat.icon}
+                variant={
+                  stat.variant
+                }
+              />
+            )
+          )}
 
         </section>
 
-        {/* ===================================================
-            ACTIVE ALERTS
-        =================================================== */}
+
+        {/* ACTIVE ALERTS */}
 
         <section className="tx-alerts-panel">
 
@@ -463,7 +888,9 @@ const handleRequestExport = () => {
             <div className="tx-alerts-panel-heading">
 
               <div className="tx-alerts-panel-icon danger">
-                <AlertTriangle size={17} />
+                <AlertTriangle
+                  size={17}
+                />
               </div>
 
               <div>
@@ -478,6 +905,7 @@ const handleRequestExport = () => {
 
             </div>
 
+
             <div className="tx-alerts-live-indicator">
               <span />
               Live monitoring
@@ -485,103 +913,133 @@ const handleRequestExport = () => {
 
           </div>
 
+
           <div className="tx-active-alert-list">
 
-            {alerts.map((alert) => (
-              <article
-                key={alert.id}
-                className="tx-active-alert"
-              >
+            {loading ? (
 
-                <div
-                  className={`tx-active-alert-icon ${alert.severity}`}
-                >
-                  {getSeverityIcon(
-                    alert.severity
-                  )}
-                </div>
+              <div className="tx-alerts-loading">
+                <RefreshCw
+                  size={22}
+                  className="tx-alerts-refresh-spin"
+                />
 
-                <div className="tx-active-alert-content">
+                <span>
+                  Loading thermal alerts...
+                </span>
+              </div>
 
-                  <div className="tx-active-alert-title-row">
+            ) : activeAlerts.length >
+              0 ? (
 
-                    <h3>
-                      {alert.title}
-                    </h3>
+              activeAlerts.map(
+                (alert) => (
+                  <article
+                    key={alert.id}
+                    className="tx-active-alert"
+                  >
 
-                    <span
-                      className={`tx-alert-severity-badge ${alert.severity}`}
+                    <div
+                      className={`tx-active-alert-icon ${alert.risk}`}
                     >
-                      {alert.severity}
-                    </span>
+                      {getSeverityIcon(
+                        alert.risk
+                      )}
+                    </div>
 
-                  </div>
 
-                  <div className="tx-active-alert-location">
-                    {alert.location}
-                    <span>
-                      {alert.region}
-                    </span>
-                  </div>
+                    <div className="tx-active-alert-content">
 
-                  <div className="tx-active-alert-meta">
+                      <div className="tx-active-alert-title-row">
 
-                    <span>
-                      <Clock3 size={12} />
-                      {alert.time}
-                    </span>
+                        <h3>
+                          {alert.title}
+                        </h3>
 
-                    <span>
-                      AI confidence {alert.confidence}
-                    </span>
+                        <span
+                          className={`tx-alert-severity-badge ${alert.risk}`}
+                        >
+                          {alert.risk}
+                        </span>
 
-                  </div>
+                      </div>
 
-                </div>
 
-                <button
-                  type="button"
-                  className="tx-alert-view-button"
-                  onClick={() => {
-                    const incident =
-                      incidents.find(
-                        (item) =>
-                          item.id ===
-                          alert.id.replace(
-                            "ALT",
-                            "TX"
-                          )
-                      );
+                      <div className="tx-active-alert-location">
 
-                    setSelectedIncident(
-                      incident || {
-                        id: alert.id,
-                        location: alert.location,
-                        region: alert.region,
-                        risk: alert.severity,
-                        confidence: alert.confidence,
-                        detected: alert.time,
-                        status: alert.status,
-                        source: "NASA FIRMS",
-                        satellite: "VIIRS NOAA-21",
+                        {alert.location}
+
+                        <span>
+                          {alert.region}
+                        </span>
+
+                      </div>
+
+
+                      <div className="tx-active-alert-meta">
+
+                        <span>
+                          <Clock3
+                            size={12}
+                          />
+
+                          {alert.detected}
+                        </span>
+
+                        <span>
+                          AI confidence{" "}
+                          {alert.confidence}
+                        </span>
+
+                      </div>
+
+                    </div>
+
+
+                    <button
+                      type="button"
+                      className="tx-alert-view-button"
+                      onClick={() =>
+                        setSelectedIncident(
+                          alert
+                        )
                       }
-                    );
-                  }}
-                >
-                  <Eye size={14} />
-                  View
-                </button>
+                    >
+                      <Eye size={14} />
+                      View
+                    </button>
 
-              </article>
-            ))}
+                  </article>
+                )
+              )
+
+            ) : (
+
+              <div className="tx-alerts-empty-state">
+
+                <AlertTriangle
+                  size={30}
+                />
+
+                <strong>
+                  No active alerts
+                </strong>
+
+                <span>
+                  No active thermal incidents
+                  were returned by the backend.
+                </span>
+
+              </div>
+
+            )}
 
           </div>
 
         </section>
 
-        {/* ===================================================
-            INCIDENTS
-        =================================================== */}
+
+        {/* INCIDENTS */}
 
         <section className="tx-alerts-panel tx-incidents-panel">
 
@@ -605,15 +1063,19 @@ const handleRequestExport = () => {
 
             </div>
 
+
             <div className="tx-incident-count">
-              {filteredIncidents.length} incidents
+
+              {loading
+                ? "..."
+                : `${filteredIncidents.length} incidents`}
+
             </div>
 
           </div>
 
-          {/* =================================================
-              FILTERS
-          ================================================= */}
+
+          {/* FILTERS */}
 
           <div className="tx-alerts-filters">
 
@@ -625,14 +1087,18 @@ const handleRequestExport = () => {
                 type="text"
                 placeholder="Search incident, location or region..."
                 value={searchTerm}
-                onChange={(event) =>
+                onChange={(
+                  event
+                ) =>
                   setSearchTerm(
-                    event.target.value
+                    event.target
+                      .value
                   )
                 }
               />
 
             </div>
+
 
             <select
               value={riskFilter}
@@ -658,7 +1124,13 @@ const handleRequestExport = () => {
               <option value="low">
                 Low Risk
               </option>
+
+              <option value="critical">
+                Critical
+              </option>
+
             </select>
+
 
             <select
               value={statusFilter}
@@ -677,6 +1149,10 @@ const handleRequestExport = () => {
                 Active
               </option>
 
+              <option value="open">
+                Open
+              </option>
+
               <option value="monitoring">
                 Monitoring
               </option>
@@ -684,19 +1160,24 @@ const handleRequestExport = () => {
               <option value="resolved">
                 Resolved
               </option>
+
+              <option value="closed">
+                Closed
+              </option>
+
             </select>
 
           </div>
 
-          {/* =================================================
-              TABLE
-          ================================================= */}
+
+          {/* TABLE */}
 
           <div className="tx-alerts-table-wrapper">
 
             <table className="tx-alerts-table">
 
               <thead>
+
                 <tr>
                   <th>Incident</th>
                   <th>Location</th>
@@ -706,62 +1187,121 @@ const handleRequestExport = () => {
                   <th>Status</th>
                   <th>Action</th>
                 </tr>
+
               </thead>
+
 
               <tbody>
 
-                {filteredIncidents.length > 0 ? (
+                {loading ? (
+
+                  <tr>
+                    <td
+                      colSpan="7"
+                      className="tx-alerts-empty"
+                    >
+                      <RefreshCw
+                        size={20}
+                        className="tx-alerts-refresh-spin"
+                      />
+
+                      <span>
+                        Loading incidents...
+                      </span>
+                    </td>
+                  </tr>
+
+                ) : filteredIncidents.length >
+                  0 ? (
+
                   filteredIncidents.map(
                     (incident) => (
-                      <tr key={incident.id}>
+                      <tr
+                        key={
+                          incident.id
+                        }
+                      >
 
                         <td>
                           <span className="tx-incident-id">
-                            {incident.id}
+                            {
+                              incident.id
+                            }
                           </span>
                         </td>
 
+
                         <td>
+
                           <div className="tx-incident-location">
+
                             <strong>
-                              {incident.location}
+                              {
+                                incident.location
+                              }
                             </strong>
 
                             <span>
-                              {incident.region}
+                              {
+                                incident.region
+                              }
                             </span>
+
                           </div>
+
                         </td>
 
+
                         <td>
+
                           <span
                             className={`tx-risk-badge ${incident.risk}`}
                           >
-                            {incident.risk}
+                            {
+                              incident.risk
+                            }
                           </span>
+
                         </td>
 
+
                         <td>
+
                           <span className="tx-confidence">
-                            {incident.confidence}
+                            {
+                              incident.confidence
+                            }
                           </span>
+
                         </td>
 
+
                         <td>
+
                           <span className="tx-detected">
-                            {incident.detected}
+                            {
+                              incident.detected
+                            }
                           </span>
+
                         </td>
 
+
                         <td>
+
                           <span
                             className={`tx-status-badge ${incident.status}`}
                           >
-                            {incident.status}
+                            {
+                              incident.status
+                            }
                           </span>
+
                         </td>
 
+
                         <td>
+
                           <button
                             type="button"
                             className="tx-incident-view"
@@ -771,24 +1311,44 @@ const handleRequestExport = () => {
                               )
                             }
                           >
-                            <Eye size={13} />
+                            <Eye
+                              size={13}
+                            />
                             Details
                           </button>
+
                         </td>
 
                       </tr>
                     )
                   )
+
                 ) : (
+
                   <tr>
+
                     <td
                       colSpan="7"
                       className="tx-alerts-empty"
                     >
-                      No incidents match the selected
-                      filters.
+
+                      <AlertTriangle
+                        size={22}
+                      />
+
+                      <strong>
+                        No incidents found
+                      </strong>
+
+                      <span>
+                        No backend records match
+                        the selected filters.
+                      </span>
+
                     </td>
+
                   </tr>
+
                 )}
 
               </tbody>
@@ -799,21 +1359,24 @@ const handleRequestExport = () => {
 
         </section>
 
-        {/* ===================================================
-            FOOTER INFORMATION
-        =================================================== */}
+
+        {/* FOOTER */}
 
         <section className="tx-alerts-footer">
 
           <div>
+
             <strong>
               NASA FIRMS
             </strong>
 
             <span>
-              Fire Information for Resource Management System
+              Fire Information for Resource
+              Management System
             </span>
+
           </div>
+
 
           <div>
             Thermal detections are based on
@@ -824,20 +1387,26 @@ const handleRequestExport = () => {
 
       </div>
 
+
       {/* =====================================================
           INCIDENT DETAILS MODAL
       ===================================================== */}
 
       {selectedIncident && (
+
         <div
           className="tx-modal-backdrop"
           onMouseDown={(event) => {
+
             if (
               event.target ===
               event.currentTarget
             ) {
-              setSelectedIncident(null);
+              setSelectedIncident(
+                null
+              );
             }
+
           }}
         >
 
@@ -846,19 +1415,26 @@ const handleRequestExport = () => {
             <div className="tx-modal-header">
 
               <div>
+
                 <span>
                   INCIDENT DETAILS
                 </span>
 
                 <h2>
-                  {selectedIncident.id}
+                  {
+                    selectedIncident.id
+                  }
                 </h2>
+
               </div>
+
 
               <button
                 type="button"
                 onClick={() =>
-                  setSelectedIncident(null)
+                  setSelectedIncident(
+                    null
+                  )
                 }
                 aria-label="Close incident details"
               >
@@ -867,6 +1443,7 @@ const handleRequestExport = () => {
 
             </div>
 
+
             <div className="tx-modal-body">
 
               <div className="tx-modal-status-row">
@@ -874,58 +1451,103 @@ const handleRequestExport = () => {
                 <span
                   className={`tx-risk-badge ${selectedIncident.risk}`}
                 >
-                  {selectedIncident.risk} risk
+                  {
+                    selectedIncident.risk
+                  }{" "}
+                  risk
                 </span>
 
                 <span
                   className={`tx-status-badge ${selectedIncident.status}`}
                 >
-                  {selectedIncident.status}
+                  {
+                    selectedIncident.status
+                  }
                 </span>
 
               </div>
 
+
               <div className="tx-modal-grid">
 
                 <div>
-                  <span>Location</span>
+                  <span>
+                    Location
+                  </span>
+
                   <strong>
-                    {selectedIncident.location}
+                    {
+                      selectedIncident.location
+                    }
                   </strong>
                 </div>
 
+
                 <div>
-                  <span>Region</span>
+                  <span>
+                    Region
+                  </span>
+
                   <strong>
-                    {selectedIncident.region}
+                    {
+                      selectedIncident.region
+                    }
                   </strong>
                 </div>
 
+
                 <div>
-                  <span>AI Confidence</span>
+                  <span>
+                    AI Confidence
+                  </span>
+
                   <strong>
-                    {selectedIncident.confidence}
+                    {
+                      selectedIncident.confidence
+                    }
                   </strong>
                 </div>
 
+
                 <div>
-                  <span>Detected</span>
+                  <span>
+                    Detected
+                  </span>
+
                   <strong>
-                    {selectedIncident.detected}
+                    {
+                      selectedIncident.detectedAt
+                        ? formatDateTime(
+                            selectedIncident.detectedAt
+                          )
+                        : selectedIncident.detected
+                    }
                   </strong>
                 </div>
 
+
                 <div>
-                  <span>Data Source</span>
+                  <span>
+                    Data Source
+                  </span>
+
                   <strong>
-                    {selectedIncident.source}
+                    {
+                      selectedIncident.source
+                    }
                   </strong>
                 </div>
 
+
                 <div>
-                  <span>Satellite</span>
+                  <span>
+                    Satellite
+                  </span>
+
                   <strong>
-                    {selectedIncident.satellite}
+                    {
+                      selectedIncident.satellite
+                    }
                   </strong>
                 </div>
 
@@ -938,20 +1560,24 @@ const handleRequestExport = () => {
         </div>
       )}
 
+
       {/* =====================================================
-          REQUEST MODAL
+          REQUEST EXPORT MODAL
       ===================================================== */}
 
       {showRequestModal && (
+
         <div
           className="tx-modal-backdrop"
           onMouseDown={(event) => {
+
             if (
               event.target ===
               event.currentTarget
             ) {
               closeRequestModal();
             }
+
           }}
         >
 
@@ -960,20 +1586,26 @@ const handleRequestExport = () => {
             <div className="tx-modal-header">
 
               <div>
+
                 <span>
                   REQUEST ACCESS
                 </span>
 
                 <h2>
-                  {requestType === "export"
-                    ? "Request Incident Export"
-                    : "Request Data"}
+                  Request Incident Export
                 </h2>
+
               </div>
+
 
               <button
                 type="button"
-                onClick={closeRequestModal}
+                onClick={
+                  closeRequestModal
+                }
+                disabled={
+                  requestSubmitting
+                }
                 aria-label="Close request form"
               >
                 <X size={18} />
@@ -981,9 +1613,12 @@ const handleRequestExport = () => {
 
             </div>
 
+
             <form
               className="tx-request-form"
-              onSubmit={handleRequestSubmit}
+              onSubmit={
+                handleRequestSubmit
+              }
             >
 
               <label>
@@ -992,12 +1627,17 @@ const handleRequestExport = () => {
                 <input
                   type="text"
                   name="name"
-                  value={requestForm.name}
-                  onChange={handleRequestChange}
+                  value={
+                    requestForm.name
+                  }
+                  onChange={
+                    handleRequestChange
+                  }
                   placeholder="Enter your name"
                   required
                 />
               </label>
+
 
               <label>
                 Email
@@ -1005,41 +1645,72 @@ const handleRequestExport = () => {
                 <input
                   type="email"
                   name="email"
-                  value={requestForm.email}
-                  onChange={handleRequestChange}
+                  value={
+                    requestForm.email
+                  }
+                  onChange={
+                    handleRequestChange
+                  }
                   placeholder="Enter your email"
                   required
                 />
               </label>
+
 
               <label>
                 Reason
 
                 <textarea
                   name="reason"
-                  value={requestForm.reason}
-                  onChange={handleRequestChange}
+                  value={
+                    requestForm.reason
+                  }
+                  onChange={
+                    handleRequestChange
+                  }
                   placeholder="Explain why you need access..."
                   rows="4"
                   required
                 />
               </label>
 
+
               <div className="tx-request-form-actions">
 
                 <button
                   type="button"
                   className="tx-request-cancel"
-                  onClick={closeRequestModal}
+                  onClick={
+                    closeRequestModal
+                  }
+                  disabled={
+                    requestSubmitting
+                  }
                 >
                   Cancel
                 </button>
 
+
                 <button
                   type="submit"
                   className="tx-request-submit"
+                  disabled={
+                    requestSubmitting
+                  }
                 >
-                  Submit Request
+
+                  {requestSubmitting ? (
+                    <>
+                      <RefreshCw
+                        size={14}
+                        className="tx-alerts-refresh-spin"
+                      />
+                      Submitting...
+                    </>
+                  ) : (
+                    "Submit Request"
+                  )}
+
                 </button>
 
               </div>

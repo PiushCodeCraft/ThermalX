@@ -456,3 +456,212 @@
     height: 430px;
   }
 }
+/* =========================================================
+   API / LIVE DATA STATES
+========================================================= */
+
+.tx-admin-live-map-api-error {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+
+  margin-bottom: 18px;
+  padding: 13px 16px;
+
+  border: 1px solid #e4cccc;
+  border-radius: 4px;
+
+  background: #fffafa;
+
+  color: #914f4f;
+
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.tx-admin-live-map-api-error button {
+  margin-left: auto;
+
+  padding: 7px 12px;
+
+  border: 1px solid #d8e0e7;
+  border-radius: 3px;
+
+  background: #ffffff;
+
+  color: #0f3550;
+
+  font-size: 10px;
+  font-weight: 700;
+
+  cursor: pointer;
+}
+
+.tx-admin-live-map-api-error button:hover {
+  background: #f2f6f9;
+}
+
+
+/* =========================================================
+   REFRESH BUTTON
+========================================================= */
+
+.tx-admin-live-map-refresh {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  width: 34px;
+  height: 34px;
+
+  padding: 0;
+
+  border: 1px solid #dfe8eb;
+  border-radius: 4px;
+
+  background: #ffffff;
+
+  color: #315b70;
+
+  cursor: pointer;
+
+  transition:
+    background 0.2s ease,
+    border-color 0.2s ease;
+}
+
+.tx-admin-live-map-refresh:hover {
+  background: #f2f6f9;
+  border-color: #cbd9df;
+}
+
+.tx-admin-live-map-refresh:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+
+/* =========================================================
+   REFRESH ANIMATION
+========================================================= */
+
+.tx-admin-live-map-refresh-icon {
+  animation:
+    tx-admin-live-map-spin
+    1s linear infinite;
+}
+
+@keyframes tx-admin-live-map-spin {
+
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(360deg);
+  }
+
+}
+
+
+/* =========================================================
+   DATA LOADING
+========================================================= */
+
+.tx-admin-live-map-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  gap: 10px;
+
+  padding: 15px;
+
+  border-bottom: 1px solid #edf1f3;
+
+  background: #ffffff;
+
+  color: #6e838e;
+
+  font-size: 11px;
+  font-weight: 600;
+}
+
+
+/* =========================================================
+   DATA UNAVAILABLE
+========================================================= */
+
+.tx-admin-live-map-unavailable {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  min-height: 150px;
+
+  padding: 25px;
+
+  box-sizing: border-box;
+
+  text-align: center;
+
+  color: #7c909a;
+
+  font-size: 12px;
+}
+
+
+/* =========================================================
+   LIVE STATUS STATES
+========================================================= */
+
+.tx-admin-live-map-status-dot.offline {
+  background: #b96a6a;
+}
+
+.tx-admin-live-map-status-dot.warning {
+  background: #b49a55;
+}
+
+.tx-admin-live-map-status-dot.online {
+  background: #4c9b69;
+}
+
+
+/* =========================================================
+   STAT VALUE WHEN DATA IS UNAVAILABLE
+========================================================= */
+
+.tx-admin-live-map-stat strong.unavailable {
+  color: #91a0a7;
+  font-weight: 600;
+}
+
+
+/* =========================================================
+   INFORMATION VALUE WHEN DATA IS UNAVAILABLE
+========================================================= */
+
+.tx-admin-live-map-info-card strong.unavailable {
+  color: #91a0a7;
+  font-weight: 600;
+}
+
+
+/* =========================================================
+   MOBILE API ERROR
+========================================================= */
+
+@media (max-width: 700px) {
+
+  .tx-admin-live-map-api-error {
+    align-items: flex-start;
+    flex-wrap: wrap;
+  }
+
+  .tx-admin-live-map-api-error button {
+    width: 100%;
+    margin-left: 28px;
+  }
+
+}

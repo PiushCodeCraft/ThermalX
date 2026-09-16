@@ -1,4 +1,5 @@
 import React from "react";
+
 import {
   LayoutDashboard,
   Map,
@@ -19,6 +20,10 @@ const AdminSidebar = ({
   activePage = "dashboard",
 }) => {
   const navigate = useNavigate();
+
+  /* =========================================================
+     MAIN NAVIGATION
+  ========================================================= */
 
   const mainNavigation = [
     {
@@ -41,24 +46,28 @@ const AdminSidebar = ({
     },
   ];
 
+  /* =========================================================
+     ADMINISTRATION NAVIGATION
+  ========================================================= */
+
   const adminNavigation = [
     {
       id: "ai-analysis",
       label: "AI Analysis",
       icon: BrainCircuit,
-      path: "/ai-analysis",
+      path: "/admin/ai-analysis",
     },
     {
       id: "reports",
       label: "Reports",
       icon: FileText,
-      path: "/reports",
+      path: "/admin/reports",
     },
     {
       id: "users",
       label: "Users",
       icon: Users,
-      path: "/users",
+      path: "/admin/users",
     },
     {
       id: "feedback",
@@ -70,14 +79,20 @@ const AdminSidebar = ({
       id: "system",
       label: "System",
       icon: Settings,
-      path: "/system",
+      path: "/admin/system",
     },
   ];
+
+  /* =========================================================
+     NAVIGATION RENDER
+  ========================================================= */
 
   const renderNavigation = (items) => {
     return items.map((item) => {
       const Icon = item.icon;
-      const isActive = activePage === item.id;
+
+      const isActive =
+        activePage === item.id;
 
       return (
         <button
@@ -101,12 +116,19 @@ const AdminSidebar = ({
     });
   };
 
+  /* =========================================================
+     SIDEBAR
+  ========================================================= */
+
   return (
     <aside className="tx-admin-sidebar">
 
-      {/* LOGO */}
+      {/* =====================================================
+          LOGO
+      ===================================================== */}
 
       <div className="tx-admin-sidebar-brand">
+
         <button
           type="button"
           className="tx-admin-sidebar-brand-button"
@@ -119,21 +141,32 @@ const AdminSidebar = ({
             className="tx-admin-sidebar-logo"
           />
         </button>
+
       </div>
 
 
-      {/* ADMIN ROLE */}
+      {/* =====================================================
+          ADMIN ROLE
+      ===================================================== */}
 
       <div className="tx-admin-sidebar-role">
+
         <span className="tx-admin-sidebar-role-dot" />
 
         ADMINISTRATOR
+
       </div>
 
 
-      {/* NAVIGATION */}
+      {/* =====================================================
+          NAVIGATION
+      ===================================================== */}
 
       <nav className="tx-admin-sidebar-nav">
+
+        {/* ===================================================
+            MAIN MENU
+        =================================================== */}
 
         <section className="tx-admin-sidebar-section">
 
@@ -142,11 +175,19 @@ const AdminSidebar = ({
           </h3>
 
           <div className="tx-admin-sidebar-menu">
-            {renderNavigation(mainNavigation)}
+
+            {renderNavigation(
+              mainNavigation
+            )}
+
           </div>
 
         </section>
 
+
+        {/* ===================================================
+            ADMINISTRATION
+        =================================================== */}
 
         <section className="tx-admin-sidebar-section">
 
@@ -155,7 +196,11 @@ const AdminSidebar = ({
           </h3>
 
           <div className="tx-admin-sidebar-menu">
-            {renderNavigation(adminNavigation)}
+
+            {renderNavigation(
+              adminNavigation
+            )}
+
           </div>
 
         </section>
@@ -163,7 +208,9 @@ const AdminSidebar = ({
       </nav>
 
 
-      {/* FOOTER */}
+      {/* =====================================================
+          FOOTER
+      ===================================================== */}
 
       <div className="tx-admin-sidebar-footer">
 
@@ -177,6 +224,7 @@ const AdminSidebar = ({
           <span>
             Back to Home
           </span>
+
         </button>
 
 
