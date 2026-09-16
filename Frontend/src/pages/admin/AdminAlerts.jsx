@@ -1,4 +1,10 @@
-import React, { useMemo, useState } from "react";
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
+
 import {
   AlertTriangle,
   Search,
@@ -7,98 +13,455 @@ import {
   Flame,
   ChevronRight,
   Download,
+  RefreshCw,
+  XCircle,
 } from "lucide-react";
+
+import {
+  getIncidents,
+} from "../../services/api";
 
 import "./AdminAlerts.css";
 
+
+/* =========================================================
+   HELPERS
+========================================================= */
+
+const normalizeIncident = (incident) => {
+  return {
+    id:
+      incident.id ??
+      incident.incidentId ??
+      incident.incident_id ??
+      incident._id ??
+      "Unknown",
+
+    location:
+      incident.location ??
+      incident.region ??
+      incident.place ??
+      "Unknown",
+
+    state:
+      incident.state ??
+      incident.stateName ??
+      incident.state_name ??
+      "Unknown",
+
+    severity:
+      incident.severity ??
+      incident.riskLevel ??
+      incident.risk_level ??
+      "Unknown",
+
+    confidence:
+      incident.confidence ??
+      incident.confidenceScore ??
+      incident.confidence_score ??
+      null,
+
+    time:
+      incident.time ??
+      incident.detectedTime ??
+      incident.detected_time ??
+      incident.acqTime ??
+      incident.acq_time ??
+      null,
+
+    date:
+      incident.date ??
+      incident.detectedDate ??
+      incident.detected_date ??
+      null,
+
+    source:
+      incident.source ??
+      incident.satellite ??
+      incident.satelliteSource ??
+      "Unknown",
+
+    temperature:
+      incident.temperature ??
+      incident.temperatureK ??
+      incident.temperature_k ??
+      incident.brightnessTemperature ??
+      incident.brightness_temperature ??
+      null,
+
+    status:
+      incident.status ??
+      "Unknown",
+
+    latitude:
+      incident.latitude ??
+      incident.lat ??
+      null,
+
+    longitude:
+      incident.longitude ??
+      incident.lon ??
+      incident.lng ??
+      null,
+
+    raw: incident,
+  };
+};
+
+
+const formatDate = (value) => {
+  if (!value) {
+    return "Not available";
+  }
+
+  const date = new Date(value);
+
+  if (Number.isNaN(date.getTime())) {
+    return String(value);
+  }
+
+  return date.toLocaleDateString(
+    undefined,
+    {
+      day: "2-digit",
+      month: "short",
+      year: "numeric",
+    }
+  );
+};
+
+
+const formatTime = (value) => {
+  if (!value) {
+    return "Not available";
+  }
+
+  const date = new Date(value);
+
+  if (Number.isNaN(date.getTime())) {
+    return String(value);
+  }
+
+  return date.toLocaleTimeString(
+    undefined,
+    {
+      hour: "2-digit",
+      minute: "2-digit",
+    }
+  );
+};
+
+
+const formatTemperature = (value) => {
+  if (
+    value === null ||
+    value === undefined ||
+    value === ""
+  ) {
+    return "Not available";
+  }
+
+  if (
+    typeof value === "number" &&
+    Number.isFinite(value)
+  ) {
+    return `${value} K`;
+  }
+
+  return String(value);
+};
+
+
+const formatConfidence = (value) => {
+  if (
+    value === null ||
+    value === undefined ||
+    value === ""
+  ) {
+    return null;
+  }
+
+  const number = Number(value);
+
+  if (!Number.isFinite(number)) {
+    return null;
+  }
+
+  return Math.round(number);
+};
+
+
+const getSeverityClass = (severity) => {
+  const value =
+    String(severity || "")
+      .toLowerCase();
+
+  if (
+    value.includes("high") ||
+    value.includes("critical")
+  ) {
+    return "high";
+  }
+
+  if (
+    value.includes("medium") ||
+    value.includes("moderate")
+  ) {
+    return "medium";
+  }
+
+  if (
+    value.includes("low")
+  ) {
+    return "low";
+  }
+
+  return "unknown";
+};
+
+
+const getStatusClass = (status) => {
+  const value =
+    String(status || "")
+      .toLowerCase();
+
+  if (
+    value.includes("active") ||
+    value.includes("open") ||
+    value.includes("running")
+  ) {
+    return "active";
+  }
+
+  if (
+    value.includes("monitor")
+  ) {
+    return "monitoring";
+  }
+
+  if (
+    value.includes("resolved") ||
+    value.includes("closed")
+  ) {
+    return "resolved";
+  }
+
+  return "unknown";
+};
+
+
+/* =========================================================
+   ADMIN ALERTS
+========================================================= */
+
 const AdminAlerts = () => {
-  const [search, setSearch] = useState("");
-  const [severity, setSeverity] = useState("All");
-  const [selectedIncident, setSelectedIncident] = useState(null);
 
-  const incidents = [
-    {
-      id: "INC-001",
-      location: "Northern India",
-      state: "Haryana",
-      severity: "High",
-      confidence: 94,
-      time: "10:42 AM",
-      date: "16 Sep 2026",
-      source: "VIIRS NOAA-21",
-      temperature: "327 K",
-      status: "Active",
-    },
-    {
-      id: "INC-002",
-      location: "Central India",
-      state: "Madhya Pradesh",
-      severity: "Medium",
-      confidence: 87,
-      time: "10:36 AM",
-      date: "16 Sep 2026",
-      source: "VIIRS NOAA-21",
-      temperature: "312 K",
-      status: "Active",
-    },
-    {
-      id: "INC-003",
-      location: "Eastern India",
-      state: "Odisha",
-      severity: "Low",
-      confidence: 76,
-      time: "10:21 AM",
-      date: "16 Sep 2026",
-      source: "VIIRS NOAA-21",
-      temperature: "304 K",
-      status: "Monitoring",
-    },
-    {
-      id: "INC-004",
-      location: "Southern India",
-      state: "Karnataka",
-      severity: "High",
-      confidence: 91,
-      time: "09:58 AM",
-      date: "16 Sep 2026",
-      source: "VIIRS NOAA-21",
-      temperature: "321 K",
-      status: "Active",
-    },
-    {
-      id: "INC-005",
-      location: "Western India",
-      state: "Maharashtra",
-      severity: "Medium",
-      confidence: 83,
-      time: "09:41 AM",
-      date: "16 Sep 2026",
-      source: "VIIRS NOAA-21",
-      temperature: "309 K",
-      status: "Monitoring",
-    },
-  ];
+  const [incidents, setIncidents] =
+    useState([]);
 
-  const filteredIncidents = useMemo(() => {
-    const query = search.toLowerCase().trim();
+  const [search, setSearch] =
+    useState("");
 
-    return incidents.filter((incident) => {
-      const matchesSearch =
-        !query ||
-        incident.id.toLowerCase().includes(query) ||
-        incident.location.toLowerCase().includes(query) ||
-        incident.state.toLowerCase().includes(query) ||
-        incident.status.toLowerCase().includes(query);
+  const [severity, setSeverity] =
+    useState("All");
 
-      const matchesSeverity =
-        severity === "All" ||
-        incident.severity === severity;
+  const [selectedIncident, setSelectedIncident] =
+    useState(null);
 
-      return matchesSearch && matchesSeverity;
-    });
-  }, [search, severity]);
+  const [loading, setLoading] =
+    useState(true);
+
+  const [refreshing, setRefreshing] =
+    useState(false);
+
+  const [error, setError] =
+    useState("");
+
+
+  /* =======================================================
+     LOAD INCIDENTS
+  ======================================================= */
+
+  const loadIncidents =
+    useCallback(async () => {
+
+      try {
+
+        setRefreshing(true);
+        setError("");
+
+        const response =
+          await getIncidents();
+
+        /*
+         * Supports common backend response formats:
+         *
+         * [
+         *   {...},
+         *   {...}
+         * ]
+         *
+         * OR
+         *
+         * {
+         *   incidents: [...]
+         * }
+         *
+         * OR
+         *
+         * {
+         *   data: [...]
+         * }
+         */
+
+        let records = [];
+
+        if (Array.isArray(response)) {
+          records = response;
+        } else if (
+          Array.isArray(response?.incidents)
+        ) {
+          records = response.incidents;
+        } else if (
+          Array.isArray(response?.data)
+        ) {
+          records = response.data;
+        } else if (
+          Array.isArray(response?.results)
+        ) {
+          records = response.results;
+        }
+
+        setIncidents(
+          records.map(normalizeIncident)
+        );
+
+      } catch (requestError) {
+
+        console.error(
+          "Failed to load incidents:",
+          requestError
+        );
+
+        setIncidents([]);
+
+        setError(
+          "Unable to retrieve incidents from the backend."
+        );
+
+      } finally {
+
+        setLoading(false);
+        setRefreshing(false);
+
+      }
+
+    }, []);
+
+
+  /* =======================================================
+     INITIAL LOAD
+  ======================================================= */
+
+  useEffect(() => {
+
+    loadIncidents();
+
+  }, [loadIncidents]);
+
+
+  /* =======================================================
+     FILTER INCIDENTS
+  ======================================================= */
+
+  const filteredIncidents =
+    useMemo(() => {
+
+      const query =
+        search
+          .toLowerCase()
+          .trim();
+
+      return incidents.filter(
+        (incident) => {
+
+          const matchesSearch =
+            !query ||
+            String(incident.id)
+              .toLowerCase()
+              .includes(query) ||
+            String(incident.location)
+              .toLowerCase()
+              .includes(query) ||
+            String(incident.state)
+              .toLowerCase()
+              .includes(query) ||
+            String(incident.status)
+              .toLowerCase()
+              .includes(query);
+
+          const matchesSeverity =
+            severity === "All" ||
+            String(incident.severity)
+              .toLowerCase() ===
+              severity.toLowerCase();
+
+          return (
+            matchesSearch &&
+            matchesSeverity
+          );
+        }
+      );
+
+    }, [
+      incidents,
+      search,
+      severity,
+    ]);
+
+
+  /* =======================================================
+     SUMMARY
+  ======================================================= */
+
+  const activeCount =
+    incidents.filter(
+      (incident) =>
+        [
+          "active",
+          "open",
+        ].includes(
+          String(incident.status)
+            .toLowerCase()
+        )
+    ).length;
+
+
+  const highSeverityCount =
+    incidents.filter(
+      (incident) =>
+        [
+          "high",
+          "critical",
+        ].includes(
+          String(incident.severity)
+            .toLowerCase()
+        )
+    ).length;
+
+
+  /* =======================================================
+     CSV EXPORT
+  ======================================================= */
 
   const exportIncidents = () => {
+
+    if (
+      filteredIncidents.length === 0
+    ) {
+      return;
+    }
+
     const headers = [
       "Incident ID",
       "Location",
@@ -110,54 +473,100 @@ const AdminAlerts = () => {
       "Source",
       "Temperature",
       "Status",
+      "Latitude",
+      "Longitude",
     ];
 
-    const rows = filteredIncidents.map((incident) => [
-      incident.id,
-      incident.location,
-      incident.state,
-      incident.severity,
-      `${incident.confidence}%`,
-      incident.time,
-      incident.date,
-      incident.source,
-      incident.temperature,
-      incident.status,
-    ]);
+    const rows =
+      filteredIncidents.map(
+        (incident) => [
+          incident.id,
+          incident.location,
+          incident.state,
+          incident.severity,
+          incident.confidence !== null
+            ? `${incident.confidence}%`
+            : "",
+          incident.time
+            ? formatTime(incident.time)
+            : "",
+          incident.date
+            ? formatDate(incident.date)
+            : "",
+          incident.source,
+          formatTemperature(
+            incident.temperature
+          ),
+          incident.status,
+          incident.latitude ?? "",
+          incident.longitude ?? "",
+        ]
+      );
+
+    const escapeCsvValue = (
+      value
+    ) => {
+      return `"${String(value ?? "")
+        .replace(/"/g, '""')}"`;
+    };
 
     const csv = [
-      headers.join(","),
-      ...rows.map((row) =>
-        row.map((value) => `"${value}"`).join(",")
+      headers
+        .map(escapeCsvValue)
+        .join(","),
+      ...rows.map(
+        (row) =>
+          row
+            .map(escapeCsvValue)
+            .join(",")
       ),
     ].join("\n");
 
-    const blob = new Blob([csv], {
-      type: "text/csv;charset=utf-8;",
-    });
+    const blob =
+      new Blob(
+        [csv],
+        {
+          type:
+            "text/csv;charset=utf-8;",
+        }
+      );
 
-    const url = URL.createObjectURL(blob);
+    const url =
+      URL.createObjectURL(blob);
 
-    const link = document.createElement("a");
+    const link =
+      document.createElement("a");
 
     link.href = url;
-    link.download = "thermal-x-incidents.csv";
+
+    link.download =
+      "thermal-x-incidents.csv";
 
     document.body.appendChild(link);
+
     link.click();
+
     document.body.removeChild(link);
 
     URL.revokeObjectURL(url);
   };
 
+
+  /* =======================================================
+     RENDER
+  ======================================================= */
+
   return (
     <div className="tx-admin-alerts">
 
-      {/* HEADER */}
+      {/* ===================================================
+          HEADER
+      =================================================== */}
 
       <header className="tx-admin-alerts-header">
 
         <div>
+
           <span className="tx-admin-alerts-eyebrow">
             THERMAL-X / ADMINISTRATION / INCIDENTS
           </span>
@@ -170,21 +579,85 @@ const AdminAlerts = () => {
             Review, filter and monitor detected
             thermal incidents.
           </p>
+
         </div>
 
-        <button
-          type="button"
-          className="tx-admin-alerts-export"
-          onClick={exportIncidents}
+
+        <div
+          style={{
+            display: "flex",
+            gap: "10px",
+            alignItems: "center",
+          }}
         >
-          <Download size={15} />
-          EXPORT CSV
-        </button>
+
+          <button
+            type="button"
+            className="tx-admin-alerts-export"
+            onClick={loadIncidents}
+            disabled={refreshing}
+          >
+
+            <RefreshCw
+              size={15}
+              style={{
+                animation: refreshing
+                  ? "tx-admin-alert-spin 1s linear infinite"
+                  : "none",
+              }}
+            />
+
+            {refreshing
+              ? "REFRESHING..."
+              : "REFRESH"}
+
+          </button>
+
+
+          <button
+            type="button"
+            className="tx-admin-alerts-export"
+            onClick={exportIncidents}
+            disabled={
+              filteredIncidents.length === 0
+            }
+          >
+
+            <Download size={15} />
+
+            EXPORT CSV
+
+          </button>
+
+        </div>
 
       </header>
 
 
-      {/* SUMMARY */}
+      {/* ===================================================
+          ERROR
+      =================================================== */}
+
+      {error && (
+
+        <div
+          className="tx-admin-alerts-error"
+        >
+
+          <XCircle size={18} />
+
+          <span>
+            {error}
+          </span>
+
+        </div>
+
+      )}
+
+
+      {/* ===================================================
+          SUMMARY
+      =================================================== */}
 
       <section className="tx-admin-alerts-summary">
 
@@ -195,14 +668,17 @@ const AdminAlerts = () => {
           </div>
 
           <div>
-            <span>ACTIVE INCIDENTS</span>
+
+            <span>
+              ACTIVE INCIDENTS
+            </span>
+
             <strong>
-              {
-                incidents.filter(
-                  (item) => item.status === "Active"
-                ).length
-              }
+              {loading
+                ? "—"
+                : activeCount}
             </strong>
+
           </div>
 
         </article>
@@ -215,14 +691,17 @@ const AdminAlerts = () => {
           </div>
 
           <div>
-            <span>HIGH SEVERITY</span>
+
+            <span>
+              HIGH SEVERITY
+            </span>
+
             <strong>
-              {
-                incidents.filter(
-                  (item) => item.severity === "High"
-                ).length
-              }
+              {loading
+                ? "—"
+                : highSeverityCount}
             </strong>
+
           </div>
 
         </article>
@@ -235,10 +714,17 @@ const AdminAlerts = () => {
           </div>
 
           <div>
-            <span>LAST 24 HOURS</span>
+
+            <span>
+              LOADED INCIDENTS
+            </span>
+
             <strong>
-              {incidents.length}
+              {loading
+                ? "—"
+                : incidents.length}
             </strong>
+
           </div>
 
         </article>
@@ -251,8 +737,15 @@ const AdminAlerts = () => {
           </div>
 
           <div>
-            <span>MONITORED REGION</span>
-            <strong>INDIA</strong>
+
+            <span>
+              MONITORED REGION
+            </span>
+
+            <strong>
+              INDIA
+            </strong>
+
           </div>
 
         </article>
@@ -260,13 +753,16 @@ const AdminAlerts = () => {
       </section>
 
 
-      {/* INCIDENT PANEL */}
+      {/* ===================================================
+          INCIDENT PANEL
+      =================================================== */}
 
       <section className="tx-admin-alerts-card">
 
         <div className="tx-admin-alerts-card-header">
 
           <div>
+
             <span className="tx-admin-alerts-card-eyebrow">
               INCIDENT DATABASE
             </span>
@@ -274,6 +770,7 @@ const AdminAlerts = () => {
             <h2>
               Thermal Incidents
             </h2>
+
           </div>
 
           <span className="tx-admin-alerts-live">
@@ -283,7 +780,9 @@ const AdminAlerts = () => {
         </div>
 
 
-        {/* FILTERS */}
+        {/* =================================================
+            FILTERS
+        ================================================= */}
 
         <div className="tx-admin-alerts-filters">
 
@@ -296,7 +795,9 @@ const AdminAlerts = () => {
               placeholder="Search incident, location or state..."
               value={search}
               onChange={(event) =>
-                setSearch(event.target.value)
+                setSearch(
+                  event.target.value
+                )
               }
             />
 
@@ -306,9 +807,12 @@ const AdminAlerts = () => {
           <select
             value={severity}
             onChange={(event) =>
-              setSeverity(event.target.value)
+              setSeverity(
+                event.target.value
+              )
             }
           >
+
             <option value="All">
               All Severity
             </option>
@@ -324,180 +828,278 @@ const AdminAlerts = () => {
             <option value="Low">
               Low
             </option>
+
           </select>
 
         </div>
 
 
-        {/* INCIDENT TABLE */}
+        {/* =================================================
+            LOADING
+        ================================================= */}
 
-        <div className="tx-admin-alerts-table-wrapper">
+        {loading && (
 
-          <table className="tx-admin-alerts-table">
+          <div className="tx-admin-alerts-empty">
 
-            <thead>
-              <tr>
-                <th>INCIDENT</th>
-                <th>LOCATION</th>
-                <th>SEVERITY</th>
-                <th>CONFIDENCE</th>
-                <th>TIME</th>
-                <th>STATUS</th>
-                <th />
-              </tr>
-            </thead>
+            <RefreshCw
+              size={28}
+              className="tx-admin-alert-loading-icon"
+            />
 
-            <tbody>
+            <strong>
+              Loading incidents
+            </strong>
 
-              {filteredIncidents.map((incident) => (
+            <span>
+              Retrieving current incident data
+              from the THERMAL-X backend.
+            </span>
 
-                <tr
-                  key={incident.id}
-                  onClick={() =>
-                    setSelectedIncident(incident)
-                  }
-                >
+          </div>
 
-                  <td>
-                    <div className="tx-admin-alert-incident-id">
-
-                      <span>
-                        <Flame size={14} />
-                      </span>
-
-                      <div>
-                        <strong>
-                          {incident.id}
-                        </strong>
-
-                        <small>
-                          {incident.source}
-                        </small>
-                      </div>
-
-                    </div>
-                  </td>
+        )}
 
 
-                  <td>
-                    <div className="tx-admin-alert-location">
+        {/* =================================================
+            TABLE
+        ================================================= */}
 
-                      <strong>
-                        {incident.location}
-                      </strong>
+        {!loading && (
 
-                      <span>
-                        {incident.state}
-                      </span>
+          <div className="tx-admin-alerts-table-wrapper">
 
-                    </div>
-                  </td>
+            {filteredIncidents.length > 0 ? (
 
+              <table className="tx-admin-alerts-table">
 
-                  <td>
+                <thead>
 
-                    <span
-                      className={`tx-admin-alert-severity ${incident.severity.toLowerCase()}`}
-                    >
-                      {incident.severity}
-                    </span>
+                  <tr>
+                    <th>INCIDENT</th>
+                    <th>LOCATION</th>
+                    <th>SEVERITY</th>
+                    <th>CONFIDENCE</th>
+                    <th>TIME</th>
+                    <th>STATUS</th>
+                    <th />
+                  </tr>
 
-                  </td>
-
-
-                  <td>
-
-                    <div className="tx-admin-confidence">
-
-                      <div className="tx-admin-confidence-track">
-
-                        <span
-                          style={{
-                            width: `${incident.confidence}%`,
-                          }}
-                        />
-
-                      </div>
-
-                      <strong>
-                        {incident.confidence}%
-                      </strong>
-
-                    </div>
-
-                  </td>
+                </thead>
 
 
-                  <td>
+                <tbody>
 
-                    <div className="tx-admin-alert-time">
+                  {filteredIncidents.map(
+                    (incident) => {
 
-                      <strong>
-                        {incident.time}
-                      </strong>
+                      const confidence =
+                        formatConfidence(
+                          incident.confidence
+                        );
 
-                      <span>
-                        {incident.date}
-                      </span>
+                      return (
 
-                    </div>
+                        <tr
+                          key={
+                            incident.id
+                          }
+                          onClick={() =>
+                            setSelectedIncident(
+                              incident
+                            )
+                          }
+                        >
 
-                  </td>
+                          {/* INCIDENT */}
+
+                          <td>
+
+                            <div className="tx-admin-alert-incident-id">
+
+                              <span>
+                                <Flame size={14} />
+                              </span>
+
+                              <div>
+
+                                <strong>
+                                  {incident.id}
+                                </strong>
+
+                                <small>
+                                  {incident.source}
+                                </small>
+
+                              </div>
+
+                            </div>
+
+                          </td>
 
 
-                  <td>
+                          {/* LOCATION */}
 
-                    <span
-                      className={`tx-admin-alert-status ${incident.status.toLowerCase()}`}
-                    >
-                      {incident.status}
-                    </span>
+                          <td>
 
-                  </td>
+                            <div className="tx-admin-alert-location">
 
+                              <strong>
+                                {incident.location}
+                              </strong>
 
-                  <td>
+                              <span>
+                                {incident.state}
+                              </span>
 
-                    <ChevronRight
-                      size={16}
-                      className="tx-admin-alert-arrow"
-                    />
+                            </div>
 
-                  </td>
-
-                </tr>
-
-              ))}
-
-            </tbody>
-
-          </table>
+                          </td>
 
 
-          {filteredIncidents.length === 0 && (
+                          {/* SEVERITY */}
 
-            <div className="tx-admin-alerts-empty">
+                          <td>
 
-              <AlertTriangle size={28} />
+                            <span
+                              className={`tx-admin-alert-severity ${getSeverityClass(
+                                incident.severity
+                              )}`}
+                            >
+                              {incident.severity}
+                            </span>
 
-              <strong>
-                No incidents found
-              </strong>
+                          </td>
 
-              <span>
-                Try changing your search or severity filter.
-              </span>
 
-            </div>
+                          {/* CONFIDENCE */}
 
-          )}
+                          <td>
 
-        </div>
+                            {confidence !== null ? (
+
+                              <div className="tx-admin-confidence">
+
+                                <div className="tx-admin-confidence-track">
+
+                                  <span
+                                    style={{
+                                      width: `${confidence}%`,
+                                    }}
+                                  />
+
+                                </div>
+
+                                <strong>
+                                  {confidence}%
+                                </strong>
+
+                              </div>
+
+                            ) : (
+
+                              <span>
+                                Not available
+                              </span>
+
+                            )}
+
+                          </td>
+
+
+                          {/* TIME */}
+
+                          <td>
+
+                            <div className="tx-admin-alert-time">
+
+                              <strong>
+                                {formatTime(
+                                  incident.time
+                                )}
+                              </strong>
+
+                              <span>
+                                {formatDate(
+                                  incident.date
+                                )}
+                              </span>
+
+                            </div>
+
+                          </td>
+
+
+                          {/* STATUS */}
+
+                          <td>
+
+                            <span
+                              className={`tx-admin-alert-status ${getStatusClass(
+                                incident.status
+                              )}`}
+                            >
+                              {incident.status}
+                            </span>
+
+                          </td>
+
+
+                          {/* ARROW */}
+
+                          <td>
+
+                            <ChevronRight
+                              size={16}
+                              className="tx-admin-alert-arrow"
+                            />
+
+                          </td>
+
+                        </tr>
+
+                      );
+                    }
+                  )}
+
+                </tbody>
+
+              </table>
+
+            ) : (
+
+              <div className="tx-admin-alerts-empty">
+
+                <AlertTriangle size={28} />
+
+                <strong>
+                  {incidents.length === 0
+                    ? "No incidents available"
+                    : "No incidents found"}
+                </strong>
+
+                <span>
+
+                  {incidents.length === 0
+                    ? "The backend returned no incident records."
+                    : "Try changing your search or severity filter."}
+
+                </span>
+
+              </div>
+
+            )}
+
+          </div>
+
+        )}
 
       </section>
 
 
-      {/* INCIDENT DETAIL */}
+      {/* ===================================================
+          INCIDENT DETAIL
+      =================================================== */}
 
       {selectedIncident && (
 
@@ -544,13 +1146,17 @@ const AdminAlerts = () => {
             <div className="tx-admin-alert-detail-status">
 
               <span
-                className={`tx-admin-alert-severity ${selectedIncident.severity.toLowerCase()}`}
+                className={`tx-admin-alert-severity ${getSeverityClass(
+                  selectedIncident.severity
+                )}`}
               >
                 {selectedIncident.severity}
               </span>
 
               <span
-                className={`tx-admin-alert-status ${selectedIncident.status.toLowerCase()}`}
+                className={`tx-admin-alert-status ${getStatusClass(
+                  selectedIncident.status
+                )}`}
               >
                 {selectedIncident.status}
               </span>
@@ -562,44 +1168,91 @@ const AdminAlerts = () => {
 
               <div>
                 <span>LOCATION</span>
+
                 <strong>
                   {selectedIncident.location}
                 </strong>
               </div>
 
+
               <div>
                 <span>STATE</span>
+
                 <strong>
                   {selectedIncident.state}
                 </strong>
               </div>
 
+
               <div>
                 <span>CONFIDENCE</span>
+
                 <strong>
-                  {selectedIncident.confidence}%
+                  {formatConfidence(
+                    selectedIncident.confidence
+                  ) !== null
+                    ? `${formatConfidence(
+                        selectedIncident.confidence
+                      )}%`
+                    : "Not available"}
                 </strong>
               </div>
+
 
               <div>
                 <span>TEMPERATURE</span>
+
                 <strong>
-                  {selectedIncident.temperature}
+                  {formatTemperature(
+                    selectedIncident.temperature
+                  )}
                 </strong>
               </div>
 
+
               <div>
                 <span>DATA SOURCE</span>
+
                 <strong>
                   {selectedIncident.source}
                 </strong>
               </div>
 
+
               <div>
                 <span>DETECTED</span>
+
                 <strong>
-                  {selectedIncident.time}
+                  {formatTime(
+                    selectedIncident.time
+                  )}
                 </strong>
+              </div>
+
+
+              <div>
+                <span>DATE</span>
+
+                <strong>
+                  {formatDate(
+                    selectedIncident.date
+                  )}
+                </strong>
+              </div>
+
+
+              <div>
+                <span>COORDINATES</span>
+
+                <strong>
+
+                  {selectedIncident.latitude !== null &&
+                  selectedIncident.longitude !== null
+                    ? `${selectedIncident.latitude}, ${selectedIncident.longitude}`
+                    : "Not available"}
+
+                </strong>
+
               </div>
 
             </div>
@@ -608,13 +1261,12 @@ const AdminAlerts = () => {
             <div className="tx-admin-alert-detail-note">
 
               <span>
-                ADMIN NOTE
+                DATA SOURCE
               </span>
 
               <p>
-                Incident details and AI analysis can
-                be connected to the backend detection
-                pipeline later.
+                Incident information displayed here
+                is retrieved from the THERMAL-X backend.
               </p>
 
             </div>

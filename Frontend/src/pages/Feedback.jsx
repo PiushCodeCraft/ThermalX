@@ -4,6 +4,10 @@ import { Link, useNavigate } from "react-router-dom";
 import "./Feedback.css";
 
 
+const API_URL =
+  import.meta.env.VITE_API_URL || "http://localhost:5000";
+
+
 function Feedback({ onSubmitFeedback }) {
 
   const navigate = useNavigate();
@@ -105,26 +109,21 @@ const handleSubmit = async (event) => {
 
     console.log(
       "🚀 Sending request to:",
-      "http://localhost:5000/api/feedback"
+      `${API_URL}/api/feedback`
     );
 
-
-    const response = await fetch(
-      "http://localhost:5000/api/feedback",
-      {
-        method: "POST",
-
-        headers: {
-          "Content-Type": "application/json",
-        },
-
-        body: JSON.stringify({
-          name: form.name.trim(),
-          email: form.email.trim(),
-          message: form.message.trim(),
-        }),
-      }
-    );
+    const response = await fetch(`${API_URL}/api/feedback`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Accept: "application/json",
+      },
+      body: JSON.stringify({
+        name: form.name.trim(),
+        email: form.email.trim(),
+        message: form.message.trim(),
+      }),
+    });
 
 
     console.log(
@@ -171,7 +170,7 @@ const handleSubmit = async (event) => {
 
 
     console.log(
-      "✅ Feedback successfully saved"
+      "✅ Feedback successfully saved to Supabase"
     );
 
 
