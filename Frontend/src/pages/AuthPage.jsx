@@ -1,19 +1,15 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 
 import "./AuthPage.css";
 
-function AuthPage() {
-  const [mode, setMode] = useState("login");
-
+function AuthPage({ onLogin }) {
   const [formData, setFormData] = useState({
     userId: "",
-    name: "",
-    email: "",
     password: "",
-    confirmPassword: "",
   });
+
 
   /* =====================================================
      INPUT HANDLER
@@ -28,58 +24,35 @@ function AuthPage() {
     }));
   };
 
+
   /* =====================================================
-     SUBMIT
+     LOGIN SUBMIT
   ===================================================== */
 
   const handleSubmit = (event) => {
     event.preventDefault();
 
-    /* -----------------------------------------------
-       REGISTER
-    ------------------------------------------------ */
-
-    if (mode === "register") {
-      if (formData.password !== formData.confirmPassword) {
-        alert("Passwords do not match.");
-        return;
-      }
-
-      console.log("Registration submitted:", {
-        userId: formData.userId,
-        name: formData.name,
-        email: formData.email,
-        password: formData.password,
-      });
-
-      alert(
-        "Registration successful. You can now login with your registered credentials."
-      );
-
-      setFormData({
-        userId: formData.userId,
-        name: "",
-        email: "",
-        password: "",
-        confirmPassword: "",
-      });
-
-      setMode("login");
-
+    if (!formData.userId || !formData.password) {
       return;
     }
-
-    /* -----------------------------------------------
-       LOGIN
-    ------------------------------------------------ */
 
     console.log("Login submitted:", {
       userId: formData.userId,
       password: formData.password,
     });
 
-    alert("Login submitted.");
+    /*
+      Temporary frontend login.
+
+      Later this will be replaced with
+      backend authentication.
+    */
+
+    if (onLogin) {
+      onLogin("basic");
+    }
   };
+
 
   return (
     <main className="auth-page">
@@ -105,11 +78,13 @@ function AuthPage() {
         Your browser does not support video playback.
       </video>
 
+
       {/* =================================================
           VIDEO OVERLAY
       ================================================== */}
 
       <div className="auth-video-overlay" />
+
 
       {/* =================================================
           AUTH LAYOUT
@@ -187,10 +162,7 @@ function AuthPage() {
           </div>
 
 
-          {/* =================================================
-              LEFT FOOTER
-              Stays at bottom of panel
-          ================================================== */}
+          {/* LEFT FOOTER */}
 
           <div className="brand-footer">
 
@@ -208,7 +180,7 @@ function AuthPage() {
 
 
         {/* =================================================
-            RIGHT AUTHENTICATION PANEL
+            RIGHT LOGIN PANEL
         ================================================== */}
 
         <motion.section
@@ -231,7 +203,7 @@ function AuthPage() {
           <div className="auth-card">
 
             {/* =================================================
-                AUTH HEADER
+                LOGIN HEADER
             ================================================== */}
 
             <div className="auth-heading">
@@ -241,237 +213,96 @@ function AuthPage() {
               </div>
 
               <h1 className="auth-title">
-                {mode === "login"
-                  ? "Welcome Back."
-                  : "Create Your Account."}
+                Welcome Back.
               </h1>
 
               <div className="auth-description">
-                {mode === "login"
-                  ? "Sign in to access the Thermal X platform."
-                  : "Register once to create your Thermal X user account."}
+                Sign in to access the Thermal X platform.
               </div>
 
             </div>
 
 
             {/* =================================================
-                FORM
+                LOGIN FORM
             ================================================== */}
 
-            <AnimatePresence mode="wait">
+            <motion.form
+              className="auth-form"
+              onSubmit={handleSubmit}
+              initial={{
+                opacity: 0,
+                y: 10,
+              }}
+              animate={{
+                opacity: 1,
+                y: 0,
+              }}
+              transition={{
+                duration: 0.3,
+              }}
+            >
 
-              <motion.form
-                key={mode}
-                className="auth-form"
-                onSubmit={handleSubmit}
-                initial={{
-                  opacity: 0,
-                  y: 10,
+              {/* USER ID */}
+
+              <div className="form-field">
+
+                <label htmlFor="userId">
+                  USER ID
+                </label>
+
+                <input
+                  id="userId"
+                  name="userId"
+                  type="text"
+                  value={formData.userId}
+                  onChange={handleChange}
+                  placeholder="Enter your user ID"
+                  autoComplete="username"
+                  required
+                />
+
+              </div>
+
+
+              {/* PASSWORD */}
+
+              <div className="form-field">
+
+                <label htmlFor="password">
+                  PASSWORD
+                </label>
+
+                <input
+                  id="password"
+                  name="password"
+                  type="password"
+                  value={formData.password}
+                  onChange={handleChange}
+                  placeholder="Enter your password"
+                  autoComplete="current-password"
+                  required
+                />
+
+              </div>
+
+
+              {/* LOGIN */}
+
+              <motion.button
+                type="submit"
+                className="auth-submit"
+                whileHover={{
+                  y: -2,
                 }}
-                animate={{
-                  opacity: 1,
-                  y: 0,
-                }}
-                exit={{
-                  opacity: 0,
-                  y: -10,
-                }}
-                transition={{
-                  duration: 0.2,
+                whileTap={{
+                  scale: 0.98,
                 }}
               >
+                LOGIN
+              </motion.button>
 
-                {/* USER ID */}
-
-                <div className="form-field">
-
-                  <label htmlFor="userId">
-                    USER ID
-                  </label>
-
-                  <input
-                    id="userId"
-                    name="userId"
-                    type="text"
-                    value={formData.userId}
-                    onChange={handleChange}
-                    placeholder="Enter your user ID"
-                    autoComplete="username"
-                    required
-                  />
-
-                </div>
-
-
-                {/* REGISTER FIELDS */}
-
-                {mode === "register" && (
-                  <>
-                    <div className="form-field">
-
-                      <label htmlFor="name">
-                        FULL NAME
-                      </label>
-
-                      <input
-                        id="name"
-                        name="name"
-                        type="text"
-                        value={formData.name}
-                        onChange={handleChange}
-                        placeholder="Enter your full name"
-                        autoComplete="name"
-                        required
-                      />
-
-                    </div>
-
-
-                    <div className="form-field">
-
-                      <label htmlFor="email">
-                        EMAIL ADDRESS
-                      </label>
-
-                      <input
-                        id="email"
-                        name="email"
-                        type="email"
-                        value={formData.email}
-                        onChange={handleChange}
-                        placeholder="Enter your email"
-                        autoComplete="email"
-                        required
-                      />
-
-                    </div>
-                  </>
-                )}
-
-
-                {/* PASSWORD */}
-
-                <div className="form-field">
-
-                  <label htmlFor="password">
-                    PASSWORD
-                  </label>
-
-                  <input
-                    id="password"
-                    name="password"
-                    type="password"
-                    value={formData.password}
-                    onChange={handleChange}
-                    placeholder="Enter your password"
-                    autoComplete={
-                      mode === "login"
-                        ? "current-password"
-                        : "new-password"
-                    }
-                    required
-                  />
-
-                </div>
-
-
-                {/* CONFIRM PASSWORD */}
-
-                {mode === "register" && (
-                  <div className="form-field">
-
-                    <label htmlFor="confirmPassword">
-                      CONFIRM PASSWORD
-                    </label>
-
-                    <input
-                      id="confirmPassword"
-                      name="confirmPassword"
-                      type="password"
-                      value={formData.confirmPassword}
-                      onChange={handleChange}
-                      placeholder="Confirm your password"
-                      autoComplete="new-password"
-                      required
-                    />
-
-                  </div>
-                )}
-
-
-                {/* SUBMIT */}
-
-                <motion.button
-                  type="submit"
-                  className="auth-submit"
-                  whileHover={{
-                    y: -2,
-                  }}
-                  whileTap={{
-                    scale: 0.98,
-                  }}
-                >
-                  {mode === "login"
-                    ? "LOGIN"
-                    : "CREATE ACCOUNT"}
-                </motion.button>
-
-              </motion.form>
-
-            </AnimatePresence>
-
-
-            {/* =================================================
-                REGISTER / LOGIN SWITCH
-            ================================================== */}
-
-            <div className="auth-switch">
-
-              {mode === "login" ? (
-                <>
-                  <span>
-                    First time using Thermal X?
-                  </span>
-
-                  <button
-                    type="button"
-                    onClick={() => setMode("register")}
-                  >
-                    REGISTER
-                  </button>
-                </>
-              ) : (
-                <>
-                  <span>
-                    Already have an account?
-                  </span>
-
-                  <button
-                    type="button"
-                    onClick={() => setMode("login")}
-                  >
-                    LOGIN
-                  </button>
-                </>
-              )}
-
-            </div>
-
-
-            {/* =================================================
-                SECURITY
-            ================================================== */}
-
-            {/*
-            <div className="auth-security">
-
-              <span className="security-dot" />
-
-              SECURE THERMAL X AUTHENTICATION
-
-            </div>
-            */}
+            </motion.form>
 
           </div>
 

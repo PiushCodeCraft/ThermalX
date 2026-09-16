@@ -1,0 +1,540 @@
+/* =========================================================
+   THERMAL-X
+   FIXED WHITE SIDEBAR
+========================================================= */
+
+
+/* =========================================================
+   SIDEBAR
+========================================================= */
+
+.tx-sidebar {
+  position: fixed;
+
+  top: 0;
+  left: 0;
+  bottom: 0;
+
+  width: 270px;
+
+  display: flex;
+  flex-direction: column;
+
+  box-sizing: border-box;
+
+  background: #ffffff;
+
+  border-right: 1px solid #e6eaf0;
+
+  z-index: 1000;
+
+  overflow-x: hidden;
+  overflow-y: auto;
+
+  scrollbar-width: thin;
+  scrollbar-color: #d8dee7 transparent;
+}
+
+
+/* =========================================================
+   BRAND AREA
+========================================================= */
+
+.tx-sidebar-brand {
+  width: 100%;
+
+  height: 128px;
+
+  flex: 0 0 128px;
+
+  display: flex;
+
+  align-items: center;
+  justify-content: center;
+
+  padding: 8px 20px;
+
+  box-sizing: border-box;
+
+  border-bottom: 1px solid #edf0f4;
+}
+
+
+/* =========================================================
+   BRAND BUTTON
+========================================================= */
+
+.tx-sidebar-brand-button {
+  width: 100%;
+  height: 100%;
+
+  display: flex;
+
+  align-items: center;
+  justify-content: center;
+
+  padding: 0;
+
+  border: 0;
+
+  background: transparent;
+
+  cursor: pointer;
+}
+
+
+/* =========================================================
+   LARGE LOGO
+========================================================= */
+
+.tx-sidebar-logo {
+  display: block;
+
+  width: 195px;
+
+  height: auto;
+
+  max-width: 100%;
+
+  max-height: 108px;
+
+  object-fit: contain;
+
+  object-position: center;
+}
+
+
+/* =========================================================
+   NAVIGATION
+========================================================= */
+
+.tx-sidebar-nav {
+  flex: 1;
+
+  width: 100%;
+
+  padding: 26px 18px 18px;
+
+  box-sizing: border-box;
+}
+
+
+/* =========================================================
+   NAVIGATION SECTION
+========================================================= */
+
+.tx-sidebar-section {
+  width: 100%;
+
+  margin-bottom: 30px;
+}
+
+
+.tx-sidebar-section:last-child {
+  margin-bottom: 0;
+}
+
+
+/* =========================================================
+   SECTION TITLE
+========================================================= */
+
+.tx-sidebar-section-title {
+  width: 100%;
+
+  margin: 0 0 11px;
+
+  padding: 0 10px;
+
+  box-sizing: border-box;
+
+  color: #98a2b3;
+
+  font-size: 10px;
+
+  font-weight: 750;
+
+  line-height: 1.4;
+
+  letter-spacing: 0.8px;
+
+  text-transform: uppercase;
+
+  white-space: nowrap;
+}
+
+
+/* =========================================================
+   MENU
+========================================================= */
+
+.tx-sidebar-menu {
+  width: 100%;
+
+  display: flex;
+
+  flex-direction: column;
+
+  gap: 5px;
+}
+
+
+/* =========================================================
+   NAVIGATION ITEM
+========================================================= */
+
+.tx-sidebar-item {
+  position: relative;
+
+  width: 100%;
+
+  min-height: 54px;
+
+  display: flex;
+
+  align-items: center;
+
+  gap: 15px;
+
+  padding: 0 13px;
+
+  box-sizing: border-box;
+
+  border: 0;
+
+  border-radius: 11px;
+
+  background: transparent;
+
+  color: #53627a;
+
+  font-family: inherit;
+
+  font-size: 14px;
+
+  font-weight: 600;
+
+  line-height: 1;
+
+  text-align: left;
+
+  white-space: nowrap;
+
+  cursor: pointer;
+
+  outline: none;
+
+  transition:
+    background 0.18s ease,
+    color 0.18s ease,
+    transform 0.18s ease;
+}
+
+
+/* =========================================================
+   ICON
+========================================================= */
+
+.tx-sidebar-item-icon {
+  flex: 0 0 20px;
+
+  width: 20px;
+  height: 20px;
+
+  color: #8996aa;
+
+  stroke-width: 1.8;
+
+  transition:
+    color 0.18s ease,
+    transform 0.18s ease;
+}
+
+
+/* =========================================================
+   TEXT
+========================================================= */
+
+.tx-sidebar-item-text {
+  min-width: 0;
+
+  overflow: hidden;
+
+  text-overflow: ellipsis;
+
+  color: inherit;
+}
+
+
+/* =========================================================
+   HOVER
+========================================================= */
+
+.tx-sidebar-item:hover {
+  background: #f8f9fb;
+
+  color: #344054;
+
+  transform: translateX(1px);
+}
+
+
+.tx-sidebar-item:hover .tx-sidebar-item-icon {
+  color: #e85d04;
+}
+
+
+/* =========================================================
+   ACTIVE
+========================================================= */
+
+.tx-sidebar-item.active {
+  background: rgba(232, 93, 4, 0.10);
+
+  color: #e85d04;
+
+  font-weight: 700;
+}
+
+
+.tx-sidebar-item.active .tx-sidebar-item-icon {
+  color: #e85d04;
+}
+
+
+/* =========================================================
+   ACTIVE ORANGE BAR
+========================================================= */
+
+.tx-sidebar-item.active::before {
+  content: "";
+
+  position: absolute;
+
+  left: 0;
+
+  top: 50%;
+
+  width: 4px;
+
+  height: 25px;
+
+  transform: translateY(-50%);
+
+  border-radius: 0 5px 5px 0;
+
+  background: #f5660a;
+}
+
+
+/* =========================================================
+   FOCUS
+========================================================= */
+
+.tx-sidebar-item:focus {
+  outline: none;
+}
+
+
+.tx-sidebar-item:focus-visible {
+  outline: 2px solid rgba(232, 93, 4, 0.30);
+
+  outline-offset: -2px;
+}
+
+
+/* =========================================================
+   SYSTEM FOOTER
+========================================================= */
+
+.tx-sidebar-footer {
+  width: 100%;
+
+  flex: 0 0 auto;
+
+  padding: 16px 22px 20px;
+
+  box-sizing: border-box;
+
+  border-top: 1px solid #edf0f4;
+}
+
+
+/* =========================================================
+   SYSTEM STATUS
+========================================================= */
+
+.tx-sidebar-system {
+  display: flex;
+
+  align-items: center;
+
+  gap: 11px;
+
+  min-width: 0;
+}
+
+
+/* =========================================================
+   GREEN STATUS DOT
+========================================================= */
+
+.tx-sidebar-system-dot {
+  width: 11px;
+  height: 11px;
+
+  flex: 0 0 11px;
+
+  border-radius: 50%;
+
+  background: #16a34a;
+
+  box-shadow:
+    0 0 0 4px rgba(22, 163, 74, 0.10);
+}
+
+
+/* =========================================================
+   STATUS TEXT
+========================================================= */
+
+.tx-sidebar-system-text {
+  min-width: 0;
+
+  display: flex;
+
+  flex-direction: column;
+
+  gap: 3px;
+}
+
+
+.tx-sidebar-system-text strong {
+  color: #344054;
+
+  font-size: 11px;
+
+  font-weight: 700;
+
+  line-height: 1.3;
+
+  white-space: nowrap;
+}
+
+
+.tx-sidebar-system-text span {
+  color: #98a2b3;
+
+  font-size: 8px;
+
+  font-weight: 500;
+
+  line-height: 1.3;
+
+  white-space: nowrap;
+}
+
+
+/* =========================================================
+   SCROLLBAR
+========================================================= */
+
+.tx-sidebar::-webkit-scrollbar {
+  width: 5px;
+}
+
+
+.tx-sidebar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+
+.tx-sidebar::-webkit-scrollbar-thumb {
+  background: #d8dee7;
+
+  border-radius: 10px;
+}
+
+
+.tx-sidebar::-webkit-scrollbar-thumb:hover {
+  background: #bcc5d0;
+}
+
+
+/* =========================================================
+   MAIN CONTENT OFFSET
+========================================================= */
+
+.tx-dashboard-main {
+  width: calc(100% - 270px);
+
+  min-width: 0;
+
+  min-height: 100vh;
+
+  margin-left: 270px;
+
+  display: flex;
+
+  flex-direction: column;
+
+  box-sizing: border-box;
+}
+
+
+/* =========================================================
+   TABLET
+========================================================= */
+
+@media (max-width: 900px) {
+
+  .tx-sidebar {
+    width: 235px;
+  }
+
+
+  .tx-dashboard-main {
+    width: calc(100% - 235px);
+
+    margin-left: 235px;
+  }
+
+
+  .tx-sidebar-logo {
+    width: 175px;
+  }
+
+
+  .tx-sidebar-item {
+    min-height: 50px;
+
+    font-size: 13px;
+  }
+
+}
+
+
+/* =========================================================
+   MOBILE
+========================================================= */
+
+@media (max-width: 700px) {
+
+  .tx-sidebar {
+    width: 0;
+
+    transform: translateX(-100%);
+
+    border-right: 0;
+
+    box-shadow: none;
+  }
+
+
+  .tx-dashboard-main {
+    width: 100%;
+
+    margin-left: 0;
+  }
+
+}

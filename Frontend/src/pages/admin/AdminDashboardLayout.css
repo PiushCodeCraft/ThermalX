@@ -1,0 +1,47 @@
+.tx-admin-dashboard-layout {
+  width: 100%;
+  min-height: 100vh;
+
+  background: #f7f9fa;
+}
+
+.tx-admin-dashboard-main {
+  min-height: 100vh;
+
+  margin-left: 270px;
+
+  box-sizing: border-box;
+}
+
+.tx-admin-dashboard-page {
+  width: 100%;
+  min-height: 100vh;
+
+  box-sizing: border-box;
+}
+
+
+/* =========================================================
+   TABLET
+========================================================= */
+
+@media (max-width: 900px) {
+
+  .tx-admin-dashboard-main {
+    margin-left: 230px;
+  }
+
+}
+
+
+/* =========================================================
+   MOBILE
+========================================================= */
+
+@media (max-width: 650px) {
+
+  .tx-admin-dashboard-main {
+    margin-left: 70px;
+  }
+
+}
