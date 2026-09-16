@@ -288,48 +288,51 @@ const handleRequestExport = () => {
     }));
   };
 
-  const handleRequestSubmit = async (event) => {
-    event.preventDefault();
+const handleRequestSubmit = async (event) => {
+  event.preventDefault();
 
-    try {
-      console.log("📤 Submitting export request:", requestForm);
+  try {
+    console.log("📤 Submitting export request:", requestForm);
 
-      const response = await fetch(
-        "http://localhost:5000/api/user-requests",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            name: requestForm.name.trim(),
-            email: requestForm.email.trim(),
-            reason: requestForm.reason.trim(),
-          }),
-        }
-      );
-
-      const data = await response.json();
-
-      console.log("📤 Export request response:", data);
-
-      if (!response.ok) {
-        throw new Error(
-          data.message || "Failed to submit export request."
-        );
+    const response = await fetch(
+      `${API_URL}/api/user-requests`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json",
+        },
+        body: JSON.stringify({
+          name: requestForm.name.trim(),
+          email: requestForm.email.trim(),
+          reason: requestForm.reason.trim(),
+        }),
       }
+    );
 
-      alert("Export request submitted successfully.");
-      closeRequestModal();
-    } catch (error) {
-      console.error("❌ Export request error:", error);
+    const data = await response.json();
 
-      alert(
-        error.message ||
-          "Failed to submit export request. Please try again."
+    console.log("📤 Export request response:", data);
+
+    if (!response.ok || !data.success) {
+      throw new Error(
+        data.message || "Failed to submit export request."
       );
     }
-  };
+
+    alert("Export request submitted successfully.");
+
+    closeRequestModal();
+
+  } catch (error) {
+    console.error("❌ Export request error:", error);
+
+    alert(
+      error.message ||
+        "Failed to submit export request. Please try again."
+    );
+  }
+};
 
   const handleExport = () => {
     /*

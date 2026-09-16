@@ -37,7 +37,9 @@ app.get("/", (req, res) => {
 app.use("/api/fire", fireRoutes);
 app.use("/api/admin", adminRoutes);
 app.use("/api/feedback", feedbackRoutes);
-app.use("/api/user-requests", userRequestRoutes);
+app.use(  "/api/user-requests",
+  userRequestRoutes
+);
 
 // =====================================================
 // SERVER START
