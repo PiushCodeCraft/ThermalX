@@ -1,32 +1,36 @@
 const { Pool } = require("pg");
 
 const pool = new Pool({
-    connectionString: process.env.DATABASE_URL,
+  connectionString: process.env.DATABASE_URL,
+  ssl: {
+    rejectUnauthorized: false,
+  },
 });
 
 pool.on("connect", () => {
-    console.log("✅ PostgreSQL connected");
+  console.log("✅ PostgreSQL connected");
 });
 
 pool.on("error", (err) => {
-    console.error("❌ PostgreSQL pool error:", err);
+  console.error("❌ PostgreSQL pool error:", err.message);
 });
 
 const connectPostgreSQL = async () => {
-    try {
-        const client = await pool.connect();
+  try {
+    const client = await pool.connect();
 
-        await client.query("SELECT NOW()");
+    console.log("✅ PostgreSQL connection verified");
 
-        client.release();
+    client.release();
+  } catch (error) {
+    console.error("❌ PostgreSQL connection failed:");
+    console.error(error.message);
 
-        console.log("✅ PostgreSQL database is ready");
-
-    } catch (error) {
-        console.error("❌ PostgreSQL connection failed:");
-        console.error(error.message);
-    }
+    throw error;
+  }
 };
 
-module.exports = connectPostgreSQL;
-module.exports.pool = pool;
+module.exports = {
+  pool,
+  connectPostgreSQL,
+};
