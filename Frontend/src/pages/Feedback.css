@@ -179,3 +179,18 @@
     padding: 28px 22px;
   }
 }
+.feedback-error {
+  margin-top: 12px;
+
+  padding: 12px 14px;
+
+  border: 1px solid #e2a0a0;
+
+  background: #fff5f5;
+
+  color: #c62828;
+
+  font-size: 14px;
+
+  line-height: 1.4;
+}

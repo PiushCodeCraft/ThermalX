@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import {
   MessageSquare,
   Search,
@@ -9,48 +9,93 @@ import {
 
 import "./Feedback.css";
 
-const Feedback = ({ feedbacks = [] }) => {
+const Feedback = () => {
+  const [feedbacks, setFeedbacks] = useState([]);
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState("All");
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
 
-  const demoFeedback = [
-    {
-      id: "FDB-001",
-      name: "Rahul Sharma",
-      email: "rahul@example.com",
-      message:
-        "The live thermal map is very useful. It would be helpful to have more regional filtering options.",
-      submittedAt: "16 Sep 2026, 10:42 AM",
-      status: "New",
-    },
-    {
-      id: "FDB-002",
-      name: "Priya Singh",
-      email: "priya@example.com",
-      message:
-        "The incident information is clear and easy to understand.",
-      submittedAt: "16 Sep 2026, 09:35 AM",
-      status: "Reviewed",
-    },
-    {
-      id: "FDB-003",
-      name: "Arjun Kumar",
-      email: "arjun@example.com",
-      message:
-        "Please consider adding additional information about the AI analysis results.",
-      submittedAt: "15 Sep 2026, 06:21 PM",
-      status: "New",
-    },
-  ];
+  // =====================================================
+  // FETCH FEEDBACK FROM DATABASE
+  // =====================================================
 
-  const allFeedbacks =
-    feedbacks.length > 0
-      ? feedbacks
-      : demoFeedback;
+  useEffect(() => {
+    const fetchFeedback = async () => {
+      try {
+        setLoading(true);
+        setError("");
+
+        const response = await fetch(
+          "http://localhost:5000/api/feedback"
+        );
+
+        if (!response.ok) {
+          throw new Error(
+            `Server returned ${response.status}`
+          );
+        }
+
+        const result = await response.json();
+
+        console.log("📩 Feedback data received:", result);
+
+        if (result.success) {
+          setFeedbacks(result.data || []);
+        } else {
+          setError(
+            result.message || "Failed to fetch feedback."
+          );
+        }
+      } catch (err) {
+        console.error(
+          "❌ Error fetching feedback:",
+          err
+        );
+
+        setError(
+          "Unable to connect to the Thermal-X backend."
+        );
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchFeedback();
+  }, []);
+
+  // =====================================================
+  // FORMAT DATABASE FEEDBACK
+  // =====================================================
+
+  const formattedFeedbacks = useMemo(() => {
+    return feedbacks.map((feedback) => ({
+      id: `FDB-${String(feedback.id).padStart(3, "0")}`,
+      name: feedback.name || "Unknown User",
+      email: feedback.email || "No email",
+      message: feedback.message || "",
+      submittedAt: feedback.created_at
+        ? new Date(
+            feedback.created_at
+          ).toLocaleString("en-IN", {
+            day: "2-digit",
+            month: "short",
+            year: "numeric",
+            hour: "2-digit",
+            minute: "2-digit",
+          })
+        : "Unknown date",
+      status: "New",
+    }));
+  }, [feedbacks]);
+
+  // =====================================================
+  // SEARCH + FILTER
+  // =====================================================
 
   const filteredFeedbacks = useMemo(() => {
-    return allFeedbacks.filter((feedback) => {
-      const query = search.toLowerCase();
+    return formattedFeedbacks.filter((feedback) => {
+      const query = search.toLowerCase().trim();
 
       const matchesSearch =
         feedback.name
@@ -69,7 +114,33 @@ const Feedback = ({ feedbacks = [] }) => {
 
       return matchesSearch && matchesFilter;
     });
-  }, [allFeedbacks, search, filter]);
+  }, [formattedFeedbacks, search, filter]);
+
+  // =====================================================
+  // LOADING
+  // =====================================================
+
+  if (loading) {
+    return (
+      <div className="tx-admin-feedback">
+        <div className="tx-admin-feedback-empty">
+          <MessageSquare size={30} />
+
+          <strong>
+            Loading feedback...
+          </strong>
+
+          <span>
+            Fetching user feedback from the database.
+          </span>
+        </div>
+      </div>
+    );
+  }
+
+  // =====================================================
+  // PAGE
+  // =====================================================
 
   return (
     <div className="tx-admin-feedback">
@@ -96,7 +167,7 @@ const Feedback = ({ feedbacks = [] }) => {
           <MessageSquare size={17} />
 
           <span>
-            {allFeedbacks.length} SUBMISSIONS
+            {feedbacks.length} SUBMISSIONS
           </span>
 
         </div>
@@ -104,9 +175,29 @@ const Feedback = ({ feedbacks = [] }) => {
       </header>
 
 
+      {/* ERROR */}
+
+      {error && (
+        <div
+          style={{
+            padding: "12px 16px",
+            marginBottom: "20px",
+            border: "1px solid #ef4444",
+            borderRadius: "8px",
+            color: "#b91c1c",
+            background: "#fef2f2",
+          }}
+        >
+          {error}
+        </div>
+      )}
+
+
       {/* SUMMARY */}
 
       <section className="tx-admin-feedback-summary">
+
+        {/* TOTAL */}
 
         <div className="tx-admin-feedback-summary-card">
 
@@ -116,11 +207,16 @@ const Feedback = ({ feedbacks = [] }) => {
 
           <div>
             <span>Total Feedback</span>
-            <strong>{allFeedbacks.length}</strong>
+
+            <strong>
+              {feedbacks.length}
+            </strong>
           </div>
 
         </div>
 
+
+        {/* NEW */}
 
         <div className="tx-admin-feedback-summary-card">
 
@@ -130,9 +226,10 @@ const Feedback = ({ feedbacks = [] }) => {
 
           <div>
             <span>New Feedback</span>
+
             <strong>
               {
-                allFeedbacks.filter(
+                formattedFeedbacks.filter(
                   (item) => item.status === "New"
                 ).length
               }
@@ -142,6 +239,8 @@ const Feedback = ({ feedbacks = [] }) => {
         </div>
 
 
+        {/* REVIEWED */}
+
         <div className="tx-admin-feedback-summary-card">
 
           <div className="tx-admin-feedback-summary-icon">
@@ -150,10 +249,12 @@ const Feedback = ({ feedbacks = [] }) => {
 
           <div>
             <span>Reviewed</span>
+
             <strong>
               {
-                allFeedbacks.filter(
-                  (item) => item.status === "Reviewed"
+                formattedFeedbacks.filter(
+                  (item) =>
+                    item.status === "Reviewed"
                 ).length
               }
             </strong>
@@ -207,6 +308,7 @@ const Feedback = ({ feedbacks = [] }) => {
               setFilter(event.target.value)
             }
           >
+
             <option value="All">
               All Feedback
             </option>
@@ -218,6 +320,7 @@ const Feedback = ({ feedbacks = [] }) => {
             <option value="Reviewed">
               Reviewed
             </option>
+
           </select>
 
         </div>
@@ -234,12 +337,18 @@ const Feedback = ({ feedbacks = [] }) => {
               key={feedback.id}
             >
 
+              {/* AVATAR */}
+
               <div className="tx-admin-feedback-avatar">
+
                 {feedback.name
                   .charAt(0)
                   .toUpperCase()}
+
               </div>
 
+
+              {/* CONTENT */}
 
               <div className="tx-admin-feedback-content">
 
@@ -269,10 +378,14 @@ const Feedback = ({ feedbacks = [] }) => {
                 </div>
 
 
+                {/* MESSAGE */}
+
                 <p>
                   {feedback.message}
                 </p>
 
+
+                {/* META */}
 
                 <div className="tx-admin-feedback-meta">
 
@@ -293,6 +406,8 @@ const Feedback = ({ feedbacks = [] }) => {
           ))}
 
 
+          {/* EMPTY */}
+
           {filteredFeedbacks.length === 0 && (
 
             <div className="tx-admin-feedback-empty">
@@ -304,7 +419,9 @@ const Feedback = ({ feedbacks = [] }) => {
               </strong>
 
               <span>
-                Try changing your search or filter.
+                {search
+                  ? "Try changing your search."
+                  : "No user feedback has been submitted yet."}
               </span>
 
             </div>

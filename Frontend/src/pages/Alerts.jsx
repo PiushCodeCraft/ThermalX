@@ -259,16 +259,9 @@ const Alerts = ({
     return <CheckCircle2 size={16} />;
   };
 
-  const handleRequestChange = (event) => {
-    const {
-      name,
-      value,
-    } = event.target;
-
-    setRequestForm((previous) => ({
-      ...previous,
-      [name]: value,
-    }));
+const handleRequestExport = () => {
+    setRequestType("export");
+    setShowRequestModal(true);
   };
 
   const openRequestModal = (type) => {
@@ -286,16 +279,56 @@ const Alerts = ({
     });
   };
 
-  const handleRequestSubmit = (event) => {
+  const handleRequestChange = (event) => {
+    const { name, value } = event.target;
+
+    setRequestForm((previous) => ({
+      ...previous,
+      [name]: value,
+    }));
+  };
+
+  const handleRequestSubmit = async (event) => {
     event.preventDefault();
 
-    /*
-      Backend integration will be added later.
+    try {
+      console.log("📤 Submitting export request:", requestForm);
 
-      For now this only closes the request form.
-    */
+      const response = await fetch(
+        "http://localhost:5000/api/user-requests",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            name: requestForm.name.trim(),
+            email: requestForm.email.trim(),
+            reason: requestForm.reason.trim(),
+          }),
+        }
+      );
 
-    closeRequestModal();
+      const data = await response.json();
+
+      console.log("📤 Export request response:", data);
+
+      if (!response.ok) {
+        throw new Error(
+          data.message || "Failed to submit export request."
+        );
+      }
+
+      alert("Export request submitted successfully.");
+      closeRequestModal();
+    } catch (error) {
+      console.error("❌ Export request error:", error);
+
+      alert(
+        error.message ||
+          "Failed to submit export request. Please try again."
+      );
+    }
   };
 
   const handleExport = () => {
@@ -387,9 +420,7 @@ const Alerts = ({
               <button
                 type="button"
                 className="tx-alerts-request-button"
-                onClick={() =>
-                  openRequestModal("export")
-                }
+                onClick={handleRequestExport}
               >
                 <FileDown size={15} />
                 Request Export

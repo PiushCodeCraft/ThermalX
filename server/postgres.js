@@ -1,34 +1,83 @@
 const { Pool } = require("pg");
 
+
+// =====================================================
+// LOCAL POSTGRESQL CONNECTION
+// =====================================================
+
 const pool = new Pool({
+
   connectionString: process.env.DATABASE_URL,
-  ssl: {
-    rejectUnauthorized: false,
-  },
+
+  // Local PostgreSQL does NOT use SSL
+  ssl: false,
+
 });
+
+
+// =====================================================
+// CONNECTION EVENT
+// =====================================================
 
 pool.on("connect", () => {
-  console.log("✅ PostgreSQL connected");
+
+  console.log(
+    "✅ Local PostgreSQL connected"
+  );
+
 });
 
-pool.on("error", (err) => {
-  console.error("❌ PostgreSQL pool error:", err.message);
+
+// =====================================================
+// ERROR EVENT
+// =====================================================
+
+pool.on("error", (error) => {
+
+  console.error(
+    "❌ PostgreSQL pool error:",
+    error.message
+  );
+
 });
+
+
+// =====================================================
+// VERIFY CONNECTION
+// =====================================================
 
 const connectPostgreSQL = async () => {
+
   try {
+
     const client = await pool.connect();
 
-    console.log("✅ PostgreSQL connection verified");
+    console.log(
+      "✅ Local PostgreSQL connection verified"
+    );
 
     client.release();
+
   } catch (error) {
-    console.error("❌ PostgreSQL connection failed:");
-    console.error(error.message);
+
+    console.error(
+      "❌ PostgreSQL connection failed:"
+    );
+
+    console.error(
+      error.message
+    );
 
     throw error;
+
   }
+
 };
+
+
+// =====================================================
+// EXPORT
+// =====================================================
 
 module.exports = {
   pool,

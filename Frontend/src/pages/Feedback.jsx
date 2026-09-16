@@ -1,9 +1,13 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+
 import "./Feedback.css";
 
+
 function Feedback({ onSubmitFeedback }) {
+
   const navigate = useNavigate();
+
 
   const [form, setForm] = useState({
     name: "",
@@ -11,45 +15,219 @@ function Feedback({ onSubmitFeedback }) {
     message: "",
   });
 
-  const [submitted, setSubmitted] = useState(false);
+
+  const [submitted, setSubmitted] =
+    useState(false);
+
+
+  const [loading, setLoading] =
+    useState(false);
+
+
+  const [error, setError] =
+    useState("");
+
+
+  // =====================================================
+  // INPUT HANDLER
+  // =====================================================
 
   const handleChange = (event) => {
-    const { name, value } = event.target;
+
+    const {
+      name,
+      value
+    } = event.target;
+
 
     setForm((previous) => ({
+
       ...previous,
+
       [name]: value,
+
     }));
+
+
+    if (error) {
+
+      setError("");
+
+    }
+
   };
 
-  const handleSubmit = (event) => {
-    event.preventDefault();
 
-    if (!form.name || !form.email || !form.message) {
+  // =====================================================
+  // SUBMIT FEEDBACK
+  // =====================================================
+
+const handleSubmit = async (event) => {
+
+  event.preventDefault();
+
+  console.log("====================================");
+  console.log("🔥 FEEDBACK SUBMIT CLICKED");
+  console.log("====================================");
+
+  setError("");
+
+  console.log("Form data:", form);
+
+
+  // -----------------------------------------------------
+  // VALIDATION
+  // -----------------------------------------------------
+
+  if (
+    !form.name.trim() ||
+    !form.email.trim() ||
+    !form.message.trim()
+  ) {
+
+    console.log("❌ Validation failed");
+
+    setError(
+      "Please fill in all fields."
+    );
+
+    return;
+  }
+
+
+  console.log("✅ Validation passed");
+
+
+  setLoading(true);
+
+
+  try {
+
+    console.log(
+      "🚀 Sending request to:",
+      "http://localhost:5000/api/feedback"
+    );
+
+
+    const response = await fetch(
+      "http://localhost:5000/api/feedback",
+      {
+        method: "POST",
+
+        headers: {
+          "Content-Type": "application/json",
+        },
+
+        body: JSON.stringify({
+          name: form.name.trim(),
+          email: form.email.trim(),
+          message: form.message.trim(),
+        }),
+      }
+    );
+
+
+    console.log(
+      "📡 Response received"
+    );
+
+    console.log(
+      "Status:",
+      response.status
+    );
+
+    console.log(
+      "OK:",
+      response.ok
+    );
+
+
+    const data = await response.json();
+
+
+    console.log(
+      "📦 Feedback API response:",
+      data
+    );
+
+
+    if (
+      !response.ok ||
+      !data.success
+    ) {
+
+      console.log(
+        "❌ Backend rejected feedback"
+      );
+
+
+      setError(
+        data.message ||
+        "Failed to submit feedback."
+      );
+
       return;
     }
 
-    onSubmitFeedback({
-      id: Date.now(),
-      name: form.name,
-      email: form.email,
-      message: form.message,
-      submittedAt: new Date().toISOString(),
-    });
+
+    console.log(
+      "✅ Feedback successfully saved"
+    );
+
 
     setSubmitted(true);
+
 
     setForm({
       name: "",
       email: "",
       message: "",
     });
-  };
+
+
+    if (onSubmitFeedback) {
+
+      onSubmitFeedback(
+        data.data
+      );
+
+    }
+
+  }
+
+  catch (error) {
+
+    console.error(
+      "🔥 Feedback request failed:",
+      error
+    );
+
+
+    setError(
+      "Unable to connect to the Thermal X server."
+    );
+
+  }
+
+  finally {
+
+    console.log(
+      "🏁 Feedback request finished"
+    );
+
+    setLoading(false);
+
+  }
+
+};
+
 
   return (
+
     <main className="feedback-page">
 
       <div className="feedback-container">
+
 
         <Link
           to="/"
@@ -58,38 +236,49 @@ function Feedback({ onSubmitFeedback }) {
           ← BACK TO HOME
         </Link>
 
+
         <div className="feedback-card">
+
 
           <div className="feedback-eyebrow">
             THERMAL X / USER FEEDBACK
           </div>
+
 
           <h1>
             Share Your
             <span> Feedback.</span>
           </h1>
 
+
           <p className="feedback-description">
-            Help us improve THERMAL X. Your feedback will be
-            forwarded to the administrative team for review.
+            Help us improve THERMAL X. Your feedback
+            will be forwarded to the administrative
+            team for review.
           </p>
+
 
           {submitted ? (
 
             <div className="feedback-success">
 
+
               <div className="feedback-success-icon">
                 ✓
               </div>
+
 
               <h2>
                 Feedback Submitted
               </h2>
 
+
               <p>
-                Thank you. Your feedback has been sent to the
-                THERMAL X administrative dashboard.
+                Thank you. Your feedback has been
+                sent to the THERMAL X administrative
+                dashboard.
               </p>
+
 
               <button
                 type="button"
@@ -97,6 +286,7 @@ function Feedback({ onSubmitFeedback }) {
               >
                 RETURN HOME
               </button>
+
 
             </div>
 
@@ -107,7 +297,11 @@ function Feedback({ onSubmitFeedback }) {
               onSubmit={handleSubmit}
             >
 
+
+              {/* NAME */}
+
               <label>
+
                 Name
 
                 <input
@@ -118,10 +312,14 @@ function Feedback({ onSubmitFeedback }) {
                   placeholder="Enter your name"
                   required
                 />
+
               </label>
 
 
+              {/* EMAIL */}
+
               <label>
+
                 Email
 
                 <input
@@ -132,10 +330,14 @@ function Feedback({ onSubmitFeedback }) {
                   placeholder="Enter your email"
                   required
                 />
+
               </label>
 
 
+              {/* FEEDBACK */}
+
               <label>
+
                 Feedback
 
                 <textarea
@@ -146,15 +348,36 @@ function Feedback({ onSubmitFeedback }) {
                   rows="6"
                   required
                 />
+
               </label>
 
+
+              {/* ERROR */}
+
+              {error && (
+
+                <div className="feedback-error">
+                  {error}
+                </div>
+
+              )}
+
+
+              {/* SUBMIT */}
 
               <button
                 type="submit"
                 className="feedback-submit"
+                disabled={loading}
               >
-                SUBMIT FEEDBACK
+
+                {loading
+                  ? "SUBMITTING..."
+                  : "SUBMIT FEEDBACK"
+                }
+
               </button>
+
 
             </form>
 
@@ -165,7 +388,10 @@ function Feedback({ onSubmitFeedback }) {
       </div>
 
     </main>
+
   );
+
 }
+
 
 export default Feedback;
