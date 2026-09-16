@@ -1,0 +1,646 @@
+/* =========================================================
+   THERMAL-X ADMIN DASHBOARD
+========================================================= */
+
+.tx-admin-dashboard {
+  min-height: 100vh;
+
+  padding: 34px 40px 50px;
+
+  box-sizing: border-box;
+
+  background: #f7f9fa;
+}
+
+
+/* =========================================================
+   HEADER
+========================================================= */
+
+.tx-admin-dashboard-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+
+  gap: 25px;
+
+  margin-bottom: 28px;
+}
+
+.tx-admin-dashboard-eyebrow {
+  display: block;
+
+  margin-bottom: 8px;
+
+  color: #899aa4;
+
+  font-size: 9px;
+  font-weight: 800;
+
+  letter-spacing: 0.14em;
+}
+
+.tx-admin-dashboard-header h1 {
+  margin: 0;
+
+  color: #173b52;
+
+  font-size: 29px;
+  font-weight: 700;
+
+  letter-spacing: -0.03em;
+}
+
+.tx-admin-dashboard-header p {
+  margin: 8px 0 0;
+
+  color: #728590;
+
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+
+/* =========================================================
+   SYSTEM STATUS
+========================================================= */
+
+.tx-admin-system-status {
+  display: flex;
+  align-items: center;
+
+  gap: 8px;
+
+  padding: 9px 13px;
+
+  border: 1px solid #dfe8eb;
+
+  border-radius: 4px;
+
+  background: #ffffff;
+
+  color: #607782;
+
+  font-size: 9px;
+  font-weight: 800;
+
+  letter-spacing: 0.08em;
+
+  white-space: nowrap;
+}
+
+.tx-admin-status-dot {
+  width: 7px;
+  height: 7px;
+
+  border-radius: 50%;
+
+  background: #4d9b68;
+
+  box-shadow: 0 0 0 3px rgba(77, 155, 104, 0.10);
+}
+
+
+/* =========================================================
+   STATISTICS
+========================================================= */
+
+.tx-admin-statistics {
+  display: grid;
+
+  grid-template-columns:
+    repeat(4, minmax(0, 1fr));
+
+  gap: 15px;
+
+  margin-bottom: 20px;
+}
+
+.tx-admin-stat-card {
+  min-height: 110px;
+
+  display: flex;
+  align-items: center;
+
+  gap: 14px;
+
+  padding: 18px;
+
+  box-sizing: border-box;
+
+  background: #ffffff;
+
+  border: 1px solid #e1e8eb;
+
+  border-radius: 5px;
+
+  transition:
+    transform 0.18s ease,
+    box-shadow 0.18s ease;
+}
+
+.tx-admin-stat-card:hover {
+  transform: translateY(-1px);
+
+  box-shadow:
+    0 7px 20px rgba(25, 55, 70, 0.06);
+}
+
+.tx-admin-stat-icon {
+  width: 42px;
+  height: 42px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  flex-shrink: 0;
+
+  border-radius: 4px;
+
+  background: #eef4f6;
+
+  color: #315b70;
+}
+
+.tx-admin-stat-content {
+  display: flex;
+  flex-direction: column;
+
+  gap: 4px;
+
+  min-width: 0;
+}
+
+.tx-admin-stat-title {
+  color: #82949e;
+
+  font-size: 9px;
+  font-weight: 700;
+}
+
+.tx-admin-stat-value {
+  color: #24495b;
+
+  font-size: 23px;
+  font-weight: 700;
+
+  line-height: 1;
+}
+
+.tx-admin-stat-detail {
+  color: #a0adb3;
+
+  font-size: 8px;
+}
+
+
+/* =========================================================
+   MAIN DASHBOARD GRID
+========================================================= */
+
+.tx-admin-dashboard-grid {
+  display: grid;
+
+  grid-template-columns:
+    minmax(0, 1.7fr)
+    minmax(280px, 0.8fr);
+
+  gap: 20px;
+
+  margin-bottom: 20px;
+}
+
+
+/* =========================================================
+   CARD COMMON
+========================================================= */
+
+.tx-admin-map-card,
+.tx-admin-system-card,
+.tx-admin-panel {
+  overflow: hidden;
+
+  background: #ffffff;
+
+  border: 1px solid #e1e8eb;
+
+  border-radius: 5px;
+}
+
+.tx-admin-card-header {
+  min-height: 70px;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  gap: 15px;
+
+  padding: 16px 20px;
+
+  box-sizing: border-box;
+
+  border-bottom: 1px solid #edf1f3;
+}
+
+.tx-admin-card-eyebrow {
+  display: block;
+
+  margin-bottom: 5px;
+
+  color: #98a6ad;
+
+  font-size: 8px;
+  font-weight: 800;
+
+  letter-spacing: 0.13em;
+}
+
+.tx-admin-card-header h2 {
+  margin: 0;
+
+  color: #24475a;
+
+  font-size: 16px;
+  font-weight: 700;
+}
+
+
+/* =========================================================
+   MAP
+========================================================= */
+
+.tx-admin-map-container {
+  position: relative;
+
+  width: 100%;
+  height: 330px;
+
+  overflow: hidden;
+
+  background: #eef2f3;
+}
+
+
+/*
+   OpenLayers viewport should fill
+   the dashboard map area.
+*/
+
+.tx-admin-map-container .ol-viewport {
+  width: 100% !important;
+  height: 100% !important;
+}
+
+
+/* =========================================================
+   VIEW MAP BUTTON
+========================================================= */
+
+.tx-admin-view-map-button {
+  display: flex;
+  align-items: center;
+
+  gap: 7px;
+
+  padding: 8px 11px;
+
+  border: 1px solid #dce7eb;
+
+  border-radius: 4px;
+
+  background: #f8fafb;
+
+  color: #416171;
+
+  font-family: inherit;
+
+  font-size: 8px;
+  font-weight: 800;
+
+  letter-spacing: 0.07em;
+
+  cursor: pointer;
+
+  transition:
+    background 0.18s ease,
+    border-color 0.18s ease,
+    color 0.18s ease;
+}
+
+.tx-admin-view-map-button:hover {
+  background: #edf4f6;
+
+  border-color: #cfdfe5;
+
+  color: #173f55;
+}
+
+
+/* =========================================================
+   SYSTEM STATUS
+========================================================= */
+
+.tx-admin-system-card {
+  min-width: 0;
+}
+
+.tx-admin-system-list {
+  padding: 7px 20px 10px;
+}
+
+.tx-admin-system-row {
+  min-height: 53px;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  gap: 15px;
+
+  border-bottom: 1px solid #edf1f3;
+}
+
+.tx-admin-system-row:last-child {
+  border-bottom: none;
+}
+
+.tx-admin-system-row span {
+  color: #657d89;
+
+  font-size: 10px;
+}
+
+.tx-admin-system-row strong {
+  color: #4d9165;
+
+  font-size: 8px;
+  font-weight: 800;
+
+  letter-spacing: 0.06em;
+}
+
+
+/* =========================================================
+   LOWER GRID
+========================================================= */
+
+.tx-admin-lower-grid {
+  display: grid;
+
+  grid-template-columns:
+    minmax(0, 1.35fr)
+    minmax(300px, 0.8fr);
+
+  gap: 20px;
+}
+
+
+/* =========================================================
+   PANEL
+========================================================= */
+
+.tx-admin-panel {
+  min-width: 0;
+}
+
+
+/* =========================================================
+   LIVE LABEL
+========================================================= */
+
+.tx-admin-live-label {
+  display: inline-flex;
+  align-items: center;
+
+  padding: 5px 8px;
+
+  border-radius: 3px;
+
+  background: #eef6f1;
+
+  color: #4c8d63;
+
+  font-size: 8px;
+  font-weight: 800;
+
+  letter-spacing: 0.08em;
+}
+
+
+/* =========================================================
+   INCIDENT LIST
+========================================================= */
+
+.tx-admin-incident-list {
+  padding: 5px 20px;
+}
+
+.tx-admin-incident-row {
+  min-height: 65px;
+
+  display: grid;
+
+  grid-template-columns:
+    45px
+    minmax(0, 1fr)
+    auto;
+
+  align-items: center;
+
+  gap: 12px;
+
+  border-bottom: 1px solid #edf1f3;
+}
+
+.tx-admin-incident-row:last-child {
+  border-bottom: none;
+}
+
+.tx-admin-incident-time {
+  color: #91a1a9;
+
+  font-family: monospace;
+
+  font-size: 9px;
+}
+
+.tx-admin-incident-row > div {
+  display: flex;
+  flex-direction: column;
+
+  gap: 4px;
+
+  min-width: 0;
+}
+
+.tx-admin-incident-row strong {
+  color: #496573;
+
+  font-size: 10px;
+  font-weight: 700;
+}
+
+.tx-admin-incident-row span {
+  overflow: hidden;
+
+  color: #9aa8ae;
+
+  font-size: 8px;
+
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.tx-admin-incident-row b {
+  min-width: 50px;
+
+  padding: 5px 7px;
+
+  border-radius: 3px;
+
+  text-align: center;
+
+  font-size: 7px;
+  font-weight: 800;
+
+  letter-spacing: 0.05em;
+}
+
+.tx-admin-incident-row b.high {
+  background: #faeeee;
+
+  color: #c85c58;
+}
+
+.tx-admin-incident-row b.medium {
+  background: #faf5e9;
+
+  color: #a78645;
+}
+
+.tx-admin-incident-row b.low {
+  background: #eef5f1;
+
+  color: #639176;
+}
+
+
+/* =========================================================
+   ADMIN ACTIVITY
+========================================================= */
+
+.tx-admin-activity-list {
+  padding: 5px 20px;
+}
+
+.tx-admin-activity-row {
+  min-height: 65px;
+
+  display: flex;
+  align-items: center;
+
+  gap: 13px;
+
+  border-bottom: 1px solid #edf1f3;
+
+  color: #77909b;
+}
+
+.tx-admin-activity-row:last-child {
+  border-bottom: none;
+}
+
+.tx-admin-activity-row > div {
+  display: flex;
+  flex-direction: column;
+
+  gap: 4px;
+}
+
+.tx-admin-activity-row strong {
+  color: #496573;
+
+  font-size: 10px;
+}
+
+.tx-admin-activity-row span {
+  color: #9aa8ae;
+
+  font-size: 8px;
+}
+
+
+/* =========================================================
+   RESPONSIVE
+========================================================= */
+
+@media (max-width: 1100px) {
+
+  .tx-admin-statistics {
+    grid-template-columns:
+      repeat(2, minmax(0, 1fr));
+  }
+
+  .tx-admin-dashboard-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .tx-admin-lower-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+
+@media (max-width: 800px) {
+
+  .tx-admin-dashboard {
+    padding: 25px 18px 40px;
+  }
+
+  .tx-admin-dashboard-header {
+    flex-direction: column;
+  }
+
+  .tx-admin-dashboard-header h1 {
+    font-size: 24px;
+  }
+
+  .tx-admin-map-container {
+    height: 300px;
+  }
+}
+
+
+@media (max-width: 600px) {
+
+  .tx-admin-statistics {
+    grid-template-columns: 1fr;
+  }
+
+  .tx-admin-card-header {
+    padding: 14px;
+  }
+
+  .tx-admin-system-list,
+  .tx-admin-incident-list,
+  .tx-admin-activity-list {
+    padding-left: 14px;
+    padding-right: 14px;
+  }
+
+  .tx-admin-incident-row {
+    grid-template-columns:
+      40px
+      minmax(0, 1fr);
+  }
+
+  .tx-admin-incident-row b {
+    display: none;
+  }
+
+  .tx-admin-map-container {
+    height: 260px;
+  }
+}

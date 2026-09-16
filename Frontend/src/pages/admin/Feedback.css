@@ -1,0 +1,494 @@
+/* =========================================================
+   THERMAL-X ADMIN FEEDBACK
+========================================================= */
+
+.tx-admin-feedback {
+  min-height: 100vh;
+
+  padding: 34px 40px 50px;
+
+  box-sizing: border-box;
+
+  background: #f7f9fa;
+}
+
+
+/* =========================================================
+   HEADER
+========================================================= */
+
+.tx-admin-feedback-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+
+  gap: 25px;
+
+  margin-bottom: 28px;
+}
+
+.tx-admin-feedback-eyebrow {
+  display: block;
+
+  margin-bottom: 8px;
+
+  color: #899aa4;
+
+  font-size: 9px;
+  font-weight: 800;
+
+  letter-spacing: 0.14em;
+}
+
+.tx-admin-feedback-header h1 {
+  margin: 0;
+
+  color: #173b52;
+
+  font-size: 29px;
+  font-weight: 700;
+
+  letter-spacing: -0.03em;
+}
+
+.tx-admin-feedback-header p {
+  margin: 8px 0 0;
+
+  color: #728590;
+
+  font-size: 13px;
+}
+
+
+/* =========================================================
+   SUBMISSION COUNT
+========================================================= */
+
+.tx-admin-feedback-count {
+  display: flex;
+  align-items: center;
+
+  gap: 8px;
+
+  padding: 9px 13px;
+
+  border: 1px solid #dfe8eb;
+
+  border-radius: 4px;
+
+  background: #ffffff;
+
+  color: #607782;
+
+  font-size: 9px;
+  font-weight: 800;
+
+  letter-spacing: 0.08em;
+}
+
+
+/* =========================================================
+   SUMMARY
+========================================================= */
+
+.tx-admin-feedback-summary {
+  display: grid;
+
+  grid-template-columns:
+    repeat(3, 1fr);
+
+  gap: 15px;
+
+  margin-bottom: 20px;
+}
+
+.tx-admin-feedback-summary-card {
+  min-height: 95px;
+
+  display: flex;
+  align-items: center;
+
+  gap: 13px;
+
+  padding: 18px;
+
+  box-sizing: border-box;
+
+  background: #ffffff;
+
+  border: 1px solid #e1e8eb;
+
+  border-radius: 5px;
+}
+
+.tx-admin-feedback-summary-icon {
+  width: 40px;
+  height: 40px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  flex-shrink: 0;
+
+  border-radius: 4px;
+
+  background: #eef4f6;
+
+  color: #315b70;
+}
+
+.tx-admin-feedback-summary-card div:last-child {
+  display: flex;
+  flex-direction: column;
+
+  gap: 5px;
+}
+
+.tx-admin-feedback-summary-card span {
+  color: #8799a2;
+
+  font-size: 9px;
+  font-weight: 700;
+}
+
+.tx-admin-feedback-summary-card strong {
+  color: #24495b;
+
+  font-size: 20px;
+}
+
+
+/* =========================================================
+   MAIN CARD
+========================================================= */
+
+.tx-admin-feedback-card {
+  overflow: hidden;
+
+  background: #ffffff;
+
+  border: 1px solid #e1e8eb;
+
+  border-radius: 5px;
+}
+
+.tx-admin-feedback-card-header {
+  min-height: 72px;
+
+  display: flex;
+  align-items: center;
+
+  padding: 17px 20px;
+
+  border-bottom: 1px solid #edf1f3;
+}
+
+.tx-admin-feedback-card-eyebrow {
+  display: block;
+
+  margin-bottom: 5px;
+
+  color: #98a6ad;
+
+  font-size: 8px;
+  font-weight: 800;
+
+  letter-spacing: 0.13em;
+}
+
+.tx-admin-feedback-card-header h2 {
+  margin: 0;
+
+  color: #24475a;
+
+  font-size: 16px;
+}
+
+
+/* =========================================================
+   FILTERS
+========================================================= */
+
+.tx-admin-feedback-filters {
+  display: flex;
+  align-items: center;
+
+  gap: 10px;
+
+  padding: 14px 20px;
+
+  border-bottom: 1px solid #edf1f3;
+}
+
+.tx-admin-feedback-search {
+  width: 280px;
+
+  display: flex;
+  align-items: center;
+
+  gap: 8px;
+
+  padding: 8px 10px;
+
+  box-sizing: border-box;
+
+  border: 1px solid #dfe7ea;
+
+  border-radius: 4px;
+
+  color: #91a0a7;
+}
+
+.tx-admin-feedback-search input {
+  width: 100%;
+
+  border: none;
+  outline: none;
+
+  background: transparent;
+
+  color: #405c6a;
+
+  font-family: inherit;
+
+  font-size: 10px;
+}
+
+.tx-admin-feedback-search input::placeholder {
+  color: #a2adb2;
+}
+
+.tx-admin-feedback-filters select {
+  padding: 8px 10px;
+
+  border: 1px solid #dfe7ea;
+
+  border-radius: 4px;
+
+  outline: none;
+
+  background: #ffffff;
+
+  color: #526d7a;
+
+  font-family: inherit;
+
+  font-size: 10px;
+
+  cursor: pointer;
+}
+
+
+/* =========================================================
+   FEEDBACK LIST
+========================================================= */
+
+.tx-admin-feedback-list {
+  padding: 5px 20px;
+}
+
+.tx-admin-feedback-item {
+  display: flex;
+
+  gap: 14px;
+
+  padding: 18px 0;
+
+  border-bottom: 1px solid #edf1f3;
+}
+
+.tx-admin-feedback-item:last-child {
+  border-bottom: none;
+}
+
+
+/* =========================================================
+   AVATAR
+========================================================= */
+
+.tx-admin-feedback-avatar {
+  width: 38px;
+  height: 38px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  flex-shrink: 0;
+
+  border-radius: 50%;
+
+  background: #edf3f5;
+
+  color: #496b7a;
+
+  font-size: 12px;
+  font-weight: 800;
+}
+
+
+/* =========================================================
+   CONTENT
+========================================================= */
+
+.tx-admin-feedback-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.tx-admin-feedback-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+
+  gap: 15px;
+}
+
+.tx-admin-feedback-top > div {
+  display: flex;
+  flex-direction: column;
+
+  gap: 5px;
+}
+
+.tx-admin-feedback-top strong {
+  color: #405e6d;
+
+  font-size: 11px;
+}
+
+.tx-admin-feedback-top div span {
+  display: flex;
+  align-items: center;
+
+  gap: 5px;
+
+  color: #94a2a8;
+
+  font-size: 9px;
+}
+
+.tx-admin-feedback-content p {
+  margin: 10px 0;
+
+  color: #647b87;
+
+  font-size: 11px;
+
+  line-height: 1.6;
+}
+
+
+/* =========================================================
+   STATUS
+========================================================= */
+
+.tx-admin-feedback-status {
+  padding: 5px 8px;
+
+  border-radius: 3px;
+
+  font-size: 8px;
+  font-weight: 800;
+}
+
+.tx-admin-feedback-status.new {
+  background: #eef4f6;
+
+  color: #315b70;
+}
+
+.tx-admin-feedback-status.reviewed {
+  background: #eef6f1;
+
+  color: #4a8060;
+}
+
+
+/* =========================================================
+   META
+========================================================= */
+
+.tx-admin-feedback-meta {
+  display: flex;
+  align-items: center;
+
+  gap: 15px;
+}
+
+.tx-admin-feedback-meta span {
+  color: #9aa7ad;
+
+  font-family: monospace;
+
+  font-size: 8px;
+}
+
+
+/* =========================================================
+   EMPTY
+========================================================= */
+
+.tx-admin-feedback-empty {
+  min-height: 230px;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+
+  gap: 8px;
+
+  color: #9aa8ae;
+
+  text-align: center;
+}
+
+.tx-admin-feedback-empty strong {
+  color: #526f7d;
+
+  font-size: 12px;
+}
+
+.tx-admin-feedback-empty span {
+  font-size: 9px;
+}
+
+
+/* =========================================================
+   RESPONSIVE
+========================================================= */
+
+@media (max-width: 800px) {
+  .tx-admin-feedback {
+    padding: 25px 18px 40px;
+  }
+
+  .tx-admin-feedback-header {
+    flex-direction: column;
+  }
+
+  .tx-admin-feedback-summary {
+    grid-template-columns: 1fr;
+  }
+
+  .tx-admin-feedback-filters {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .tx-admin-feedback-search {
+    width: auto;
+  }
+}
+
+@media (max-width: 600px) {
+  .tx-admin-feedback-top {
+    flex-direction: column;
+  }
+
+  .tx-admin-feedback-item {
+    gap: 10px;
+  }
+}

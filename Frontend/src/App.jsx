@@ -1,255 +1,406 @@
 import React, { useState } from "react";
+
 import {
   BrowserRouter,
+  Routes,
+  Route,
+  Navigate,
   useLocation,
   useNavigate,
 } from "react-router-dom";
 
 import LandingPage from "./pages/LandingPage";
 import AuthPage from "./pages/AuthPage";
-import Feedback from "./pages/Feedback";
-
-import DashboardLayout from "./components/layout/DashboardLayout";
 
 import LiveMap from "./pages/LiveMap";
 import Alerts from "./pages/Alerts";
 
+import Feedback from "./pages/Feedback";
+
+import AboutThermalX from "./pages/AboutThermalX";
+import PrivacyPolicy from "./pages/PrivacyPolicy";
+import TermsOfUse from "./pages/TermsOfUse";
+
+import DashboardLayout from "./components/layout/DashboardLayout";
+
+
+/* =========================================================
+   ADMIN IMPORTS
+========================================================= */
+
+import AdminDashboard from "./pages/admin/AdminDashboard";
+import AdminDashboardLayout from "./pages/admin/AdminDashboardLayout";
+import AdminLiveMap from "./pages/admin/AdminLiveMap";
+import AdminAlerts from "./pages/admin/AdminAlerts";
+import AIAnalysis from "./pages/admin/AIAnalysis";
+import Reports from "./pages/admin/Reports";
+import Users from "./pages/admin/Users";
+import FeedbackAdmin from "./pages/admin/Feedback";
+import System from "./pages/admin/System";
+
+
 import "./App.css";
 
 
-function AppContent() {
-  const location = useLocation();
+/* =========================================================
+   BASIC USER PAGE WRAPPER
+========================================================= */
+
+const BasicUserPage = ({
+  children,
+  activePage,
+}) => {
   const navigate = useNavigate();
 
-  const [role, setRole] = useState("basic");
+  return (
+    <DashboardLayout
+      role="basic"
+      activePage={activePage}
+      onNavigate={(page) => {
+
+        if (page === "live-map") {
+          navigate("/live-map");
+        }
+
+        if (page === "alerts") {
+          navigate("/alerts");
+        }
+
+      }}
+    >
+      {children}
+    </DashboardLayout>
+  );
+};
+
+
+/* =========================================================
+   ADMIN PAGE WRAPPER
+========================================================= */
+
+const AdminPage = ({
+  children,
+  activePage,
+}) => {
+  return (
+    <AdminDashboardLayout
+      activePage={activePage}
+    >
+      {children}
+    </AdminDashboardLayout>
+  );
+};
+
+
+/* =========================================================
+   APP CONTENT
+========================================================= */
+
+const AppContent = ({
+  feedbacks,
+  onSubmitFeedback,
+}) => {
+
+  const location = useLocation();
+
+  const isAdminRoute =
+    location.pathname.startsWith("/admin");
+
+
+  return (
+    <Routes>
+
+      {/* ===================================================
+          LANDING
+      =================================================== */}
+
+      <Route
+        path="/"
+        element={
+          <LandingPage />
+        }
+      />
+
+
+      {/* ===================================================
+          LOGIN
+      =================================================== */}
+
+     <Route
+      path="/login"
+      element={
+       <AuthPage
+        onLogin={(role) => {
+          if (role === "admin") {
+          window.location.href = "/admin";
+            } 
+        }
+      }
+    />
+  }
+/>
+
+
+      {/* ===================================================
+          BASIC USER - LIVE MAP
+      =================================================== */}
+
+      <Route
+        path="/live-map"
+        element={
+          <BasicUserPage
+            activePage="live-map"
+          >
+            <LiveMap />
+          </BasicUserPage>
+        }
+      />
+
+
+      {/* ===================================================
+          BASIC USER - ALERTS
+      =================================================== */}
+
+      <Route
+        path="/alerts"
+        element={
+          <BasicUserPage
+            activePage="alerts"
+          >
+            <Alerts />
+          </BasicUserPage>
+        }
+      />
+
+
+      {/* ===================================================
+          PUBLIC FEEDBACK
+      =================================================== */}
+
+      <Route
+        path="/feedback"
+        element={
+          <Feedback
+            onSubmitFeedback={
+              onSubmitFeedback
+            }
+          />
+        }
+      />
+
+
+      {/* ===================================================
+          SUPPORT PAGES
+      =================================================== */}
+
+      <Route
+        path="/about"
+        element={
+          <AboutThermalX />
+        }
+      />
+
+      <Route
+        path="/privacy-policy"
+        element={
+          <PrivacyPolicy />
+        }
+      />
+
+      <Route
+        path="/terms-of-use"
+        element={
+          <TermsOfUse />
+        }
+      />
+
+
+      {/* ===================================================
+          ADMIN DASHBOARD
+      =================================================== */}
+
+      <Route
+        path="/admin"
+        element={
+          <AdminPage
+            activePage="dashboard"
+          >
+            <AdminDashboard />
+          </AdminPage>
+        }
+      />
+
+
+      {/* ===================================================
+          ADMIN LIVE MAP
+      =================================================== */}
+
+      <Route
+        path="/admin/live-map"
+        element={
+          <AdminPage
+            activePage="live-map"
+          >
+            <AdminLiveMap />
+          </AdminPage>
+        }
+      />
+
+
+      {/* ===================================================
+          ADMIN ALERTS
+      =================================================== */}
+
+      <Route
+        path="/admin/alerts"
+        element={
+          <AdminPage
+            activePage="alerts"
+          >
+            <AdminAlerts />
+          </AdminPage>
+        }
+      />
+
+
+      {/* ===================================================
+          ADMIN AI ANALYSIS
+      =================================================== */}
+
+      <Route
+        path="/admin/ai-analysis"
+        element={
+          <AdminPage
+            activePage="ai-analysis"
+          >
+            <AIAnalysis />
+          </AdminPage>
+        }
+      />
+
+
+      {/* ===================================================
+          ADMIN REPORTS
+      =================================================== */}
+
+      <Route
+        path="/admin/reports"
+        element={
+          <AdminPage
+            activePage="reports"
+          >
+            <Reports />
+          </AdminPage>
+        }
+      />
+
+
+      {/* ===================================================
+          ADMIN USERS
+      =================================================== */}
+
+      <Route
+        path="/admin/users"
+        element={
+          <AdminPage
+            activePage="users"
+          >
+            <Users />
+          </AdminPage>
+        }
+      />
+
+
+      {/* ===================================================
+          ADMIN FEEDBACK
+      =================================================== */}
+
+      <Route
+        path="/admin/feedback"
+        element={
+          <AdminPage
+            activePage="feedback"
+          >
+            <FeedbackAdmin
+              feedbacks={feedbacks}
+            />
+          </AdminPage>
+        }
+      />
+
+
+      {/* ===================================================
+          ADMIN SYSTEM
+      =================================================== */}
+
+      <Route
+        path="/admin/system"
+        element={
+          <AdminPage
+            activePage="system"
+          >
+            <System />
+          </AdminPage>
+        }
+      />
+
+
+      {/* ===================================================
+          FALLBACK
+      =================================================== */}
+
+      <Route
+        path="*"
+        element={
+          <Navigate
+            to="/"
+            replace
+          />
+        }
+      />
+
+    </Routes>
+  );
+};
+
+
+/* =========================================================
+   APP
+========================================================= */
+
+const App = () => {
+
   const [feedbacks, setFeedbacks] = useState([]);
 
 
-  /* =====================================================
-     SIDEBAR NAVIGATION
-  ===================================================== */
+  const handleSubmitFeedback = (
+    feedback
+  ) => {
 
-  const handleNavigate = (page) => {
-    const routes = {
-      "live-map": "/live-map",
-      alerts: "/alerts",
-      "ai-analysis": "/ai-analysis",
-      reports: "/reports",
-      users: "/users",
-      system: "/system",
-    };
-
-    if (routes[page]) {
-      navigate(routes[page]);
-    }
-  };
-
-
-  /* =====================================================
-     FEEDBACK
-  ===================================================== */
-
-  const handleSubmitFeedback = (feedback) => {
     setFeedbacks((previous) => [
       ...previous,
-      feedback,
+      {
+        ...feedback,
+        status: "New",
+      },
     ]);
+
   };
 
 
-  /* =====================================================
-     LOGIN
-  ===================================================== */
-
-  const handleLogin = (selectedRole = "basic") => {
-    setRole(selectedRole);
-    navigate("/live-map");
-  };
-
-
-  /* =====================================================
-     LANDING
-  ===================================================== */
-
-  if (location.pathname === "/") {
-    return <LandingPage />;
-  }
-
-
-  /* =====================================================
-     FEEDBACK
-  ===================================================== */
-
-  if (location.pathname === "/feedback") {
-    return (
-      <Feedback
-        onSubmitFeedback={handleSubmitFeedback}
-      />
-    );
-  }
-
-
-  /* =====================================================
-     AUTH
-  ===================================================== */
-
-  if (location.pathname === "/auth") {
-    return (
-      <AuthPage
-        onLogin={handleLogin}
-      />
-    );
-  }
-
-
-  /* =====================================================
-     LIVE MAP
-  ===================================================== */
-
-  if (location.pathname === "/live-map") {
-    return (
-      <DashboardLayout
-        role={role}
-        activePage="live-map"
-        onNavigate={handleNavigate}
-      >
-        <LiveMap
-          role={role}
-        />
-      </DashboardLayout>
-    );
-  }
-
-
-  /* =====================================================
-     ALERTS
-  ===================================================== */
-
-  if (location.pathname === "/alerts") {
-    return (
-      <DashboardLayout
-        role={role}
-        activePage="alerts"
-        onNavigate={handleNavigate}
-      >
-        <Alerts
-          role={role}
-          feedbacks={feedbacks}
-        />
-      </DashboardLayout>
-    );
-  }
-
-
-  /* =====================================================
-     AI ANALYSIS
-  ===================================================== */
-
-  if (location.pathname === "/ai-analysis") {
-    return (
-      <DashboardLayout
-        role={role}
-        activePage="ai-analysis"
-        onNavigate={handleNavigate}
-      >
-        <div className="tx-placeholder-page">
-          <h1>AI Analysis</h1>
-
-          <p>
-            AI analysis module will be connected here.
-          </p>
-        </div>
-      </DashboardLayout>
-    );
-  }
-
-
-  /* =====================================================
-     REPORTS
-  ===================================================== */
-
-  if (location.pathname === "/reports") {
-    return (
-      <DashboardLayout
-        role={role}
-        activePage="reports"
-        onNavigate={handleNavigate}
-      >
-        <div className="tx-placeholder-page">
-          <h1>Reports</h1>
-
-          <p>
-            Reports module will be connected here.
-          </p>
-        </div>
-      </DashboardLayout>
-    );
-  }
-
-
-  /* =====================================================
-     USERS
-  ===================================================== */
-
-  if (location.pathname === "/users") {
-    return (
-      <DashboardLayout
-        role={role}
-        activePage="users"
-        onNavigate={handleNavigate}
-      >
-        <div className="tx-placeholder-page">
-          <h1>Users</h1>
-
-          <p>
-            User management module will be connected here.
-          </p>
-        </div>
-      </DashboardLayout>
-    );
-  }
-
-
-  /* =====================================================
-     SYSTEM
-  ===================================================== */
-
-  if (location.pathname === "/system") {
-    return (
-      <DashboardLayout
-        role={role}
-        activePage="system"
-        onNavigate={handleNavigate}
-      >
-        <div className="tx-placeholder-page">
-          <h1>System</h1>
-
-          <p>
-            System settings will be connected here.
-          </p>
-        </div>
-      </DashboardLayout>
-    );
-  }
-
-
-  /* =====================================================
-     FALLBACK
-  ===================================================== */
-
-  navigate("/");
-
-  return null;
-}
-
-
-function App() {
   return (
     <BrowserRouter>
-      <AppContent />
+
+      <AppContent
+        feedbacks={feedbacks}
+        onSubmitFeedback={
+          handleSubmitFeedback
+        }
+      />
+
     </BrowserRouter>
   );
-}
+};
 
 
 export default App;

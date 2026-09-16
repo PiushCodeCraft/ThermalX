@@ -676,19 +676,16 @@ const Footer = () => {
               Dashboard
             </Link>
 
-            <Link to="/incident-map">
-              <Map />
-              Incident Map
-            </Link>
+          
 
             <Link to="/satellite-feeds">
               <Satellite />
               Satellite Feeds
             </Link>
 
-            <Link to="/analytics">
+            <Link to="/Alert">
               <BarChart3 />
-              Analytics
+              Alert
             </Link>
 
           </div>
@@ -737,18 +734,17 @@ const Footer = () => {
               SUPPORT
             </h3>
 
-            <a href="#about">
-              <ShieldCheck />
-              About THERMAL X
-            </a>
+            <Link to="/about">
+  About THERMAL X
+            </Link>
 
-            <a href="#privacy">
-              Privacy Policy
-            </a>
+            <Link to="/privacy-policy">
+  Privacy Policy
+            </Link>
 
-            <a href="#terms">
-              Terms of Use
-            </a>
+            <Link to="/terms-of-use">
+  Terms of Use
+            </Link>
 
           </div>
 
