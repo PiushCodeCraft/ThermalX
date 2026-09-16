@@ -31,3 +31,7 @@ dist-ssr
 datasets/*.csv
 datasets/*.xlsx
 datasets/*.xls
+
+# Machine Learning model files
+models/*.pkl
+models/*.joblib

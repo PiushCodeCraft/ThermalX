@@ -1,4 +1,4 @@
-import { useState } from "react";
+import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -6,7 +6,6 @@ import "./AuthPage.css";
 
 function AuthPage() {
   const [mode, setMode] = useState("login");
-  const [role, setRole] = useState("user");
 
   const [formData, setFormData] = useState({
     userId: "",
@@ -30,21 +29,6 @@ function AuthPage() {
   };
 
   /* =====================================================
-     ACCESS LEVEL HANDLER
-  ===================================================== */
-
-  const handleRoleChange = (event) => {
-    const selectedRole = event.target.value;
-
-    setRole(selectedRole);
-
-    // Administrator and Investigator are login only.
-    if (selectedRole !== "user") {
-      setMode("login");
-    }
-  };
-
-  /* =====================================================
      SUBMIT
   ===================================================== */
 
@@ -56,11 +40,6 @@ function AuthPage() {
     ------------------------------------------------ */
 
     if (mode === "register") {
-      if (role !== "user") {
-        alert("Only Basic Users can register.");
-        return;
-      }
-
       if (formData.password !== formData.confirmPassword) {
         alert("Passwords do not match.");
         return;
@@ -95,39 +74,19 @@ function AuthPage() {
     ------------------------------------------------ */
 
     console.log("Login submitted:", {
-      role,
       userId: formData.userId,
       password: formData.password,
     });
 
-    alert(
-      `Login submitted for ${
-        role === "admin"
-          ? "Administrator"
-          : role === "investigator"
-            ? "Investigator"
-            : "Basic User"
-      }.`
-    );
+    alert("Login submitted.");
   };
-
-  /* =====================================================
-     ROLE NAME
-  ===================================================== */
-
-  const roleName =
-    role === "admin"
-      ? "Administrator"
-      : role === "investigator"
-        ? "Investigator"
-        : "Basic User";
 
   return (
     <main className="auth-page">
 
       {/* =================================================
           BACKGROUND VIDEO
-      ================================================= */}
+      ================================================== */}
 
       <video
         className="auth-background-video"
@@ -148,19 +107,19 @@ function AuthPage() {
 
       {/* =================================================
           VIDEO OVERLAY
-      ================================================= */}
+      ================================================== */}
 
       <div className="auth-video-overlay" />
 
       {/* =================================================
           AUTH LAYOUT
-      ================================================= */}
+      ================================================== */}
 
       <section className="auth-layout">
 
         {/* =================================================
-            LEFT FLOATING CARD
-        ================================================= */}
+            LEFT BRAND PANEL
+        ================================================== */}
 
         <motion.section
           className="auth-brand-panel"
@@ -181,18 +140,21 @@ function AuthPage() {
           {/* LOGO */}
 
           <div className="auth-logo-wrapper">
+
             <Link
               to="/"
-              className="auth-logo"
+              className="auth-logo-link"
               aria-label="THERMAL X Home"
             >
               <img
-              src="/assets/thermal-x-logo.png"
-              alt="THERMAL X"
-              className="auth-logo"
+                src="/assets/thermal-x-logo.png"
+                alt="THERMAL X"
+                className="auth-logo-image"
               />
             </Link>
+
           </div>
+
 
           {/* BRAND CONTENT */}
 
@@ -224,40 +186,11 @@ function AuthPage() {
 
           </div>
 
-          {/* ACCESS LEVEL */}
 
-          <div className="brand-account-selector">
-
-            <label htmlFor="role"><h2>
-              ACCESS LEVEL
-            </h2></label>
-
-            <div className="select-wrapper">
-
-              <select
-                id="role"
-                name="role"
-                value={role}
-                onChange={handleRoleChange}
-              >
-                <option value="admin">
-                  Administrator
-                </option>
-
-                <option value="investigator">
-                  Investigator
-                </option>
-
-                <option value="user">
-                  Basic User
-                </option>
-              </select>
-
-            </div>
-
-          </div>
-
-          {/* FOOTER */}
+          {/* =================================================
+              LEFT FOOTER
+              Stays at bottom of panel
+          ================================================== */}
 
           <div className="brand-footer">
 
@@ -273,9 +206,10 @@ function AuthPage() {
 
         </motion.section>
 
+
         {/* =================================================
-            RIGHT AUTHENTICATION AREA
-        ================================================= */}
+            RIGHT AUTHENTICATION PANEL
+        ================================================== */}
 
         <motion.section
           className="auth-form-panel"
@@ -296,7 +230,9 @@ function AuthPage() {
 
           <div className="auth-card">
 
-            {/* AUTH HEADER */}
+            {/* =================================================
+                AUTH HEADER
+            ================================================== */}
 
             <div className="auth-heading">
 
@@ -304,33 +240,24 @@ function AuthPage() {
                 THERMAL X ACCESS
               </div>
 
-              <div className="auth-title">
+              <h1 className="auth-title">
                 {mode === "login"
                   ? "Welcome Back."
                   : "Create Your Account."}
-              </div>
+              </h1>
 
               <div className="auth-description">
                 {mode === "login"
-                  ? `Sign in as ${roleName} to access the Thermal X platform.`
+                  ? "Sign in to access the Thermal X platform."
                   : "Register once to create your Thermal X user account."}
               </div>
 
             </div>
 
-            {/* ACCESS STATUS */}
 
-            <div className="auth-role-status">
-
-              <span className="status-indicator" />
-
-              <span>
-                {roleName.toUpperCase()} ACCESS
-              </span>
-
-            </div>
-
-            {/* FORM */}
+            {/* =================================================
+                FORM
+            ================================================== */}
 
             <AnimatePresence mode="wait">
 
@@ -376,50 +303,52 @@ function AuthPage() {
 
                 </div>
 
+
                 {/* REGISTER FIELDS */}
 
-                {mode === "register" &&
-                  role === "user" && (
-                    <>
-                      <div className="form-field">
+                {mode === "register" && (
+                  <>
+                    <div className="form-field">
 
-                        <label htmlFor="name">
-                          FULL NAME
-                        </label>
+                      <label htmlFor="name">
+                        FULL NAME
+                      </label>
 
-                        <input
-                          id="name"
-                          name="name"
-                          type="text"
-                          value={formData.name}
-                          onChange={handleChange}
-                          placeholder="Enter your full name"
-                          autoComplete="name"
-                          required
-                        />
+                      <input
+                        id="name"
+                        name="name"
+                        type="text"
+                        value={formData.name}
+                        onChange={handleChange}
+                        placeholder="Enter your full name"
+                        autoComplete="name"
+                        required
+                      />
 
-                      </div>
+                    </div>
 
-                      <div className="form-field">
 
-                        <label htmlFor="email">
-                          EMAIL ADDRESS
-                        </label>
+                    <div className="form-field">
 
-                        <input
-                          id="email"
-                          name="email"
-                          type="email"
-                          value={formData.email}
-                          onChange={handleChange}
-                          placeholder="Enter your email"
-                          autoComplete="email"
-                          required
-                        />
+                      <label htmlFor="email">
+                        EMAIL ADDRESS
+                      </label>
 
-                      </div>
-                    </>
-                  )}
+                      <input
+                        id="email"
+                        name="email"
+                        type="email"
+                        value={formData.email}
+                        onChange={handleChange}
+                        placeholder="Enter your email"
+                        autoComplete="email"
+                        required
+                      />
+
+                    </div>
+                  </>
+                )}
+
 
                 {/* PASSWORD */}
 
@@ -446,29 +375,30 @@ function AuthPage() {
 
                 </div>
 
+
                 {/* CONFIRM PASSWORD */}
 
-                {mode === "register" &&
-                  role === "user" && (
-                    <div className="form-field">
+                {mode === "register" && (
+                  <div className="form-field">
 
-                      <label htmlFor="confirmPassword">
-                        CONFIRM PASSWORD
-                      </label>
+                    <label htmlFor="confirmPassword">
+                      CONFIRM PASSWORD
+                    </label>
 
-                      <input
-                        id="confirmPassword"
-                        name="confirmPassword"
-                        type="password"
-                        value={formData.confirmPassword}
-                        onChange={handleChange}
-                        placeholder="Confirm your password"
-                        autoComplete="new-password"
-                        required
-                      />
+                    <input
+                      id="confirmPassword"
+                      name="confirmPassword"
+                      type="password"
+                      value={formData.confirmPassword}
+                      onChange={handleChange}
+                      placeholder="Confirm your password"
+                      autoComplete="new-password"
+                      required
+                    />
 
-                    </div>
-                  )}
+                  </div>
+                )}
+
 
                 {/* SUBMIT */}
 
@@ -491,44 +421,49 @@ function AuthPage() {
 
             </AnimatePresence>
 
-            {/* REGISTER / LOGIN SWITCH */}
 
-            {role === "user" && (
-              <div className="auth-switch">
+            {/* =================================================
+                REGISTER / LOGIN SWITCH
+            ================================================== */}
 
-                {mode === "login" ? (
-                  <>
-                    <span>
-                      First time using Thermal X?
-                    </span>
+            <div className="auth-switch">
 
-                    <button
-                      type="button"
-                      onClick={() => setMode("register")}
-                    >
-                      REGISTER
-                    </button>
-                  </>
-                ) : (
-                  <>
-                    <span>
-                      Already have an account?
-                    </span>
+              {mode === "login" ? (
+                <>
+                  <span>
+                    First time using Thermal X?
+                  </span>
 
-                    <button
-                      type="button"
-                      onClick={() => setMode("login")}
-                    >
-                      LOGIN
-                    </button>
-                  </>
-                )}
+                  <button
+                    type="button"
+                    onClick={() => setMode("register")}
+                  >
+                    REGISTER
+                  </button>
+                </>
+              ) : (
+                <>
+                  <span>
+                    Already have an account?
+                  </span>
 
-              </div>
-            )}
+                  <button
+                    type="button"
+                    onClick={() => setMode("login")}
+                  >
+                    LOGIN
+                  </button>
+                </>
+              )}
 
-            {/* SECURITY */}
+            </div>
 
+
+            {/* =================================================
+                SECURITY
+            ================================================== */}
+
+            {/*
             <div className="auth-security">
 
               <span className="security-dot" />
@@ -536,6 +471,7 @@ function AuthPage() {
               SECURE THERMAL X AUTHENTICATION
 
             </div>
+            */}
 
           </div>
 

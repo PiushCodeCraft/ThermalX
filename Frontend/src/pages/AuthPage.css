@@ -1,7 +1,6 @@
 /* =========================================================
-   THERMAL X
-   AUTHENTICATION PAGE
-   RESPONSIVE + TRANSPARENT GLASS BOX
+   THERMAL X - AUTH PAGE
+   RESPONSIVE AUTHENTICATION
 ========================================================= */
 
 
@@ -15,15 +14,17 @@
   width: 100%;
   min-height: 100vh;
 
-  margin: 0;
-  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: 32px;
+
+  box-sizing: border-box;
 
   overflow-x: hidden;
-  overflow-y: auto;
 
-  background: #dceaf2;
-
-  color: #153f5b;
+  font-family: "Inter", sans-serif;
 }
 
 
@@ -42,18 +43,11 @@
   object-fit: cover;
 
   z-index: 0;
-
-  pointer-events: none;
-
-  filter:
-    brightness(0.90)
-    contrast(1.04)
-    saturate(1.05);
 }
 
 
 /* =========================================================
-   VIDEO OVERLAY
+   BACKGROUND OVERLAY
 ========================================================= */
 
 .auth-video-overlay {
@@ -63,20 +57,17 @@
 
   z-index: 1;
 
-  pointer-events: none;
-
   background:
     linear-gradient(
       90deg,
-      rgba(8, 39, 57, 0.18) 0%,
-      rgba(12, 54, 76, 0.06) 50%,
-      rgba(8, 39, 57, 0.18) 100%
+      rgba(3, 15, 28, 0.78),
+      rgba(3, 15, 28, 0.64)
     );
 }
 
 
 /* =========================================================
-   MAIN AUTHENTICATION BOX
+   MAIN AUTH CONTAINER
 ========================================================= */
 
 .auth-layout {
@@ -84,49 +75,29 @@
 
   z-index: 2;
 
+  width: min(1295px, 100%);
+
+  min-height: 700px;
+
   display: grid;
 
-  grid-template-columns:
-    minmax(350px, 42%)
-    minmax(0, 58%);
-
-  width:
-    min(1240px, calc(100% - 120px));
-
-  min-height:
-    calc(100vh - 120px);
-
-  height: auto;
-
-  margin:
-    60px auto;
+  grid-template-columns: 1fr 1fr;
 
   overflow: hidden;
 
-  /* MORE TRANSPARENT */
-  background:
-    rgba(248, 252, 254, 0.62);
-
-  border:
-    1px solid
-    rgba(255, 255, 255, 0.42);
-
   border-radius: 22px;
 
+  background: rgba(245, 247, 249, 0.95);
+
   box-shadow:
-    0 25px 70px
-    rgba(4, 32, 48, 0.20);
+    0 30px 80px rgba(0, 0, 0, 0.38);
 
-  backdrop-filter:
-    blur(7px);
-
-  -webkit-backdrop-filter:
-    blur(7px);
+  backdrop-filter: blur(8px);
 }
 
 
 /* =========================================================
-   LEFT BRAND SECTION
+   LEFT BRAND PANEL
 ========================================================= */
 
 .auth-brand-panel {
@@ -136,53 +107,15 @@
 
   flex-direction: column;
 
-  align-items: center;
+  min-height: 700px;
 
-  width: 100%;
+  padding: 48px 58px 30px;
 
-  min-width: 0;
+  box-sizing: border-box;
 
-  min-height:
-    calc(100vh - 120px);
+  background: rgba(245, 247, 249, 0.96);
 
-  padding:
-    30px
-    38px
-    24px;
-
-  overflow: hidden;
-
-  /* MORE TRANSPARENT */
-  background:
-    rgba(255, 255, 255, 0.48);
-
-  border-right:
-    1px solid
-    rgba(40, 86, 111, 0.12);
-}
-
-
-/* =========================================================
-   LEFT TOP ACCENT
-========================================================= */
-
-.auth-brand-panel::before {
-  content: "";
-
-  position: absolute;
-
-  top: 0;
-  left: 0;
-
-  width: 100%;
-  height: 4px;
-
-  background:
-    linear-gradient(
-      90deg,
-      #153f5b 0%,
-      #df302f 100%
-    );
+  border-top: 3px solid #1e3a8a;
 }
 
 
@@ -193,52 +126,23 @@
 .auth-logo-wrapper {
   display: flex;
 
-  justify-content: center;
   align-items: center;
 
   width: 100%;
-
-  flex-shrink: 0;
-
-  margin:
-    0 auto
-    18px;
 }
 
+.auth-logo-link {
+  display: inline-flex;
 
-.auth-logo {
-  display: flex;
-
-  justify-content: center;
   align-items: center;
-
-  width: 100%;
 
   text-decoration: none;
-
-  cursor: pointer;
-
-  transition:
-    transform 0.25s ease,
-    opacity 0.25s ease;
 }
 
-
-.auth-logo:hover {
-  transform:
-    translateY(-2px);
-
-  opacity: 0.95;
-}
-
-
-.auth-logo img {
+.auth-logo-image {
   display: block;
 
-  width:
-    clamp(220px, 20vw, 290px);
-
-  max-width: 100%;
+  width: min(300px, 100%);
 
   height: auto;
 
@@ -251,248 +155,57 @@
 ========================================================= */
 
 .auth-brand-content {
-  width: 100%;
+  max-width: 560px;
 
-  max-width: 500px;
-
-  margin:
-    10px auto
-    0;
-
-  text-align: center;
+  margin-top: 55px;
 }
 
-
-/* =========================================================
-   BRAND EYEBROW
-========================================================= */
-
 .brand-eyebrow {
-  width: 100%;
+  color: #ef2f2f;
 
-  margin:
-    0 0 12px;
+  font-size: 10px;
 
-  color: #df302f;
+  font-weight: 800;
 
-  font-size: 9px;
-
-  font-weight: 900;
-
-  letter-spacing: 2px;
-
-  line-height: 1.2;
+  letter-spacing: 0.25em;
 
   text-transform: uppercase;
 }
 
-
-/* =========================================================
-   BRAND TITLE
-========================================================= */
-
 .brand-title {
-  display: flex;
+  margin-top: 18px;
 
-  flex-direction: column;
-
-  align-items: center;
-
-  width: 100%;
-
-  margin: 0;
-
-  padding: 0;
-}
-
-
-/* =========================================================
-   SEE THE HEAT
-========================================================= */
-
-.heat-title {
-  display: block;
-
-  width: 100%;
-
-  color: #103f5d;
-
-  font-size:
-    clamp(26px, 2.5vw, 40px);
-
-  font-weight: 900;
-
-  line-height: 1;
-
-  letter-spacing: -1.6px;
-
-  text-align: center;
-
-  white-space: nowrap;
-}
-
-
-/* =========================================================
-   UNDERSTAND THE CHANGE
-========================================================= */
-
-.change-title {
-  display: block;
-
-  width: 100%;
-
-  margin-top: 4px;
-
-  color: #df302f;
-
-  font-size:
-    clamp(18px, 1.9vw, 30px);
-
-  font-weight: 900;
+  font-size: clamp(30px, 3vw, 42px);
 
   line-height: 1.05;
 
-  letter-spacing: -1px;
+  font-weight: 800;
 
-  text-align: center;
-
-  white-space: nowrap;
+  letter-spacing: -0.035em;
 }
 
+.heat-title {
+  color: #164a6b;
+}
 
-/* =========================================================
-   BRAND DESCRIPTION
-========================================================= */
+.change-title {
+  margin-top: 3px;
+
+  color: #e63232;
+}
 
 .brand-description {
-  width: 100%;
+  max-width: 510px;
 
-  max-width: 450px;
+  margin-top: 25px;
 
-  margin:
-    22px auto
-    0;
+  color: #607d96;
 
-  color: #5b788c;
+  font-size: 14px;
 
-  font-size: 11px;
+  line-height: 1.75;
 
   font-weight: 500;
-
-  line-height: 1.7;
-
-  text-align: center;
-}
-
-
-/* =========================================================
-   ACCESS LEVEL
-========================================================= */
-
-.brand-account-selector {
-  width: 100%;
-
-  max-width: 100%;
-
-  /*
-     Push selector toward bottom
-     without absolute positioning.
-  */
-
-  margin-top: auto;
-
-  padding-top: 55px;
-}
-
-
-.brand-account-selector label {
-  display: block;
-
-  margin:
-    0 0 8px;
-
-  color: #174763;
-
-  font-size: 8px;
-
-  font-weight: 900;
-
-  letter-spacing: 1.5px;
-
-  line-height: 1.2;
-
-  text-transform: uppercase;
-}
-
-
-/* =========================================================
-   SELECT
-========================================================= */
-
-.select-wrapper {
-  position: relative;
-
-  width: 100%;
-}
-
-
-.brand-account-selector select {
-  display: block;
-
-  width: 100%;
-
-  height: 45px;
-
-  padding:
-    0 14px;
-
-  border:
-    1px solid
-    rgba(52, 103, 131, 0.30);
-
-  border-radius: 5px;
-
-  outline: none;
-
-  background:
-    rgba(255, 255, 255, 0.90);
-
-  color: #174763;
-
-  font-size: 11px;
-
-  font-weight: 700;
-
-  cursor: pointer;
-
-  appearance: auto;
-
-  transition:
-    border-color 0.2s ease,
-    box-shadow 0.2s ease,
-    background 0.2s ease;
-}
-
-
-.brand-account-selector select:hover {
-  border-color:
-    rgba(21, 63, 91, 0.55);
-
-  background:
-    rgba(255, 255, 255, 0.98);
-}
-
-
-.brand-account-selector select:focus {
-  border-color:
-    #153f5b;
-
-  box-shadow:
-    0 0 0 3px
-    rgba(21, 63, 91, 0.10);
-
-  background:
-    #ffffff;
 }
 
 
@@ -501,194 +214,104 @@
 ========================================================= */
 
 .brand-footer {
+  margin-top: auto;
+
+  padding-top: 20px;
+
   display: flex;
 
-  justify-content: space-between;
   align-items: center;
 
-  width: 100%;
+  justify-content: space-between;
 
-  gap: 15px;
+  gap: 20px;
 
-  margin-top: 22px;
+  border-top: 1px solid rgba(100, 116, 139, 0.25);
 
-  padding-top: 12px;
+  color: #7c98ad;
 
-  border-top:
-    1px solid
-    rgba(60, 105, 130, 0.18);
-
-  color: #7891a0;
-
-  font-size: 6px;
+  font-size: 8px;
 
   font-weight: 800;
 
-  letter-spacing: 0.9px;
-
-  line-height: 1.2;
+  letter-spacing: 0.18em;
 
   text-transform: uppercase;
 }
 
 
 /* =========================================================
-   RIGHT AUTHENTICATION SECTION
+   RIGHT AUTH PANEL
 ========================================================= */
 
 .auth-form-panel {
-  position: relative;
-
   display: flex;
 
-  justify-content: center;
   align-items: center;
 
-  width: 100%;
+  justify-content: center;
 
-  min-width: 0;
+  padding: 55px 70px;
 
-  min-height:
-    calc(100vh - 120px);
+  box-sizing: border-box;
 
-  padding:
-    45px
-    clamp(40px, 5vw, 75px);
-
-  /* MORE TRANSPARENT */
-  background:
-    rgba(248, 252, 254, 0.32);
+  background: rgba(232, 235, 238, 0.96);
 }
 
 
 /* =========================================================
-   AUTH CONTENT
+   AUTH CARD
 ========================================================= */
 
 .auth-card {
   width: 100%;
 
-  max-width: 620px;
-
-  min-width: 0;
-
-  margin:
-    auto;
+  max-width: 610px;
 }
 
 
 /* =========================================================
-   AUTH HEADER
+   AUTH HEADING
 ========================================================= */
 
 .auth-heading {
-  width: 100%;
-
-  margin-bottom: 20px;
+  margin-bottom: 30px;
 }
 
-
 .auth-eyebrow {
-  margin:
-    0 0 8px;
+  color: #ef2f2f;
 
-  color: #df302f;
+  font-size: 10px;
 
-  font-size: 9px;
+  font-weight: 800;
 
-  font-weight: 900;
-
-  letter-spacing: 2px;
-
-  line-height: 1.2;
+  letter-spacing: 0.25em;
 
   text-transform: uppercase;
 }
 
-
-/* =========================================================
-   AUTH TITLE
-========================================================= */
-
 .auth-title {
-  width: 100%;
+  margin: 13px 0 10px;
 
-  color: #103f5d;
+  color: #124b6c;
 
-  font-size:
-    clamp(38px, 4vw, 58px);
+  font-size: clamp(38px, 4vw, 58px);
 
-  font-weight: 900;
+  line-height: 1;
 
-  line-height: 0.98;
+  font-weight: 800;
 
-  letter-spacing: -2.5px;
-
-  white-space: nowrap;
+  letter-spacing: -0.045em;
 }
-
-
-/* =========================================================
-   AUTH DESCRIPTION
-========================================================= */
 
 .auth-description {
-  margin:
-    13px 0 0;
+  color: #67839a;
 
-  color: #557488;
+  font-size: 13px;
 
-  font-size: 12px;
+  line-height: 1.6;
 
   font-weight: 500;
-
-  line-height: 1.5;
-}
-
-
-/* =========================================================
-   ACCESS STATUS
-========================================================= */
-
-.auth-role-status {
-  display: flex;
-
-  align-items: center;
-
-  gap: 9px;
-
-  width: 100%;
-
-  padding-bottom: 12px;
-
-  border-bottom:
-    1px solid
-    rgba(58, 101, 125, 0.20);
-
-  color: #174763;
-
-  font-size: 8px;
-
-  font-weight: 900;
-
-  letter-spacing: 1.4px;
-}
-
-
-.status-indicator {
-  width: 8px;
-
-  height: 8px;
-
-  flex-shrink: 0;
-
-  border-radius: 50%;
-
-  background: #df302f;
-
-  box-shadow:
-    0 0 0 4px
-    rgba(223, 48, 47, 0.10);
 }
 
 
@@ -701,11 +324,9 @@
 
   flex-direction: column;
 
-  gap: 14px;
+  gap: 18px;
 
   width: 100%;
-
-  margin-top: 17px;
 }
 
 
@@ -718,61 +339,45 @@
 
   flex-direction: column;
 
-  width: 100%;
+  gap: 8px;
 
-  gap: 6px;
+  width: 100%;
 }
 
-
 .form-field label {
-  color: #164560;
+  color: #164b6a;
 
-  font-size: 8px;
+  font-size: 9px;
 
   font-weight: 900;
 
-  letter-spacing: 1.4px;
-
-  line-height: 1.2;
+  letter-spacing: 0.2em;
 
   text-transform: uppercase;
 }
 
-
-/* =========================================================
-   INPUT
-========================================================= */
-
 .form-field input {
-  display: block;
-
   width: 100%;
 
-  height: 46px;
+  height: 47px;
 
-  padding:
-    0 14px;
+  padding: 0 14px;
 
-  border:
-    1px solid
-    rgba(45, 91, 117, 0.28);
+  box-sizing: border-box;
+
+  border: 1px solid #cbd5dc;
 
   border-radius: 5px;
 
   outline: none;
 
-  background:
-    rgba(255, 255, 255, 0.94);
+  background: rgba(255, 255, 255, 0.96);
 
-  color: #123f5b;
+  color: #183d55;
 
-  font-size: 12px;
+  font-family: inherit;
 
-  font-weight: 500;
-
-  box-shadow:
-    0 3px 10px
-    rgba(15, 55, 78, 0.05);
+  font-size: 13px;
 
   transition:
     border-color 0.2s ease,
@@ -780,69 +385,48 @@
     background 0.2s ease;
 }
 
-
 .form-field input::placeholder {
-  color: #7e99a9;
-
-  opacity: 1;
+  color: #8ca2b1;
 }
-
-
-.form-field input:hover {
-  border-color:
-    rgba(45, 91, 117, 0.48);
-
-  background:
-    rgba(255, 255, 255, 0.98);
-}
-
 
 .form-field input:focus {
-  border-color:
-    #153f5b;
+  border-color: #1d5879;
 
-  background:
-    #ffffff;
+  background: #ffffff;
 
   box-shadow:
-    0 0 0 3px
-    rgba(21, 63, 91, 0.09);
+    0 0 0 3px rgba(30, 58, 138, 0.1);
 }
 
 
 /* =========================================================
-   SUBMIT BUTTON
+   LOGIN BUTTON
 ========================================================= */
 
 .auth-submit {
-  display: block;
-
   width: 100%;
 
   height: 48px;
 
-  margin-top: 2px;
+  margin-top: 5px;
 
   border: none;
 
   border-radius: 5px;
 
-  background:
-    #123f5b;
+  background: #124d6c;
 
   color: #ffffff;
 
-  font-size: 9px;
+  font-family: inherit;
+
+  font-size: 10px;
 
   font-weight: 900;
 
-  letter-spacing: 2px;
+  letter-spacing: 0.25em;
 
   cursor: pointer;
-
-  box-shadow:
-    0 8px 20px
-    rgba(18, 63, 91, 0.17);
 
   transition:
     background 0.2s ease,
@@ -850,50 +434,39 @@
     transform 0.2s ease;
 }
 
-
 .auth-submit:hover {
-  background:
-    #0b3149;
+  background: #0d3e58;
 
   box-shadow:
-    0 11px 25px
-    rgba(18, 63, 91, 0.25);
+    0 8px 20px rgba(18, 77, 108, 0.2);
 }
 
 
 /* =========================================================
-   REGISTER / LOGIN SWITCH
+   LOGIN / REGISTER SWITCH
 ========================================================= */
 
 .auth-switch {
   display: flex;
 
-  justify-content: center;
   align-items: center;
 
-  flex-wrap: wrap;
+  justify-content: center;
 
   gap: 7px;
 
-  width: 100%;
+  margin-top: 17px;
 
-  margin-top: 14px;
+  padding-top: 17px;
 
-  padding-top: 14px;
+  border-top: 1px solid rgba(100, 116, 139, 0.18);
 
-  border-top:
-    1px solid
-    rgba(58, 101, 125, 0.18);
-
-  color: #718b9a;
+  color: #7890a0;
 
   font-size: 10px;
 
-  line-height: 1.4;
-
   text-align: center;
 }
-
 
 .auth-switch button {
   padding: 0;
@@ -902,17 +475,18 @@
 
   background: transparent;
 
-  color: #df302f;
+  color: #e63232;
+
+  font-family: inherit;
 
   font-size: 9px;
 
   font-weight: 900;
 
-  letter-spacing: 0.8px;
+  letter-spacing: 0.12em;
 
   cursor: pointer;
 }
-
 
 .auth-switch button:hover {
   text-decoration: underline;
@@ -920,616 +494,223 @@
 
 
 /* =========================================================
-   SECURITY
-========================================================= */
-
-.auth-security {
-  display: flex;
-
-  justify-content: center;
-  align-items: center;
-
-  flex-wrap: wrap;
-
-  gap: 7px;
-
-  width: 100%;
-
-  margin-top: 13px;
-
-  color: #718b9a;
-
-  font-size: 7px;
-
-  font-weight: 900;
-
-  letter-spacing: 1px;
-
-  line-height: 1.4;
-
-  text-align: center;
-}
-
-
-.security-dot {
-  width: 6px;
-
-  height: 6px;
-
-  flex-shrink: 0;
-
-  border-radius: 50%;
-
-  background: #23a36d;
-
-  box-shadow:
-    0 0 0 4px
-    rgba(35, 163, 109, 0.08);
-}
-
-
-/* =========================================================
-   LARGE DESKTOP
-========================================================= */
-
-@media (min-width: 1400px) {
-
-  .auth-layout {
-    width:
-      min(1280px, calc(100% - 120px));
-  }
-
-
-  .auth-brand-panel {
-    padding-left: 45px;
-    padding-right: 45px;
-  }
-
-
-  .auth-form-panel {
-    padding-left: 70px;
-    padding-right: 70px;
-  }
-
-}
-
-
-/* =========================================================
-   1200px
-========================================================= */
-
-@media (max-width: 1200px) {
-
-  .auth-layout {
-    width:
-      calc(100% - 70px);
-
-    grid-template-columns:
-      minmax(330px, 43%)
-      minmax(0, 57%);
-
-    margin:
-      35px auto;
-  }
-
-
-  .auth-brand-panel {
-    min-height:
-      calc(100vh - 70px);
-
-    padding:
-      28px
-      28px
-      22px;
-  }
-
-
-  .auth-form-panel {
-    min-height:
-      calc(100vh - 70px);
-
-    padding:
-      40px
-      45px;
-  }
-
-
-  .auth-logo img {
-    width: 250px;
-  }
-
-
-  .heat-title {
-    font-size: 28px;
-  }
-
-
-  .change-title {
-    font-size: 21px;
-  }
-
-
-  .auth-title {
-    font-size: 46px;
-  }
-
-}
-
-
-/* =========================================================
-   1000px
+   TABLET
+   761px - 1000px
 ========================================================= */
 
 @media (max-width: 1000px) {
 
-  .auth-layout {
-    width:
-      calc(100% - 40px);
-
-    grid-template-columns:
-      minmax(300px, 44%)
-      minmax(0, 56%);
-
-    margin:
-      25px auto;
+  .auth-page {
+    padding: 22px;
   }
 
+  .auth-layout {
+    min-height: 650px;
+  }
 
   .auth-brand-panel {
-    min-height:
-      calc(100vh - 50px);
+    min-height: 650px;
 
-    padding:
-      25px
-      22px
-      20px;
+    padding: 40px 38px 26px;
   }
-
 
   .auth-form-panel {
-    min-height:
-      calc(100vh - 50px);
-
-    padding:
-      35px
-      32px;
+    padding: 40px 38px;
   }
 
-
-  .auth-logo img {
-    width: 225px;
+  .auth-brand-content {
+    margin-top: 40px;
   }
-
-
-  .heat-title {
-    font-size: 25px;
-  }
-
-
-  .change-title {
-    font-size: 18px;
-  }
-
 
   .brand-description {
-    font-size: 10px;
+    font-size: 13px;
   }
 
-
-  .auth-title {
-    font-size: 40px;
-  }
-
-}
-
-
-/* =========================================================
-   850px
-========================================================= */
-
-@media (max-width: 850px) {
-
-  .auth-layout {
-    grid-template-columns:
-      minmax(285px, 45%)
-      minmax(0, 55%);
-  }
-
-
-  .auth-brand-panel {
-    padding:
-      23px
-      18px
-      18px;
-  }
-
-
-  .auth-form-panel {
-    padding:
-      30px
-      25px;
-  }
-
-
-  .auth-logo img {
-    width: 210px;
-  }
-
-
-  .heat-title {
-    font-size: 23px;
-  }
-
-
-  .change-title {
-    font-size: 17px;
-  }
-
-
-  .auth-title {
-    font-size: 35px;
+  .brand-footer {
+    font-size: 7px;
   }
 
 }
 
 
 /* =========================================================
-   768px
-   STACK THE TWO SECTIONS
+   MOBILE
+   IMPORTANT:
+   LEFT SIDE IS COMPLETELY HIDDEN
 ========================================================= */
 
-@media (max-width: 768px) {
+@media (max-width: 760px) {
+
+  /* -----------------------------------------------
+     PAGE
+  ------------------------------------------------ */
 
   .auth-page {
     min-height: 100vh;
 
-    overflow-y: auto;
-  }
-
-
-  .auth-layout {
-    display: flex;
-
-    flex-direction: column;
-
-    width:
-      calc(100% - 30px);
-
-    min-height: 0;
-
-    height: auto;
-
-    margin:
-      20px auto
-      35px;
-
-    overflow: hidden;
-
-    border-radius: 20px;
-  }
-
-
-  /* =====================================================
-     LEFT BRAND
-  ===================================================== */
-
-  .auth-brand-panel {
     width: 100%;
 
-    min-height: 0;
+    padding: 16px;
 
-    height: auto;
+    align-items: center;
 
-    padding:
-      32px
-      30px
-      25px;
-
-    border-right: none;
-
-    border-bottom:
-      1px solid
-      rgba(40, 86, 111, 0.16);
+    justify-content: center;
   }
 
 
-  .auth-logo img {
-    width: 270px;
+  /* -----------------------------------------------
+     HIDE LEFT BRAND PANEL COMPLETELY
+  ------------------------------------------------ */
+
+  .auth-brand-panel {
+    display: none !important;
   }
 
 
-  .auth-brand-content {
-    max-width: 550px;
+  /* -----------------------------------------------
+     SINGLE COLUMN
+  ------------------------------------------------ */
+
+  .auth-layout {
+    width: 100%;
+
+    min-height: auto;
+
+    display: block;
+
+    overflow: visible;
+
+    border-radius: 16px;
+
+    background: transparent;
+
+    box-shadow: none;
+
+    backdrop-filter: none;
   }
 
 
-  .heat-title {
-    font-size:
-      clamp(29px, 5vw, 37px);
-  }
-
-
-  .change-title {
-    font-size:
-      clamp(21px, 3.7vw, 27px);
-  }
-
-
-  .brand-description {
-    max-width: 520px;
-
-    font-size: 11px;
-  }
-
-
-  .brand-account-selector {
-    max-width: 520px;
-
-    margin-top: 50px;
-
-    padding-top: 0;
-  }
-
-
-  .brand-footer {
-    max-width: 520px;
-
-    margin-top: 25px;
-  }
-
-
-  /* =====================================================
-     RIGHT AUTH
-  ===================================================== */
+  /* -----------------------------------------------
+     RIGHT PANEL BECOMES THE ONLY PANEL
+  ------------------------------------------------ */
 
   .auth-form-panel {
     width: 100%;
 
-    min-height: 0;
+    min-height: auto;
 
-    height: auto;
+    display: flex;
 
-    padding:
-      50px
-      50px
-      55px;
+    align-items: center;
+
+    justify-content: center;
+
+    padding: 42px 28px;
+
+    box-sizing: border-box;
+
+    border-radius: 16px;
+
+    background: rgba(245, 247, 249, 0.97);
+
+    border-top: 3px solid #1e3a8a;
+
+    box-shadow:
+      0 20px 50px rgba(0, 0, 0, 0.25);
   }
 
+
+  /* -----------------------------------------------
+     AUTH CARD
+  ------------------------------------------------ */
 
   .auth-card {
-    max-width: 600px;
+    width: 100%;
+
+    max-width: 500px;
   }
 
+
+  /* -----------------------------------------------
+     HEADING
+  ------------------------------------------------ */
+
+  .auth-heading {
+    margin-bottom: 27px;
+  }
+
+  .auth-eyebrow {
+    font-size: 9px;
+
+    letter-spacing: 0.22em;
+  }
 
   .auth-title {
-    font-size:
-      clamp(39px, 6vw, 50px);
+    margin-top: 12px;
+
+    font-size: clamp(36px, 9vw, 48px);
+
+    line-height: 1;
   }
 
-}
-
-
-/* =========================================================
-   600px
-========================================================= */
-
-@media (max-width: 600px) {
-
-  .auth-video-overlay {
-    background:
-      rgba(7, 37, 53, 0.14);
-  }
-
-
-  .auth-layout {
-    width:
-      calc(100% - 20px);
-
-    margin:
-      12px auto
-      28px;
-
-    border-radius: 17px;
-  }
-
-
-  /* =====================================================
-     LEFT
-  ===================================================== */
-
-  .auth-brand-panel {
-    padding:
-      28px
-      20px
-      22px;
-  }
-
-
-  .auth-logo-wrapper {
-    margin-bottom: 12px;
-  }
-
-
-  .auth-logo img {
-    width: 240px;
-  }
-
-
-  .brand-eyebrow {
-    font-size: 8px;
-
-    letter-spacing: 1.6px;
-  }
-
-
-  .heat-title {
-    font-size:
-      clamp(25px, 8vw, 33px);
-
-    letter-spacing: -1.2px;
-  }
-
-
-  .change-title {
-    font-size:
-      clamp(17px, 5.6vw, 24px);
-
-    letter-spacing: -0.6px;
-
-    white-space: nowrap;
-  }
-
-
-  .brand-description {
-    margin-top: 18px;
-
-    font-size: 10.5px;
+  .auth-description {
+    font-size: 12px;
 
     line-height: 1.6;
   }
 
 
-  .brand-account-selector {
-    margin-top: 45px;
+  /* -----------------------------------------------
+     FORM
+  ------------------------------------------------ */
+
+  .auth-form {
+    gap: 17px;
   }
 
-
-  .brand-account-selector select {
-    height: 45px;
+  .form-field {
+    gap: 8px;
   }
 
-
-  .brand-footer {
-    margin-top: 24px;
-
-    font-size: 5.5px;
+  .form-field label {
+    font-size: 9px;
   }
-
-
-  /* =====================================================
-     RIGHT
-  ===================================================== */
-
-  .auth-form-panel {
-    padding:
-      42px
-      22px
-      48px;
-  }
-
-
-  .auth-eyebrow {
-    font-size: 8px;
-  }
-
-
-  .auth-title {
-    font-size:
-      clamp(34px, 10vw, 42px);
-
-    line-height: 1;
-
-    letter-spacing: -1.8px;
-
-    white-space: normal;
-  }
-
-
-  .auth-description {
-    font-size: 11px;
-  }
-
-
-  .auth-role-status {
-    font-size: 7.5px;
-  }
-
 
   .form-field input {
-    height: 45px;
-  }
+    height: 52px;
 
-}
+    font-size: 13px;
 
-
-/* =========================================================
-   480px
-========================================================= */
-
-@media (max-width: 480px) {
-
-  .auth-layout {
-    width:
-      calc(100% - 14px);
-
-    margin-top: 8px;
+    padding: 0 14px;
   }
 
 
-  .auth-brand-panel {
-    padding:
-      25px
-      16px
-      20px;
-  }
+  /* -----------------------------------------------
+     LOGIN BUTTON
+  ------------------------------------------------ */
 
+  .auth-submit {
+    height: 52px;
 
-  .auth-logo img {
-    width: 215px;
-  }
+    margin-top: 5px;
 
-
-  .heat-title {
-    font-size: 25px;
-  }
-
-
-  .change-title {
-    font-size: 18px;
-  }
-
-
-  .brand-description {
     font-size: 10px;
   }
 
 
-  .brand-account-selector {
-    margin-top: 40px;
-  }
-
-
-  .brand-footer {
-    gap: 10px;
-
-    font-size: 5px;
-  }
-
-
-  .auth-form-panel {
-    padding:
-      38px
-      16px
-      42px;
-  }
-
-
-  .auth-title {
-    font-size: 32px;
-  }
-
-
-  .auth-description {
-    font-size: 10.5px;
-  }
-
-
-  .auth-form {
-    gap: 13px;
-  }
-
+  /* -----------------------------------------------
+     REGISTER SWITCH
+  ------------------------------------------------ */
 
   .auth-switch {
+    margin-top: 20px;
+
+    padding-top: 18px;
+
+    font-size: 10px;
+  }
+
+  .auth-switch button {
     font-size: 9px;
   }
 
@@ -1537,89 +718,137 @@
 
 
 /* =========================================================
-   380px
+   SMALL MOBILE
+   451px - 600px
 ========================================================= */
 
-@media (max-width: 380px) {
+@media (max-width: 600px) {
 
-  .auth-layout {
-    width:
-      calc(100% - 10px);
-
-    margin-top: 5px;
+  .auth-page {
+    padding: 14px;
   }
-
-
-  .auth-brand-panel {
-    padding:
-      22px
-      13px
-      18px;
-  }
-
-
-  .auth-logo img {
-    width: 195px;
-  }
-
-
-  .brand-eyebrow {
-    font-size: 7px;
-  }
-
-
-  .heat-title {
-    font-size: 23px;
-  }
-
-
-  .change-title {
-    font-size: 16px;
-  }
-
-
-  .brand-description {
-    font-size: 9.5px;
-  }
-
-
-  .brand-account-selector {
-    margin-top: 35px;
-  }
-
-
-  .brand-footer {
-    font-size: 4.5px;
-  }
-
 
   .auth-form-panel {
-    padding:
-      34px
-      13px
-      38px;
+    padding: 38px 24px;
   }
-
 
   .auth-title {
-    font-size: 29px;
+    font-size: clamp(34px, 9vw, 44px);
   }
 
+}
+
+
+/* =========================================================
+   VERY SMALL MOBILE
+   350px - 450px
+========================================================= */
+
+@media (max-width: 450px) {
+
+  .auth-page {
+    padding: 10px;
+  }
+
+  .auth-form-panel {
+    padding: 32px 20px 35px;
+
+    border-radius: 13px;
+  }
+
+  .auth-card {
+    width: 100%;
+  }
+
+  .auth-heading {
+    margin-bottom: 23px;
+  }
+
+  .auth-title {
+    font-size: 34px;
+
+    letter-spacing: -0.04em;
+  }
+
+  .auth-description {
+    font-size: 11px;
+  }
+
+  .form-field input {
+    height: 48px;
+
+    font-size: 12px;
+  }
+
+  .auth-submit {
+    height: 48px;
+  }
+
+  .auth-switch {
+    flex-wrap: wrap;
+
+    gap: 5px;
+
+    font-size: 9px;
+  }
+
+}
+
+
+/* =========================================================
+   EXTRA SMALL DEVICES
+   <= 350px
+========================================================= */
+
+@media (max-width: 350px) {
+
+  .auth-page {
+    padding: 7px;
+  }
+
+  .auth-form-panel {
+    padding: 28px 16px 30px;
+  }
+
+  .auth-title {
+    font-size: 30px;
+  }
 
   .auth-description {
     font-size: 10px;
   }
 
-
   .form-field input {
-    height: 44px;
-
-    font-size: 11px;
+    height: 46px;
   }
-
 
   .auth-submit {
     height: 46px;
+  }
+
+}
+
+
+/* =========================================================
+   LANDSCAPE MOBILE
+========================================================= */
+
+@media (max-width: 760px) and (orientation: landscape) {
+
+  .auth-page {
+    align-items: flex-start;
+
+    padding: 16px;
+  }
+
+  .auth-form-panel {
+    margin: 10px auto;
+
+    padding: 28px 30px;
+  }
+
+  .auth-title {
+    font-size: 32px;
   }
 
 }
