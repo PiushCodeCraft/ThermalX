@@ -852,3 +852,23 @@
   }
 
 }
+.auth-error {
+  width: 100%;
+  box-sizing: border-box;
+
+  padding: 12px 14px;
+
+  margin-top: 4px;
+
+  border: 1px solid rgba(255, 80, 80, 0.35);
+
+  background: rgba(255, 50, 50, 0.08);
+
+  color: #ff6b6b;
+
+  font-size: 13px;
+
+  line-height: 1.4;
+
+  border-radius: 6px;
+}

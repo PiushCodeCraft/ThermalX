@@ -242,16 +242,16 @@ function Navbar() {
 
 
             <motion.div
-              whileHover={{ y: -1 }}
-              whileTap={{ scale: 0.98 }}
-            >
-              <Link
-                to="/auth"
-                className="nav-auth"
-              >
-                LOGIN
-              </Link>
-            </motion.div>
+  whileHover={{ y: -1 }}
+  whileTap={{ scale: 0.98 }}
+>
+  <Link
+    to="/login"
+    className="nav-auth"
+  >
+    LOGIN
+  </Link>
+</motion.div>
 
           </div>
 

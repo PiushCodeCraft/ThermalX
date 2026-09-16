@@ -1,0 +1,510 @@
+/* =========================================================
+   THERMAL-X SYSTEM
+========================================================= */
+
+.tx-system {
+  min-height: 100vh;
+
+  padding: 34px 40px 50px;
+
+  box-sizing: border-box;
+
+  background: #f7f9fa;
+}
+
+
+/* =========================================================
+   HEADER
+========================================================= */
+
+.tx-system-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+
+  gap: 25px;
+
+  margin-bottom: 25px;
+}
+
+.tx-system-eyebrow {
+  display: block;
+
+  margin-bottom: 8px;
+
+  color: #899aa4;
+
+  font-size: 9px;
+  font-weight: 800;
+
+  letter-spacing: 0.14em;
+}
+
+.tx-system-header h1 {
+  margin: 0;
+
+  color: #173b52;
+
+  font-size: 29px;
+  font-weight: 700;
+
+  letter-spacing: -0.03em;
+}
+
+.tx-system-header p {
+  margin: 8px 0 0;
+
+  color: #728590;
+
+  font-size: 13px;
+}
+
+
+/* =========================================================
+   REFRESH
+========================================================= */
+
+.tx-system-refresh {
+  display: flex;
+  align-items: center;
+
+  gap: 8px;
+
+  padding: 10px 13px;
+
+  border: 1px solid #d8e3e7;
+  border-radius: 4px;
+
+  background: #ffffff;
+
+  color: #315b70;
+
+  font-size: 9px;
+  font-weight: 800;
+
+  letter-spacing: 0.06em;
+
+  cursor: pointer;
+}
+
+.tx-system-refresh:hover {
+  background: #f1f6f8;
+}
+
+
+/* =========================================================
+   HEALTH
+========================================================= */
+
+.tx-system-health {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  margin-bottom: 16px;
+
+  padding: 12px 16px;
+
+  border: 1px solid #dfe8e3;
+  border-radius: 5px;
+
+  background: #f8fbf9;
+}
+
+.tx-system-health-indicator {
+  display: flex;
+  align-items: center;
+
+  gap: 8px;
+
+  color: #4c8061;
+
+  font-size: 9px;
+  font-weight: 800;
+
+  letter-spacing: 0.08em;
+}
+
+.tx-system-health-dot {
+  width: 7px;
+  height: 7px;
+
+  border-radius: 50%;
+
+  background: #4a9b68;
+}
+
+.tx-system-last-update {
+  display: flex;
+  align-items: center;
+
+  gap: 6px;
+
+  color: #8a9aa2;
+
+  font-size: 9px;
+}
+
+
+/* =========================================================
+   METRICS
+========================================================= */
+
+.tx-system-metrics {
+  display: grid;
+
+  grid-template-columns:
+    repeat(4, minmax(0, 1fr));
+
+  gap: 15px;
+
+  margin-bottom: 20px;
+}
+
+.tx-system-metric-card {
+  min-height: 90px;
+
+  display: flex;
+  align-items: center;
+
+  gap: 13px;
+
+  padding: 17px;
+
+  box-sizing: border-box;
+
+  background: #ffffff;
+
+  border: 1px solid #e1e8eb;
+
+  border-radius: 5px;
+}
+
+.tx-system-metric-icon {
+  width: 40px;
+  height: 40px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  flex-shrink: 0;
+
+  border-radius: 4px;
+
+  background: #eef4f6;
+
+  color: #315b70;
+}
+
+.tx-system-metric-card div:last-child {
+  display: flex;
+  flex-direction: column;
+
+  gap: 5px;
+}
+
+.tx-system-metric-card span {
+  color: #899aa3;
+
+  font-size: 8px;
+  font-weight: 800;
+
+  text-transform: uppercase;
+
+  letter-spacing: 0.06em;
+}
+
+.tx-system-metric-card strong {
+  color: #24495b;
+
+  font-size: 14px;
+}
+
+
+/* =========================================================
+   CARDS
+========================================================= */
+
+.tx-system-services-card,
+.tx-system-config-card {
+  margin-bottom: 20px;
+
+  overflow: hidden;
+
+  background: #ffffff;
+
+  border: 1px solid #e1e8eb;
+
+  border-radius: 5px;
+}
+
+.tx-system-card-header {
+  min-height: 72px;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  padding: 17px 20px;
+
+  box-sizing: border-box;
+
+  border-bottom: 1px solid #edf1f3;
+}
+
+.tx-system-card-eyebrow {
+  display: block;
+
+  margin-bottom: 5px;
+
+  color: #98a6ad;
+
+  font-size: 8px;
+  font-weight: 800;
+
+  letter-spacing: 0.13em;
+}
+
+.tx-system-card-header h2 {
+  margin: 0;
+
+  color: #24475a;
+
+  font-size: 16px;
+}
+
+.tx-system-online-badge {
+  padding: 5px 8px;
+
+  border: 1px solid #dce9e1;
+  border-radius: 3px;
+
+  background: #f5faf7;
+
+  color: #39805a;
+
+  font-size: 8px;
+  font-weight: 800;
+
+  letter-spacing: 0.08em;
+}
+
+
+/* =========================================================
+   SERVICES
+========================================================= */
+
+.tx-system-services {
+  padding: 5px 20px;
+}
+
+.tx-system-service {
+  min-height: 72px;
+
+  display: flex;
+  align-items: center;
+
+  gap: 13px;
+
+  border-bottom: 1px solid #edf1f3;
+}
+
+.tx-system-service:last-child {
+  border-bottom: none;
+}
+
+.tx-system-service-icon {
+  width: 38px;
+  height: 38px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  flex-shrink: 0;
+
+  border-radius: 4px;
+
+  background: #eef4f6;
+
+  color: #315b70;
+}
+
+.tx-system-service-info {
+  display: flex;
+  flex-direction: column;
+
+  gap: 5px;
+
+  flex: 1;
+}
+
+.tx-system-service-info strong {
+  color: #405e6d;
+
+  font-size: 11px;
+}
+
+.tx-system-service-info span {
+  color: #8d9ca3;
+
+  font-size: 9px;
+}
+
+.tx-system-service-status {
+  display: flex;
+  align-items: center;
+
+  gap: 6px;
+
+  color: #4a8060;
+
+  font-size: 8px;
+  font-weight: 800;
+
+  letter-spacing: 0.07em;
+}
+
+.tx-system-service-status span {
+  width: 6px;
+  height: 6px;
+
+  border-radius: 50%;
+
+  background: #4a9b68;
+}
+
+
+/* =========================================================
+   CONFIGURATION
+========================================================= */
+
+.tx-system-config-grid {
+  display: grid;
+
+  grid-template-columns:
+    repeat(3, 1fr);
+
+  padding: 5px 20px;
+}
+
+.tx-system-config-item {
+  display: flex;
+  flex-direction: column;
+
+  gap: 6px;
+
+  padding: 16px 15px;
+
+  border-bottom: 1px solid #edf1f3;
+}
+
+.tx-system-config-item:nth-child(3n + 1) {
+  padding-left: 0;
+}
+
+.tx-system-config-item:nth-child(3n) {
+  padding-right: 0;
+}
+
+.tx-system-config-item span {
+  color: #98a6ad;
+
+  font-size: 8px;
+  font-weight: 800;
+
+  text-transform: uppercase;
+}
+
+.tx-system-config-item strong {
+  color: #536e7b;
+
+  font-size: 10px;
+}
+
+
+/* =========================================================
+   NOTE
+========================================================= */
+
+.tx-system-note {
+  display: flex;
+  flex-direction: column;
+
+  gap: 5px;
+
+  padding: 14px 16px;
+
+  border-left: 3px solid #d9e4e8;
+
+  background: #ffffff;
+}
+
+.tx-system-note strong {
+  color: #526f7d;
+
+  font-size: 10px;
+}
+
+.tx-system-note span {
+  color: #8d9ba2;
+
+  font-size: 9px;
+
+  line-height: 1.5;
+}
+
+
+/* =========================================================
+   RESPONSIVE
+========================================================= */
+
+@media (max-width: 1000px) {
+  .tx-system-metrics {
+    grid-template-columns:
+      repeat(2, minmax(0, 1fr));
+  }
+
+  .tx-system-config-grid {
+    grid-template-columns:
+      repeat(2, 1fr);
+  }
+
+  .tx-system-config-item:nth-child(3n + 1),
+  .tx-system-config-item:nth-child(3n) {
+    padding-left: 15px;
+    padding-right: 15px;
+  }
+}
+
+@media (max-width: 700px) {
+  .tx-system {
+    padding: 25px 18px 40px;
+  }
+
+  .tx-system-header {
+    flex-direction: column;
+  }
+
+  .tx-system-health {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .tx-system-metrics {
+    grid-template-columns: 1fr;
+  }
+
+  .tx-system-config-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .tx-system-config-item,
+  .tx-system-config-item:nth-child(3n + 1),
+  .tx-system-config-item:nth-child(3n) {
+    padding-left: 0;
+    padding-right: 0;
+  }
+}

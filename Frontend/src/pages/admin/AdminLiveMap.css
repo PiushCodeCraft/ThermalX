@@ -1,0 +1,458 @@
+/* =========================================================
+   THERMAL-X ADMIN LIVE MAP
+========================================================= */
+
+.tx-admin-live-map {
+  min-height: 100vh;
+
+  padding: 34px 40px 50px;
+
+  box-sizing: border-box;
+
+  background: #f7f9fa;
+}
+
+
+/* =========================================================
+   HEADER
+========================================================= */
+
+.tx-admin-live-map-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+
+  gap: 25px;
+
+  margin-bottom: 25px;
+}
+
+.tx-admin-live-map-eyebrow {
+  display: block;
+
+  margin-bottom: 8px;
+
+  color: #899aa4;
+
+  font-size: 9px;
+  font-weight: 800;
+
+  letter-spacing: 0.14em;
+
+  text-transform: uppercase;
+}
+
+.tx-admin-live-map-header h1 {
+  margin: 0;
+
+  color: #173b52;
+
+  font-size: 29px;
+  font-weight: 700;
+
+  letter-spacing: -0.03em;
+}
+
+.tx-admin-live-map-header p {
+  margin: 8px 0 0;
+
+  color: #728590;
+
+  font-size: 13px;
+
+  line-height: 1.5;
+}
+
+
+/* =========================================================
+   NASA FIRMS STATUS
+========================================================= */
+
+.tx-admin-live-map-status {
+  display: flex;
+  align-items: center;
+
+  gap: 8px;
+
+  padding: 9px 13px;
+
+  border: 1px solid #dfe8eb;
+
+  border-radius: 4px;
+
+  background: #ffffff;
+
+  color: #607782;
+
+  font-size: 9px;
+  font-weight: 800;
+
+  letter-spacing: 0.08em;
+
+  white-space: nowrap;
+}
+
+.tx-admin-live-map-status-dot {
+  width: 7px;
+  height: 7px;
+
+  border-radius: 50%;
+
+  background: #4c9b69;
+}
+
+
+/* =========================================================
+   STATISTICS
+========================================================= */
+
+.tx-admin-live-map-stats {
+  display: grid;
+
+  grid-template-columns:
+    repeat(4, minmax(0, 1fr));
+
+  gap: 14px;
+
+  margin-bottom: 20px;
+}
+
+.tx-admin-live-map-stat {
+  min-height: 92px;
+
+  display: flex;
+  align-items: center;
+
+  gap: 12px;
+
+  padding: 16px;
+
+  box-sizing: border-box;
+
+  background: #ffffff;
+
+  border: 1px solid #e1e8eb;
+
+  border-radius: 5px;
+}
+
+.tx-admin-live-map-stat-icon {
+  width: 40px;
+  height: 40px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  flex-shrink: 0;
+
+  border-radius: 4px;
+
+  background: #eef4f6;
+
+  color: #315b70;
+}
+
+.tx-admin-live-map-stat > div:last-child {
+  min-width: 0;
+
+  display: flex;
+  flex-direction: column;
+
+  gap: 5px;
+}
+
+.tx-admin-live-map-stat span {
+  color: #8b9ba3;
+
+  font-size: 8px;
+  font-weight: 800;
+
+  letter-spacing: 0.08em;
+}
+
+.tx-admin-live-map-stat strong {
+  color: #1b4358;
+
+  font-size: 17px;
+  font-weight: 750;
+
+  white-space: nowrap;
+}
+
+
+/* =========================================================
+   MAP CARD
+========================================================= */
+
+.tx-admin-live-map-card {
+  overflow: hidden;
+
+  background: #ffffff;
+
+  border: 1px solid #e1e8eb;
+
+  border-radius: 5px;
+}
+
+.tx-admin-live-map-card-header {
+  min-height: 72px;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  gap: 15px;
+
+  padding: 15px 20px;
+
+  box-sizing: border-box;
+
+  border-bottom: 1px solid #edf1f3;
+}
+
+.tx-admin-live-map-card-eyebrow {
+  display: block;
+
+  margin-bottom: 5px;
+
+  color: #98a6ad;
+
+  font-size: 8px;
+  font-weight: 800;
+
+  letter-spacing: 0.13em;
+
+  text-transform: uppercase;
+}
+
+.tx-admin-live-map-card-header h2 {
+  margin: 0;
+
+  color: #24475a;
+
+  font-size: 16px;
+  font-weight: 700;
+}
+
+
+/* =========================================================
+   LIVE LABEL
+========================================================= */
+
+.tx-admin-live-map-live {
+  display: flex;
+  align-items: center;
+
+  gap: 7px;
+
+  padding: 6px 9px;
+
+  border: 1px solid #dfe8eb;
+
+  border-radius: 3px;
+
+  background: #ffffff;
+
+  color: #58717e;
+
+  font-size: 8px;
+  font-weight: 800;
+
+  letter-spacing: 0.08em;
+}
+
+.tx-admin-live-map-live-dot {
+  width: 6px;
+  height: 6px;
+
+  border-radius: 50%;
+
+  background: #4c9b69;
+}
+
+
+/* =========================================================
+   MAP
+========================================================= */
+
+.tx-admin-live-map-wrapper {
+  position: relative;
+
+  width: 100%;
+
+  height: calc(100vh - 365px);
+
+  min-height: 480px;
+
+  max-height: 720px;
+
+  overflow: hidden;
+
+  background: #edf1f2;
+}
+
+
+/*
+   OpenLayers viewport
+*/
+
+.tx-admin-live-map-wrapper .ol-viewport {
+  width: 100%;
+  height: 100%;
+}
+
+
+/*
+   If LiveMap's existing CSS gives the map
+   a specific class/height, the map itself
+   remains unchanged. This container only
+   controls the available Admin page area.
+*/
+
+
+/* =========================================================
+   INFORMATION CARDS
+========================================================= */
+
+.tx-admin-live-map-information {
+  display: grid;
+
+  grid-template-columns:
+    repeat(4, minmax(0, 1fr));
+
+  gap: 14px;
+
+  margin-top: 20px;
+}
+
+.tx-admin-live-map-info-card {
+  min-height: 70px;
+
+  display: flex;
+  align-items: center;
+
+  gap: 11px;
+
+  padding: 14px 16px;
+
+  box-sizing: border-box;
+
+  background: #ffffff;
+
+  border: 1px solid #e1e8eb;
+
+  border-radius: 5px;
+}
+
+.tx-admin-live-map-info-icon {
+  width: 34px;
+  height: 34px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  flex-shrink: 0;
+
+  border-radius: 4px;
+
+  background: #eef4f6;
+
+  color: #527181;
+}
+
+.tx-admin-live-map-info-card > div:last-child {
+  min-width: 0;
+
+  display: flex;
+  flex-direction: column;
+
+  gap: 4px;
+}
+
+.tx-admin-live-map-info-card span {
+  color: #96a4aa;
+
+  font-size: 7px;
+  font-weight: 800;
+
+  letter-spacing: 0.1em;
+}
+
+.tx-admin-live-map-info-card strong {
+  color: #466575;
+
+  font-size: 10px;
+  font-weight: 700;
+
+  white-space: nowrap;
+}
+
+
+/* =========================================================
+   RESPONSIVE
+========================================================= */
+
+@media (max-width: 1100px) {
+
+  .tx-admin-live-map-stats {
+    grid-template-columns:
+      repeat(2, minmax(0, 1fr));
+  }
+
+  .tx-admin-live-map-information {
+    grid-template-columns:
+      repeat(2, minmax(0, 1fr));
+  }
+
+  .tx-admin-live-map-wrapper {
+    height: 560px;
+  }
+}
+
+
+@media (max-width: 700px) {
+
+  .tx-admin-live-map {
+    padding: 25px 18px 40px;
+  }
+
+  .tx-admin-live-map-header {
+    flex-direction: column;
+  }
+
+  .tx-admin-live-map-header h1 {
+    font-size: 24px;
+  }
+
+  .tx-admin-live-map-stats {
+    grid-template-columns: 1fr;
+  }
+
+  .tx-admin-live-map-information {
+    grid-template-columns: 1fr;
+  }
+
+  .tx-admin-live-map-wrapper {
+    height: 480px;
+
+    min-height: 400px;
+  }
+}
+
+
+@media (max-width: 500px) {
+
+  .tx-admin-live-map-card-header {
+    align-items: flex-start;
+
+    flex-direction: column;
+
+    padding: 14px;
+  }
+
+  .tx-admin-live-map-wrapper {
+    height: 430px;
+  }
+}

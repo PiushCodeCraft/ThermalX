@@ -1,0 +1,544 @@
+/* =========================================================
+   THERMAL-X USERS
+========================================================= */
+
+.tx-users {
+  min-height: 100vh;
+
+  padding: 34px 40px 50px;
+
+  box-sizing: border-box;
+
+  background: #f7f9fa;
+}
+
+
+/* =========================================================
+   HEADER
+========================================================= */
+
+.tx-users-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+
+  gap: 25px;
+
+  margin-bottom: 28px;
+}
+
+.tx-users-eyebrow {
+  display: block;
+
+  margin-bottom: 8px;
+
+  color: #899aa4;
+
+  font-size: 9px;
+  font-weight: 800;
+
+  letter-spacing: 0.14em;
+}
+
+.tx-users-header h1 {
+  margin: 0;
+
+  color: #173b52;
+
+  font-size: 29px;
+  font-weight: 700;
+
+  letter-spacing: -0.03em;
+}
+
+.tx-users-header p {
+  margin: 8px 0 0;
+
+  color: #728590;
+
+  font-size: 13px;
+}
+
+
+/* =========================================================
+   ADD USER
+========================================================= */
+
+.tx-users-add-button {
+  display: flex;
+  align-items: center;
+
+  gap: 8px;
+
+  padding: 10px 14px;
+
+  border: 1px solid #d8e3e7;
+  border-radius: 4px;
+
+  background: #ffffff;
+
+  color: #315b70;
+
+  font-size: 9px;
+  font-weight: 800;
+
+  letter-spacing: 0.07em;
+
+  cursor: pointer;
+}
+
+.tx-users-add-button:hover {
+  background: #f1f6f8;
+}
+
+
+/* =========================================================
+   SUMMARY
+========================================================= */
+
+.tx-users-summary {
+  display: grid;
+
+  grid-template-columns:
+    repeat(3, 1fr);
+
+  gap: 15px;
+
+  margin-bottom: 20px;
+}
+
+.tx-users-summary-card {
+  min-height: 95px;
+
+  display: flex;
+  align-items: center;
+
+  gap: 13px;
+
+  padding: 18px;
+
+  box-sizing: border-box;
+
+  background: #ffffff;
+
+  border: 1px solid #e1e8eb;
+
+  border-radius: 5px;
+}
+
+.tx-users-summary-icon {
+  width: 40px;
+  height: 40px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  flex-shrink: 0;
+
+  border-radius: 4px;
+
+  background: #eef4f6;
+
+  color: #315b70;
+}
+
+.tx-users-summary-card div:last-child {
+  display: flex;
+  flex-direction: column;
+
+  gap: 5px;
+}
+
+.tx-users-summary-card span {
+  color: #8799a2;
+
+  font-size: 9px;
+  font-weight: 700;
+}
+
+.tx-users-summary-card strong {
+  color: #24495b;
+
+  font-size: 20px;
+}
+
+
+/* =========================================================
+   MAIN CARD
+========================================================= */
+
+.tx-users-card {
+  overflow: hidden;
+
+  background: #ffffff;
+
+  border: 1px solid #e1e8eb;
+
+  border-radius: 5px;
+}
+
+.tx-users-card-header {
+  min-height: 72px;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  padding: 17px 20px;
+
+  box-sizing: border-box;
+
+  border-bottom: 1px solid #edf1f3;
+}
+
+.tx-users-card-eyebrow {
+  display: block;
+
+  margin-bottom: 5px;
+
+  color: #98a6ad;
+
+  font-size: 8px;
+  font-weight: 800;
+
+  letter-spacing: 0.13em;
+}
+
+.tx-users-card-header h2 {
+  margin: 0;
+
+  color: #24475a;
+
+  font-size: 16px;
+}
+
+.tx-users-count {
+  color: #94a2a9;
+
+  font-size: 9px;
+}
+
+
+/* =========================================================
+   FILTERS
+========================================================= */
+
+.tx-users-filters {
+  display: flex;
+  align-items: center;
+
+  gap: 10px;
+
+  padding: 14px 20px;
+
+  border-bottom: 1px solid #edf1f3;
+}
+
+.tx-users-search {
+  width: 280px;
+
+  display: flex;
+  align-items: center;
+
+  gap: 8px;
+
+  padding: 8px 10px;
+
+  border: 1px solid #dfe7ea;
+
+  border-radius: 4px;
+
+  color: #91a0a7;
+}
+
+.tx-users-search input {
+  width: 100%;
+
+  border: none;
+  outline: none;
+
+  background: transparent;
+
+  color: #405c6a;
+
+  font-family: inherit;
+
+  font-size: 10px;
+}
+
+.tx-users-search input::placeholder {
+  color: #a2adb2;
+}
+
+.tx-users-role-filter {
+  padding: 8px 10px;
+
+  border: 1px solid #dfe7ea;
+
+  border-radius: 4px;
+
+  outline: none;
+
+  background: #ffffff;
+
+  color: #526d7a;
+
+  font-family: inherit;
+
+  font-size: 10px;
+
+  cursor: pointer;
+}
+
+
+/* =========================================================
+   TABLE
+========================================================= */
+
+.tx-users-table-wrapper {
+  width: 100%;
+
+  overflow-x: auto;
+}
+
+.tx-users-table {
+  width: 100%;
+
+  min-width: 850px;
+
+  border-collapse: collapse;
+}
+
+.tx-users-table th {
+  padding: 13px 15px;
+
+  background: #fafcfd;
+
+  border-bottom: 1px solid #e8eef0;
+
+  color: #91a0a7;
+
+  font-size: 8px;
+  font-weight: 800;
+
+  letter-spacing: 0.08em;
+
+  text-align: left;
+}
+
+.tx-users-table td {
+  padding: 14px 15px;
+
+  border-bottom: 1px solid #edf1f3;
+
+  color: #6e828d;
+
+  font-size: 10px;
+}
+
+.tx-users-table tbody tr:hover {
+  background: #fbfcfd;
+}
+
+
+/* =========================================================
+   USER PROFILE
+========================================================= */
+
+.tx-user-profile {
+  display: flex;
+  align-items: center;
+
+  gap: 10px;
+}
+
+.tx-user-avatar {
+  width: 34px;
+  height: 34px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  flex-shrink: 0;
+
+  border-radius: 50%;
+
+  background: #edf3f5;
+
+  color: #496b7a;
+
+  font-size: 11px;
+  font-weight: 800;
+}
+
+.tx-user-profile div:last-child {
+  display: flex;
+  flex-direction: column;
+
+  gap: 4px;
+}
+
+.tx-user-profile strong {
+  color: #405e6d;
+
+  font-size: 10px;
+}
+
+.tx-user-profile span {
+  color: #95a2a8;
+
+  font-size: 9px;
+}
+
+
+/* =========================================================
+   USER ID
+========================================================= */
+
+.tx-user-id {
+  color: #718792;
+
+  font-family: monospace;
+
+  font-size: 9px;
+}
+
+
+/* =========================================================
+   ROLE
+========================================================= */
+
+.tx-user-role {
+  display: inline-block;
+
+  padding: 5px 8px;
+
+  border-radius: 3px;
+
+  font-size: 8px;
+
+  font-weight: 800;
+}
+
+.tx-user-role.admin {
+  background: #eef4f6;
+
+  color: #315b70;
+}
+
+.tx-user-role.user {
+  background: #f4f5f5;
+
+  color: #71828a;
+}
+
+
+/* =========================================================
+   STATUS
+========================================================= */
+
+.tx-user-status {
+  display: inline-flex;
+  align-items: center;
+
+  gap: 6px;
+
+  font-size: 9px;
+  font-weight: 700;
+}
+
+.tx-user-status span {
+  width: 6px;
+  height: 6px;
+
+  border-radius: 50%;
+}
+
+.tx-user-status.active {
+  color: #4a8060;
+}
+
+.tx-user-status.active span {
+  background: #4a8060;
+}
+
+.tx-user-status.inactive {
+  color: #9a7777;
+}
+
+.tx-user-status.inactive span {
+  background: #9a7777;
+}
+
+
+/* =========================================================
+   ACTION
+========================================================= */
+
+.tx-user-action {
+  width: 30px;
+  height: 30px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border: 1px solid transparent;
+
+  border-radius: 4px;
+
+  background: transparent;
+
+  color: #81939d;
+
+  cursor: pointer;
+}
+
+.tx-user-action:hover {
+  background: #f1f5f7;
+
+  border-color: #e0e8eb;
+}
+
+
+/* =========================================================
+   EMPTY
+========================================================= */
+
+.tx-users-empty {
+  height: 150px;
+
+  text-align: center !important;
+
+  color: #9aa8ae !important;
+}
+
+
+/* =========================================================
+   RESPONSIVE
+========================================================= */
+
+@media (max-width: 800px) {
+  .tx-users {
+    padding: 25px 18px 40px;
+  }
+
+  .tx-users-header {
+    flex-direction: column;
+  }
+
+  .tx-users-summary {
+    grid-template-columns: 1fr;
+  }
+
+  .tx-users-filters {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .tx-users-search {
+    width: auto;
+  }
+}
