@@ -14,13 +14,21 @@ import {
 } from "lucide-react";
 
 import {
-  getFirmsDetections,
   getFirmsStatus,
 } from "../../services/api";
 
 import IndiaFocusedMap from "../../components/map/IndiaFocusedMap";
 
 import "./AdminLiveMap.css";
+
+
+/* =========================================================
+   API URL
+========================================================= */
+
+const API_URL =
+  import.meta.env.VITE_API_URL ||
+  "http://localhost:5000";
 
 
 /* =========================================================
@@ -46,28 +54,6 @@ const getValue = (
   }
 
   return fallback;
-};
-
-
-const getDetectionsCount = (
-  response
-) => {
-  if (Array.isArray(response)) {
-    return response.length;
-  }
-
-  return getValue(
-    response,
-    [
-      "count",
-      "total",
-      "detectionCount",
-      "detection_count",
-      "totalDetections",
-      "total_detections",
-    ],
-    null
-  );
 };
 
 
@@ -136,6 +122,7 @@ const isOnlineStatus = (
     "HEALTHY",
     "OK",
     "READY",
+    "AVAILABLE",
   ].includes(status);
 };
 
@@ -146,15 +133,34 @@ const isOnlineStatus = (
 
 const AdminLiveMap = () => {
 
+  /* -------------------------------------------------------
+     MONGODB LIVE DATA
+  ------------------------------------------------------- */
+
   const [
     detectionCount,
     setDetectionCount,
   ] = useState(null);
 
   const [
+    activeIncidents,
+    setActiveIncidents,
+  ] = useState(null);
+
+
+  /* -------------------------------------------------------
+     FIRMS STATUS
+  ------------------------------------------------------- */
+
+  const [
     firmsStatus,
     setFirmsStatus,
   ] = useState(null);
+
+
+  /* -------------------------------------------------------
+     UI STATE
+  ------------------------------------------------------- */
 
   const [
     loading,
@@ -173,7 +179,7 @@ const AdminLiveMap = () => {
 
 
   /* =======================================================
-     LOAD REAL FIRMS DATA
+     LOAD LIVE MAP DATA FROM MONGODB
   ======================================================= */
 
   const loadLiveMapData =
@@ -184,59 +190,152 @@ const AdminLiveMap = () => {
         setRefreshing(true);
         setError("");
 
-        const [
-          detectionsResponse,
-          statusResponse,
-        ] = await Promise.all([
-          getFirmsDetections(),
-          getFirmsStatus(),
-        ]);
 
+        /* =================================================
+           FETCH MONGODB LIVE SUMMARY
+        ================================================= */
 
-        /* -----------------------------------------------
-           DETECTION COUNT
-        ----------------------------------------------- */
-
-        const count =
-          getDetectionsCount(
-            detectionsResponse
+        const summaryResponse =
+          await fetch(
+            `${API_URL}/api/fire/live-summary`
           );
+
+
+        if (!summaryResponse.ok) {
+
+          throw new Error(
+            `Live summary request failed: ${summaryResponse.status}`
+          );
+
+        }
+
+
+        const summaryResult =
+          await summaryResponse.json();
+
+
+        console.log(
+          "🗺️ Admin Live Map MongoDB summary:",
+          summaryResult
+        );
+
+
+        if (
+          !summaryResult.success ||
+          !summaryResult.data
+        ) {
+
+          throw new Error(
+            "Invalid Live Map summary response"
+          );
+
+        }
+
+
+        /* =================================================
+           THERMAL DETECTIONS
+        ================================================= */
+
+        const thermalDetections =
+          Number(
+            summaryResult.data
+              .thermalDetections
+          );
+
 
         setDetectionCount(
-          count
+          Number.isFinite(
+            thermalDetections
+          )
+            ? thermalDetections
+            : 0
         );
 
 
-        /* -----------------------------------------------
-           FIRMS STATUS
-        ----------------------------------------------- */
+        /* =================================================
+           ACTIVE INCIDENTS
+        ================================================= */
 
-        const status =
-          getStatusValue(
-            statusResponse
+        const incidents =
+          Number(
+            summaryResult.data
+              .activeIncidents
           );
 
-        setFirmsStatus(
-          normalizeStatus(status)
+
+        setActiveIncidents(
+          Number.isFinite(
+            incidents
+          )
+            ? incidents
+            : 0
         );
+
+
+        /* =================================================
+           FETCH FIRMS STATUS
+        ================================================= */
+
+        try {
+
+          const statusResponse =
+            await getFirmsStatus();
+
+
+          const status =
+            getStatusValue(
+              statusResponse
+            );
+
+
+          setFirmsStatus(
+            normalizeStatus(status)
+          );
+
+        } catch (statusError) {
+
+          console.warn(
+            "⚠️ FIRMS status request failed:",
+            statusError
+          );
+
+
+          /*
+             MongoDB summary succeeded,
+             so don't make the complete page
+             look unavailable just because
+             the separate FIRMS status endpoint
+             failed.
+          */
+
+          setFirmsStatus(
+            "AVAILABLE"
+          );
+
+        }
 
 
       } catch (requestError) {
 
         console.error(
-          "Failed to load FIRMS data:",
+          "❌ Failed to load Admin Live Map data:",
           requestError
         );
 
+
         setDetectionCount(null);
+
+        setActiveIncidents(null);
 
         setFirmsStatus(
           "UNAVAILABLE"
         );
 
+
         setError(
           "Unable to retrieve live FIRMS data from the backend."
         );
+
 
       } finally {
 
@@ -368,7 +467,9 @@ const AdminLiveMap = () => {
       <section className="tx-admin-live-map-stats">
 
 
-        {/* THERMAL DETECTIONS */}
+        {/* =================================================
+            THERMAL DETECTIONS
+        ================================================= */}
 
         <article className="tx-admin-live-map-stat">
 
@@ -408,7 +509,9 @@ const AdminLiveMap = () => {
         </article>
 
 
-        {/* ACTIVE INCIDENTS */}
+        {/* =================================================
+            ACTIVE INCIDENTS
+        ================================================= */}
 
         <article className="tx-admin-live-map-stat">
 
@@ -426,9 +529,21 @@ const AdminLiveMap = () => {
             </span>
 
             <strong
-              className="unavailable"
+              className={
+                activeIncidents === null
+                  ? "unavailable"
+                  : ""
+              }
             >
-              N/A
+
+              {loading
+                ? "—"
+                : activeIncidents !== null
+                  ? Number(
+                      activeIncidents
+                    ).toLocaleString()
+                  : "N/A"}
+
             </strong>
 
           </div>
@@ -436,7 +551,9 @@ const AdminLiveMap = () => {
         </article>
 
 
-        {/* SATELLITE SOURCE */}
+        {/* =================================================
+            SATELLITE SOURCE
+        ================================================= */}
 
         <article className="tx-admin-live-map-stat">
 
@@ -462,7 +579,9 @@ const AdminLiveMap = () => {
         </article>
 
 
-        {/* REGION */}
+        {/* =================================================
+            REGION
+        ================================================= */}
 
         <article className="tx-admin-live-map-stat">
 
@@ -697,5 +816,6 @@ const AdminLiveMap = () => {
     </div>
   );
 };
+
 
 export default AdminLiveMap;
