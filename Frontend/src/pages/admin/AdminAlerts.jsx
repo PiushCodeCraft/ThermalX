@@ -114,10 +114,39 @@ const formatDate = (value) => {
     return "Not available";
   }
 
-  const date = new Date(value);
+  const valueString = String(value);
 
-  if (Number.isNaN(date.getTime())) {
-    return String(value);
+  // NASA FIRMS format: YYYY-MM-DD
+  if (/^\d{4}-\d{2}-\d{2}$/.test(valueString)) {
+    const [year, month, day] =
+      valueString.split("-");
+
+    const date =
+      new Date(
+        Number(year),
+        Number(month) - 1,
+        Number(day)
+      );
+
+    return date.toLocaleDateString(
+      undefined,
+      {
+        day: "2-digit",
+        month: "short",
+        year: "numeric",
+      }
+    );
+  }
+
+  const date =
+    new Date(value);
+
+  if (
+    Number.isNaN(
+      date.getTime()
+    )
+  ) {
+    return valueString;
   }
 
   return date.toLocaleDateString(
@@ -136,10 +165,67 @@ const formatTime = (value) => {
     return "Not available";
   }
 
-  const date = new Date(value);
+  const valueString =
+    String(value).trim();
 
-  if (Number.isNaN(date.getTime())) {
-    return String(value);
+  // NASA FIRMS acq_time:
+  // 0530 -> 05:30 AM
+  // 0731 -> 07:31 AM
+  // 1830 -> 06:30 PM
+  if (/^\d{3,4}$/.test(valueString)) {
+
+    const padded =
+      valueString.padStart(
+        4,
+        "0"
+      );
+
+    const hours =
+      Number(
+        padded.slice(0, 2)
+      );
+
+    const minutes =
+      Number(
+        padded.slice(2, 4)
+      );
+
+    if (
+      hours >= 0 &&
+      hours <= 23 &&
+      minutes >= 0 &&
+      minutes <= 59
+    ) {
+
+      const date =
+        new Date();
+
+      date.setHours(
+        hours,
+        minutes,
+        0,
+        0
+      );
+
+      return date.toLocaleTimeString(
+        undefined,
+        {
+          hour: "2-digit",
+          minute: "2-digit",
+        }
+      );
+    }
+  }
+
+  const date =
+    new Date(value);
+
+  if (
+    Number.isNaN(
+      date.getTime()
+    )
+  ) {
+    return valueString;
   }
 
   return date.toLocaleTimeString(
@@ -173,6 +259,7 @@ const formatTemperature = (value) => {
 
 
 const formatConfidence = (value) => {
+
   if (
     value === null ||
     value === undefined ||
@@ -181,13 +268,39 @@ const formatConfidence = (value) => {
     return null;
   }
 
-  const number = Number(value);
+  const text =
+    String(value)
+      .trim()
+      .toLowerCase();
 
-  if (!Number.isFinite(number)) {
-    return null;
+
+  // NASA FIRMS categorical confidence
+  if (text === "h") {
+    return 100;
   }
 
-  return Math.round(number);
+  if (text === "n") {
+    return 50;
+  }
+
+  if (text === "l") {
+    return 25;
+  }
+
+
+  // Numeric confidence
+  const number =
+    Number(value);
+
+  if (
+    Number.isFinite(number)
+  ) {
+    return Math.round(
+      number
+    );
+  }
+
+  return null;
 };
 
 
@@ -881,7 +994,7 @@ const AdminAlerts = () => {
                     <th>SEVERITY</th>
                     <th>CONFIDENCE</th>
                     <th>TIME</th>
-                    <th>STATUS</th>
+                    {/* <th>STATUS</th> */}
                     <th />
                   </tr>
 
@@ -1032,7 +1145,7 @@ const AdminAlerts = () => {
 
                           {/* STATUS */}
 
-                          <td>
+                          {/* <td>
 
                             <span
                               className={`tx-admin-alert-status ${getStatusClass(
@@ -1042,7 +1155,7 @@ const AdminAlerts = () => {
                               {incident.status}
                             </span>
 
-                          </td>
+                          </td> */}
 
 
                           {/* ARROW */}

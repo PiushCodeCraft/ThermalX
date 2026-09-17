@@ -210,6 +210,7 @@ const AdminDashboard = () => {
   const statistics =
     dashboard?.statistics ??
     dashboard?.stats ??
+    dashboard ??
     {};
 
 
