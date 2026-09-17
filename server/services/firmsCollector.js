@@ -1,22 +1,34 @@
 const { MongoClient } = require("mongodb");
 const { parse } = require("csv-parse/sync");
 const crypto = require("crypto");
-const turf = require("@turf/turf");
-const fs = require("fs");
 const path = require("path");
 
-require("dotenv").config();
+require("dotenv").config({
+  path: path.join(__dirname, "..", ".env"),
+});
+
+const {
+  predictNewFire,
+} = require("./predictionService");
+
 
 /* =========================================================
    ENVIRONMENT
 ========================================================= */
 
-const MONGODB_URI = process.env.MONGODB_URI;
-const NASA_MAP_KEY = process.env.NASA_FIRMS_MAP_KEY;
+const MONGODB_URI =
+  process.env.MONGODB_URI;
+
+const NASA_MAP_KEY =
+  process.env.NASA_FIRMS_MAP_KEY;
+
 
 if (!MONGODB_URI) {
-  throw new Error("❌ MONGODB_URI is missing in server/.env");
+  throw new Error(
+    "❌ MONGODB_URI is missing in server/.env"
+  );
 }
+
 
 if (!NASA_MAP_KEY) {
   throw new Error(
@@ -24,34 +36,6 @@ if (!NASA_MAP_KEY) {
   );
 }
 
-/* =========================================================
-   INDIA GEOJSON
-========================================================= */
-
-const INDIA_GEOJSON_PATH = path.join(
-  __dirname,
-  "..",
-  "gis",
-  "india.geojson"
-);
-
-if (!fs.existsSync(INDIA_GEOJSON_PATH)) {
-  throw new Error(
-    `❌ India GeoJSON not found:\n${INDIA_GEOJSON_PATH}`
-  );
-}
-
-const INDIA_GEOJSON = JSON.parse(
-  fs.readFileSync(INDIA_GEOJSON_PATH, "utf8")
-);
-
-console.log(
-  `🇮🇳 GeoJSON type: ${INDIA_GEOJSON.type}`
-);
-
-console.log(
-  "🇮🇳 India GeoJSON loaded successfully"
-);
 
 /* =========================================================
    CONFIGURATION
@@ -59,15 +43,20 @@ console.log(
 
 const AREA = "68,8,97,35";
 
-const SOURCE = "VIIRS_NOAA21_NRT";
+const SOURCE =
+  "VIIRS_NOAA21_NRT";
 
 const DAY_RANGE = "1";
 
-const DATABASE_NAME = "ThermalX";
+const DATABASE_NAME =
+  "ThermalX";
 
-const COLLECTION_NAME = "firms_raw";
+const COLLECTION_NAME =
+  "firms_raw";
 
-const COLLECTION_INTERVAL = 15 * 60 * 1000;
+const COLLECTION_INTERVAL =
+  15 * 60 * 1000;
+
 
 /* =========================================================
    ML FEATURES
@@ -88,124 +77,56 @@ const FEATURES = [
   "frp_log",
   "hour",
   "month",
-  "daynight"
+  "daynight",
 ];
 
+
 /* =========================================================
-   INDIA POINT CHECK
+   INDIA LOCATION FILTER
 ========================================================= */
 
-function isPointInsideIndia(latitude, longitude) {
-  const lat = Number(latitude);
-  const lon = Number(longitude);
+/*
+   No GeoJSON is required.
+
+   This removes points clearly outside
+   the India geographic region.
+
+   Latitude:
+   8° - 37°
+
+   Longitude:
+   68° - 97°
+*/
+
+function isPointInsideIndia(
+  latitude,
+  longitude
+) {
+
+  const lat =
+    Number(latitude);
+
+  const lon =
+    Number(longitude);
+
 
   if (
     !Number.isFinite(lat) ||
     !Number.isFinite(lon)
   ) {
-    return false;
-  }
-
-  const point = turf.point([lon, lat]);
-
-  try {
-
-    if (
-      INDIA_GEOJSON.type === "FeatureCollection"
-    ) {
-
-      if (
-        !Array.isArray(
-          INDIA_GEOJSON.features
-        )
-      ) {
-        throw new Error(
-          "GeoJSON FeatureCollection has no valid features array"
-        );
-      }
-
-      for (
-        const feature of INDIA_GEOJSON.features
-      ) {
-
-        if (!feature.geometry) {
-          continue;
-        }
-
-        const geometryType =
-          feature.geometry.type;
-
-        if (
-          geometryType !== "Polygon" &&
-          geometryType !== "MultiPolygon"
-        ) {
-          continue;
-        }
-
-        if (
-          turf.booleanPointInPolygon(
-            point,
-            feature
-          )
-        ) {
-          return true;
-        }
-      }
-
-      return false;
-    }
-
-    if (
-      INDIA_GEOJSON.type === "Feature"
-    ) {
-
-      if (!INDIA_GEOJSON.geometry) {
-        return false;
-      }
-
-      const geometryType =
-        INDIA_GEOJSON.geometry.type;
-
-      if (
-        geometryType !== "Polygon" &&
-        geometryType !== "MultiPolygon"
-      ) {
-        return false;
-      }
-
-      return turf.booleanPointInPolygon(
-        point,
-        INDIA_GEOJSON
-      );
-    }
-
-    if (
-      INDIA_GEOJSON.type === "Polygon" ||
-      INDIA_GEOJSON.type === "MultiPolygon"
-    ) {
-
-      return turf.booleanPointInPolygon(
-        point,
-        turf.feature(INDIA_GEOJSON)
-      );
-    }
-
-    console.error(
-      `❌ Unsupported GeoJSON type: ${INDIA_GEOJSON.type}`
-    );
-
-    return false;
-
-  } catch (error) {
-
-    console.error(
-      "❌ India GeoJSON point check failed:",
-      error.message
-    );
 
     return false;
   }
+
+
+  return (
+    lat >= 8 &&
+    lat <= 37 &&
+    lon >= 68 &&
+    lon <= 97
+  );
 }
+
 
 /* =========================================================
    SAFE NUMBER
@@ -218,23 +139,34 @@ function toNumber(value) {
     value === null ||
     String(value).trim() === ""
   ) {
+
     return null;
   }
 
-  const number = Number(value);
 
-  if (!Number.isFinite(number)) {
+  const number =
+    Number(value);
+
+
+  if (
+    !Number.isFinite(number)
+  ) {
+
     return null;
   }
+
 
   return number;
 }
+
 
 /* =========================================================
    OBSERVATION KEY
 ========================================================= */
 
-function createObservationKey(record) {
+function createObservationKey(
+  record
+) {
 
   const rawKey = [
     record.satellite,
@@ -243,8 +175,9 @@ function createObservationKey(record) {
     record.acq_time,
     record.latitude,
     record.longitude,
-    record.version
+    record.version,
   ].join("|");
+
 
   return crypto
     .createHash("sha256")
@@ -252,38 +185,54 @@ function createObservationKey(record) {
     .digest("hex");
 }
 
+
 /* =========================================================
    DATE FEATURES
 ========================================================= */
 
-function calculateDateFeatures(acqDate) {
+function calculateDateFeatures(
+  acqDate
+) {
 
   const dateString =
-    String(acqDate || "").trim();
+    String(
+      acqDate || ""
+    ).trim();
+
 
   if (!dateString) {
+
     return null;
   }
+
 
   const date =
     new Date(
       `${dateString}T00:00:00Z`
     );
 
+
   if (
-    Number.isNaN(date.getTime())
+    Number.isNaN(
+      date.getTime()
+    )
   ) {
+
     return null;
   }
+
 
   const day =
     date.getUTCDate();
 
+
   const month =
     date.getUTCMonth() + 1;
 
+
   const dayOfWeek =
     date.getUTCDay();
+
 
   const startOfYear =
     new Date(
@@ -294,251 +243,329 @@ function calculateDateFeatures(acqDate) {
       )
     );
 
+
   const dayOfYear =
     Math.floor(
       (
         date.getTime() -
         startOfYear.getTime()
       ) /
-      (1000 * 60 * 60 * 24)
+      (
+        1000 *
+        60 *
+        60 *
+        24
+      )
     ) + 1;
+
 
   return {
     day,
     month,
-    day_of_week: dayOfWeek,
-    day_of_year: dayOfYear
+    day_of_week:
+      dayOfWeek,
+    day_of_year:
+      dayOfYear,
   };
 }
+
 
 /* =========================================================
    ACQUISITION HOUR
 ========================================================= */
 
-function extractHour(acqTime) {
+function extractHour(
+  acqTime
+) {
 
   if (
     acqTime === undefined ||
     acqTime === null
   ) {
+
     return null;
   }
 
-  let value =
+
+  const value =
     String(acqTime)
       .trim()
       .padStart(4, "0");
 
-  if (!/^\d{4}$/.test(value)) {
+
+  if (
+    !/^\d{4}$/.test(value)
+  ) {
+
     return null;
   }
+
 
   const hour =
     Number(
       value.substring(0, 2)
     );
 
+
   if (
     !Number.isFinite(hour) ||
     hour < 0 ||
     hour > 23
   ) {
+
     return null;
   }
 
+
   return hour;
 }
+
 
 /* =========================================================
    DAY / NIGHT
 ========================================================= */
 
-function convertDayNight(value) {
+function convertDayNight(
+  value
+) {
 
   const raw =
-    String(value || "")
+    String(
+      value || ""
+    )
       .trim()
       .toUpperCase();
 
+
   if (raw === "D") {
+
     return 1;
   }
 
+
   if (raw === "N") {
+
     return 0;
   }
 
+
   return null;
 }
+
 
 /* =========================================================
    PREPROCESS NASA FIRMS RECORD
 ========================================================= */
 
-function preprocessRecord(record) {
-
-  /*
-   IMPORTANT NASA FIELD MAPPING
-
-   NASA FIRMS:
-      bright_ti4 -> brightness
-      bright_ti5 -> bright_t31
-
-   These names are mapped here so that the
-   MongoDB document matches your ML feature names.
-  */
+function preprocessRecord(
+  record
+) {
 
   const latitude =
     toNumber(
       record.latitude
     );
 
+
   const longitude =
     toNumber(
       record.longitude
     );
+
 
   const brightness =
     toNumber(
       record.bright_ti4
     );
 
+
   const brightT31 =
     toNumber(
       record.bright_ti5
     );
+
 
   const frp =
     toNumber(
       record.frp
     );
 
+
   const scan =
     toNumber(
       record.scan
     );
+
 
   const track =
     toNumber(
       record.track
     );
 
-  /* -----------------------------------------------
+
+  /* ---------------------------------------------
      VALIDATION
-  ------------------------------------------------ */
+  --------------------------------------------- */
 
-  if (latitude === null) {
+  if (
+    latitude === null
+  ) {
+
     return {
       valid: false,
-      reason: "latitude"
+      reason: "latitude",
     };
   }
 
-  if (longitude === null) {
+
+  if (
+    longitude === null
+  ) {
+
     return {
       valid: false,
-      reason: "longitude"
+      reason: "longitude",
     };
   }
 
-  if (brightness === null) {
+
+  if (
+    brightness === null
+  ) {
+
     return {
       valid: false,
-      reason: "bright_ti4"
+      reason: "bright_ti4",
     };
   }
 
-  if (brightT31 === null) {
+
+  if (
+    brightT31 === null
+  ) {
+
     return {
       valid: false,
-      reason: "bright_ti5"
+      reason: "bright_ti5",
     };
   }
 
-  if (frp === null) {
+
+  if (
+    frp === null
+  ) {
+
     return {
       valid: false,
-      reason: "frp"
+      reason: "frp",
     };
   }
 
-  if (scan === null) {
+
+  if (
+    scan === null
+  ) {
+
     return {
       valid: false,
-      reason: "scan"
+      reason: "scan",
     };
   }
 
-  if (track === null) {
+
+  if (
+    track === null
+  ) {
+
     return {
       valid: false,
-      reason: "track"
+      reason: "track",
     };
   }
 
-  /* -----------------------------------------------
+
+  /* ---------------------------------------------
      DATE FEATURES
-  ------------------------------------------------ */
+  --------------------------------------------- */
 
   const dateFeatures =
     calculateDateFeatures(
       record.acq_date
     );
 
+
   if (!dateFeatures) {
+
     return {
       valid: false,
-      reason: "acq_date"
+      reason: "acq_date",
     };
   }
 
-  /* -----------------------------------------------
+
+  /* ---------------------------------------------
      HOUR
-  ------------------------------------------------ */
+  --------------------------------------------- */
 
   const hour =
     extractHour(
       record.acq_time
     );
 
-  if (hour === null) {
+
+  if (
+    hour === null
+  ) {
+
     return {
       valid: false,
-      reason: "acq_time"
+      reason: "acq_time",
     };
   }
 
-  /* -----------------------------------------------
+
+  /* ---------------------------------------------
      DAY / NIGHT
-  ------------------------------------------------ */
+  --------------------------------------------- */
 
   const daynight =
     convertDayNight(
       record.daynight
     );
 
-  if (daynight === null) {
+
+  if (
+    daynight === null
+  ) {
+
     return {
       valid: false,
-      reason: "daynight"
+      reason: "daynight",
     };
   }
 
-  /* -----------------------------------------------
+
+  /* ---------------------------------------------
      DERIVED FEATURES
-  ------------------------------------------------ */
+  --------------------------------------------- */
 
   const brightnessDifference =
-    brightness - brightT31;
+    brightness -
+    brightT31;
+
 
   const frpLog =
     Math.log1p(
-      Math.max(frp, 0)
+      Math.max(
+        frp,
+        0
+      )
     );
 
-  /* -----------------------------------------------
-     ML FEATURES
-  ------------------------------------------------ */
+
+  /* ---------------------------------------------
+     FEATURES
+  --------------------------------------------- */
 
   const features = {
 
@@ -577,14 +604,16 @@ function preprocessRecord(record) {
     month:
       dateFeatures.month,
 
-    daynight
+    daynight,
   };
+
 
   return {
     valid: true,
-    features
+    features,
   };
 }
+
 
 /* =========================================================
    FETCH NASA FIRMS DATA
@@ -598,6 +627,7 @@ async function fetchFirmsData() {
     `${SOURCE}/` +
     `${AREA}/` +
     `${DAY_RANGE}`;
+
 
   console.log(
     "\n======================================"
@@ -627,18 +657,24 @@ async function fetchFirmsData() {
     "Fetching NASA FIRMS data..."
   );
 
+
   const response =
     await fetch(url);
 
-  if (!response.ok) {
+
+  if (
+    !response.ok
+  ) {
 
     throw new Error(
       `NASA FIRMS request failed: ${response.status} ${response.statusText}`
     );
   }
 
+
   const csvText =
     await response.text();
+
 
   if (
     !csvText ||
@@ -650,8 +686,10 @@ async function fetchFirmsData() {
     );
   }
 
+
   return csvText;
 }
+
 
 /* =========================================================
    CONNECT MONGODB
@@ -664,23 +702,28 @@ async function connectMongo() {
       MONGODB_URI
     );
 
+
   await client.connect();
+
 
   const db =
     client.db(
       DATABASE_NAME
     );
 
+
   const collection =
     db.collection(
       COLLECTION_NAME
     );
 
+
   return {
     client,
-    collection
+    collection,
   };
 }
+
 
 /* =========================================================
    MONGODB INDEXES
@@ -692,65 +735,55 @@ async function ensureIndexes(
 
   await collection.createIndex(
     {
-      observation_key: 1
+      observation_key: 1,
     },
     {
       unique: true,
-      name: "unique_observation_key"
+      name:
+        "unique_observation_key",
     }
   );
 
-  await collection.createIndex(
-    {
-      prediction_processed: 1
-    },
-    {
-      name: "prediction_processed_index"
-    }
-  );
 
   await collection.createIndex(
     {
-      preprocessed: 1
+      prediction_processed: 1,
     },
     {
-      name: "preprocessed_index"
+      name:
+        "prediction_processed_index",
     }
   );
 
+
   await collection.createIndex(
     {
-      collected_at: -1
+      collected_at: -1,
     },
     {
-      name: "collected_at_index"
+      name:
+        "collected_at_index",
     }
   );
+
 
   await collection.createIndex(
     {
       latitude: 1,
-      longitude: 1
+      longitude: 1,
     },
     {
-      name: "coordinates_index"
+      name:
+        "coordinates_index",
     }
   );
 
-  await collection.createIndex(
-    {
-      acq_date: -1,
-      acq_time: -1
-    },
-    {
-      name: "acquisition_datetime_index"
-    }
-  );
 
   console.log(
     "✅ MongoDB indexes verified"
   );
 }
+
 
 /* =========================================================
    SAVE DATA
@@ -766,13 +799,15 @@ async function saveToMongoDB(
       {
         columns: true,
         skip_empty_lines: true,
-        trim: true
+        trim: true,
       }
     );
+
 
   console.log(
     `📡 NASA records received: ${records.length}`
   );
+
 
   if (
     records.length === 0
@@ -785,9 +820,10 @@ async function saveToMongoDB(
     return;
   }
 
-  /* -----------------------------------------------
-     SHOW NASA SCHEMA
-  ------------------------------------------------ */
+
+  /* ---------------------------------------------
+     NASA COLUMNS
+  --------------------------------------------- */
 
   console.log(
     "\n🔎 NASA FIRMS COLUMNS:"
@@ -799,23 +835,17 @@ async function saveToMongoDB(
     )
   );
 
-  console.log(
-    "\n🔎 FIRST NASA FIRMS RECORD:"
-  );
 
-  console.log(
-    records[0]
-  );
-
-  /* -----------------------------------------------
-     CONNECT
-  ------------------------------------------------ */
+  /* ---------------------------------------------
+     MONGODB
+  --------------------------------------------- */
 
   const {
     client,
-    collection
+    collection,
   } =
     await connectMongo();
+
 
   try {
 
@@ -823,13 +853,11 @@ async function saveToMongoDB(
       "✅ MongoDB connected"
     );
 
+
     await ensureIndexes(
       collection
     );
 
-    /* -------------------------------------------
-       COUNTERS
-    -------------------------------------------- */
 
     let insideIndia = 0;
 
@@ -841,11 +869,17 @@ async function saveToMongoDB(
 
     let duplicates = 0;
 
+    let predictions = 0;
+
+    let predictionFailures = 0;
+
+
     const invalidReasons = {};
 
-    /* -------------------------------------------
-       PROCESS
-    -------------------------------------------- */
+
+    /* ---------------------------------------------
+       PROCESS RECORDS
+    --------------------------------------------- */
 
     for (
       const record of records
@@ -856,14 +890,16 @@ async function saveToMongoDB(
           record.latitude
         );
 
+
       const longitude =
         toNumber(
           record.longitude
         );
 
-      /* -----------------------------------------
-         COORDINATES
-      ------------------------------------------ */
+
+      /* -------------------------------------------
+         COORDINATE VALIDATION
+      ------------------------------------------- */
 
       if (
         latitude === null ||
@@ -872,23 +908,28 @@ async function saveToMongoDB(
 
         invalid++;
 
+
         invalidReasons.coordinates =
           (
-            invalidReasons.coordinates || 0
+            invalidReasons.coordinates ||
+            0
           ) + 1;
+
 
         continue;
       }
 
-      /* -----------------------------------------
-         INDIA BOUNDARY
-      ------------------------------------------ */
+
+      /* -------------------------------------------
+         INDIA FILTER
+      ------------------------------------------- */
 
       const pointInsideIndia =
         isPointInsideIndia(
           latitude,
           longitude
         );
+
 
       if (
         !pointInsideIndia
@@ -899,22 +940,26 @@ async function saveToMongoDB(
         continue;
       }
 
+
       insideIndia++;
 
-      /* -----------------------------------------
+
+      /* -------------------------------------------
          PREPROCESS
-      ------------------------------------------ */
+      ------------------------------------------- */
 
       const result =
         preprocessRecord(
           record
         );
 
+
       if (
         !result.valid
       ) {
 
         invalid++;
+
 
         invalidReasons[
           result.reason
@@ -925,48 +970,47 @@ async function saveToMongoDB(
             ] || 0
           ) + 1;
 
+
         continue;
       }
+
 
       const features =
         result.features;
 
-      /* -----------------------------------------
+
+      /* -------------------------------------------
          OBSERVATION KEY
-      ------------------------------------------ */
+      ------------------------------------------- */
 
       const observationKey =
         createObservationKey(
           record
         );
 
-      /* -----------------------------------------
+
+      /* -------------------------------------------
          MONGODB DOCUMENT
-      ------------------------------------------ */
+      ------------------------------------------- */
 
       const document = {
-
-        /* ================================
-           UNIQUE ID
-        ================================= */
 
         observation_key:
           observationKey,
 
-        /* ================================
-           ML FEATURES
-        ================================= */
+
+        /* ML FEATURES */
 
         ...features,
 
-        /* ================================
-           ORIGINAL NASA METADATA
-        ================================= */
+
+        /* NASA METADATA */
 
         acq_date:
           String(
             record.acq_date || ""
           ),
+
 
         acq_time:
           String(
@@ -975,82 +1019,181 @@ async function saveToMongoDB(
             .trim()
             .padStart(4, "0"),
 
+
         satellite:
-          record.satellite || null,
+          record.satellite ||
+          null,
+
 
         instrument:
-          record.instrument || null,
+          record.instrument ||
+          null,
+
 
         confidence:
-          record.confidence || null,
+          record.confidence ||
+          null,
+
 
         version:
-          record.version || null,
+          record.version ||
+          null,
 
-        /* ================================
-           ORIGINAL SENSOR VALUES
-        ================================= */
+
+        /* ORIGINAL VALUES */
 
         bright_ti4:
           toNumber(
             record.bright_ti4
           ),
 
+
         bright_ti5:
           toNumber(
             record.bright_ti5
           ),
 
-        /* ================================
-           SOURCE
-        ================================= */
+
+        /* SOURCE */
 
         source_api:
           "NASA_FIRMS",
 
+
         source_product:
           SOURCE,
+
 
         inside_india:
           true,
 
-        /* ================================
-           PROCESSING STATUS
-        ================================= */
+
+        /* PROCESSING */
 
         preprocessed:
           true,
 
+
         prediction_processed:
           false,
 
-        /*
-          future_fire will be generated
-          separately from historical data.
-        */
 
-        future_fire:
+        /* PREDICTION */
+
+        prediction:
           null,
 
-        /* ================================
-           COLLECTION TIME
-        ================================= */
+
+        prediction_probability:
+          null,
+
+
+        prediction_label:
+          null,
+
+
+        risk_level:
+          null,
+
+
+        predicted_at:
+          null,
+
+
+        /* COLLECTION */
 
         collected_at:
-          new Date()
+          new Date(),
       };
 
-      /* -----------------------------------------
+
+      /* -------------------------------------------
          INSERT
-      ------------------------------------------ */
+      ------------------------------------------- */
 
       try {
 
-        await collection.insertOne(
-          document
-        );
+        const insertResult =
+          await collection.insertOne(
+            document
+          );
+
 
         inserted++;
+
+
+        console.log(
+          `🔥 New FIRMS detection saved: ${insertResult.insertedId}`
+        );
+
+
+        /* -----------------------------------------
+           ML PREDICTION
+        ----------------------------------------- */
+
+        try {
+
+          const savedDetection =
+            await collection.findOne({
+              _id:
+                insertResult.insertedId,
+            });
+
+
+          if (
+            savedDetection
+          ) {
+
+            console.log(
+              `🤖 Running ML prediction: ${insertResult.insertedId}`
+            );
+
+
+            const prediction =
+              await predictNewFire(
+                savedDetection
+              );
+
+
+            predictions++;
+
+
+            console.log(
+              `✅ Prediction completed: ${prediction.prediction_label}`
+            );
+
+
+          }
+
+
+        } catch (
+          predictionError
+        ) {
+
+          predictionFailures++;
+
+
+          console.error(
+            `❌ Prediction failed for ${insertResult.insertedId}:`,
+            predictionError.message
+          );
+
+
+          await collection.updateOne(
+            {
+              _id:
+                insertResult.insertedId,
+            },
+            {
+              $set: {
+                prediction_processed:
+                  false,
+              },
+            }
+          );
+
+        }
+
 
       } catch (error) {
 
@@ -1062,10 +1205,15 @@ async function saveToMongoDB(
 
         } else {
 
-          throw error;
+          console.error(
+            "❌ MongoDB insert error:",
+            error.message
+          );
+
         }
       }
     }
+
 
     /* =====================================================
        RESULT
@@ -1107,9 +1255,14 @@ async function saveToMongoDB(
       `♻️ Duplicates skipped   : ${duplicates}`
     );
 
-    /* -----------------------------------------------
-       INVALID REASONS
-    ------------------------------------------------ */
+    console.log(
+      `🧠 Predictions completed: ${predictions}`
+    );
+
+    console.log(
+      `❌ Prediction failures  : ${predictionFailures}`
+    );
+
 
     if (
       Object.keys(
@@ -1126,24 +1279,25 @@ async function saveToMongoDB(
       );
     }
 
-    /* -----------------------------------------------
-       TOTAL
-    ------------------------------------------------ */
 
     const total =
       await collection.countDocuments();
+
 
     console.log(
       `📦 Total MongoDB records: ${total}`
     );
 
+
     console.log(
       "======================================"
     );
 
+
   } finally {
 
     await client.close();
+
 
     console.log(
       "🔌 MongoDB connection closed"
@@ -1151,11 +1305,14 @@ async function saveToMongoDB(
   }
 }
 
+
 /* =========================================================
    COLLECTION LOCK
 ========================================================= */
 
-let collectionRunning = false;
+let collectionRunning =
+  false;
+
 
 /* =========================================================
    COLLECTION
@@ -1174,20 +1331,25 @@ async function collectFirmsData() {
     return;
   }
 
+
   collectionRunning = true;
+
 
   try {
 
     const csvText =
       await fetchFirmsData();
 
+
     await saveToMongoDB(
       csvText
     );
 
+
     console.log(
       "\n✅ FIRMS collection completed successfully"
     );
+
 
   } catch (error) {
 
@@ -1195,15 +1357,19 @@ async function collectFirmsData() {
       "\n❌ FIRMS collection failed:"
     );
 
+
     console.error(
       error.message
     );
 
+
   } finally {
 
-    collectionRunning = false;
+    collectionRunning =
+      false;
   }
 }
+
 
 /* =========================================================
    START
@@ -1234,11 +1400,15 @@ console.log(
 );
 
 console.log(
-  "🇮🇳 India boundary: india.geojson"
+  "🇮🇳 India coordinate filter: ENABLED"
 );
 
 console.log(
   "🧠 Preprocessing: ENABLED"
+);
+
+console.log(
+  "🤖 ML prediction: ENABLED"
 );
 
 console.log(
@@ -1249,11 +1419,13 @@ console.log(
   "======================================"
 );
 
+
 /* =========================================================
    FIRST RUN
 ========================================================= */
 
 collectFirmsData();
+
 
 /* =========================================================
    EVERY 15 MINUTES
