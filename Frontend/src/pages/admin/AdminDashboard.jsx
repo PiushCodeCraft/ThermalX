@@ -297,7 +297,7 @@ const AdminDashboard = () => {
 
     {
       title: "Registered Users",
-
+  
       value: getValue(
         statistics,
         [
