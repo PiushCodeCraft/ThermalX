@@ -1,82 +1,11 @@
-import React, { useState, useRef, useCallback } from "react";
-import { Radio, RefreshCw, Compass, ShieldAlert } from "lucide-react";
+import React from "react";
+import { Radio, RefreshCw } from "lucide-react";
 
 import IndiaFocusedMap from "../components/map/IndiaFocusedMap";
-import ThermalSurroundingsPanel from "../components/map/ThermalSurroundingsPanel";
 
 import "./LiveMap.css";
 
 const LiveMap = ({ role = "basic" }) => {
-  const [selectedPoint, setSelectedPoint] = useState(null);
-  const [surroundingsData, setSurroundingsData] = useState(null);
-  const [surroundingsLoading, setSurroundingsLoading] = useState(false);
-  const [surroundingsError, setSurroundingsError] = useState(null);
-
-  const focusMapHandlerRef = useRef(null);
-
-  /* =========================================================
-     FETCH 5KM SURROUNDINGS DATA
-  ========================================================= */
-
-  const fetchSurroundings = useCallback(async (lat, lon) => {
-    if (lat === undefined || lon === undefined) return;
-
-    setSurroundingsLoading(true);
-    setSurroundingsError(null);
-
-    try {
-      const response = await fetch(
-        `http://localhost:5000/api/fire/surroundings?lat=${lat}&lon=${lon}&radius=5000`
-      );
-
-      if (!response.ok) {
-        throw new Error(`Server returned ${response.status}`);
-      }
-
-      const result = await response.json();
-      if (result.success) {
-        setSurroundingsData(result);
-      } else {
-        setSurroundingsError(result.message || "Failed to query 5km surroundings.");
-      }
-    } catch (err) {
-      console.error("Surroundings query error:", err.message);
-      setSurroundingsError("Could not connect to surroundings service.");
-    } finally {
-      setSurroundingsLoading(false);
-    }
-  }, []);
-
-  /* =========================================================
-     HOTSPOT SELECTION HANDLER
-  ========================================================= */
-
-  const handleSelectPoint = useCallback(
-    (point) => {
-      setSelectedPoint(point);
-      fetchSurroundings(point.latitude, point.longitude);
-    },
-    [fetchSurroundings]
-  );
-
-  const handleClosePanel = useCallback(() => {
-    setSelectedPoint(null);
-    setSurroundingsData(null);
-    setSurroundingsError(null);
-  }, []);
-
-  const handleRefreshSurroundings = useCallback(() => {
-    if (selectedPoint) {
-      fetchSurroundings(selectedPoint.latitude, selectedPoint.longitude);
-    }
-  }, [selectedPoint, fetchSurroundings]);
-
-  const handleFocusItem = useCallback((item) => {
-    if (focusMapHandlerRef.current) {
-      focusMapHandlerRef.current(item);
-    }
-  }, []);
-
   return (
     <main className="tx-live-map-page">
       {/* ==================================================
@@ -238,28 +167,7 @@ const LiveMap = ({ role = "basic" }) => {
           {/* REAL NASA FIRMS MAP */}
 
           <div className="tx-live-map-container">
-            <IndiaFocusedMap
-              height="100%"
-              selectedPoint={selectedPoint}
-              surroundingsData={surroundingsData}
-              onSelectPoint={handleSelectPoint}
-              setFocusHandler={(fn) => {
-                focusMapHandlerRef.current = fn;
-              }}
-            />
-
-            {/* 5KM SURROUNDINGS SLIDE-OUT INSPECTOR */}
-            {selectedPoint && (
-              <ThermalSurroundingsPanel
-                selectedPoint={selectedPoint}
-                surroundingsData={surroundingsData}
-                loading={surroundingsLoading}
-                error={surroundingsError}
-                onClose={handleClosePanel}
-                onRefresh={handleRefreshSurroundings}
-                onFocusItem={handleFocusItem}
-              />
-            )}
+            <IndiaFocusedMap height="100%" />
           </div>
         </section>
 

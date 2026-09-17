@@ -281,11 +281,11 @@
 
   width: 100%;
 
-  height: calc(100vh - 365px);
+  height: calc(100vh - 240px);
 
-  min-height: 480px;
+  min-height: 680px;
 
-  max-height: 720px;
+  max-height: 940px;
 
   overflow: hidden;
 
@@ -407,7 +407,8 @@
   }
 
   .tx-admin-live-map-wrapper {
-    height: 560px;
+    height: 680px;
+    min-height: 600px;
   }
 }
 
@@ -435,9 +436,9 @@
   }
 
   .tx-admin-live-map-wrapper {
-    height: 480px;
+    height: 580px;
 
-    min-height: 400px;
+    min-height: 500px;
   }
 }
 

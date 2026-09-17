@@ -132,7 +132,7 @@
 
   color: #98a2b3;
 
-  font-size: 8px;
+  font-size: 10px;
 
   font-weight: 700;
 
@@ -169,7 +169,7 @@
 
   color: #667085;
 
-  font-size: 10px;
+  font-size: 12px;
 
   line-height: 1.5;
 }
@@ -351,7 +351,7 @@
 
   color: #172033;
 
-  font-size: 11px;
+  font-size: 15px;
 
   font-weight: 760;
 
@@ -362,7 +362,7 @@
 .tx-alerts-panel-heading span {
   color: #8b96a7;
 
-  font-size: 7px;
+  font-size: 9px;
 
   font-weight: 650;
 
@@ -412,11 +412,11 @@
 
   align-items: center;
 
-  gap: 7px;
+  gap: 11px;
 
   color: #667085;
 
-  font-size: 8px;
+  font-size: 11px;
 
   font-weight: 650;
 
@@ -552,7 +552,7 @@
 
   color: #344054;
 
-  font-size: 9px;
+  font-size: 14.5px;
 
   font-weight: 750;
 
@@ -573,7 +573,7 @@
 
   border-radius: 4px;
 
-  font-size: 6px;
+  font-size: 10px;
 
   font-weight: 750;
 
@@ -617,7 +617,7 @@
 
   color: #667085;
 
-  font-size: 8px;
+  font-size: 11px;
 
   font-weight: 600;
 }
@@ -626,7 +626,7 @@
 .tx-active-alert-location span {
   color: #a0a9b6;
 
-  font-size: 7px;
+  font-size: 11px;
 }
 
 
@@ -685,7 +685,7 @@
 
   font-family: inherit;
 
-  font-size: 7px;
+  font-size: 10px;
 
   font-weight: 700;
 
@@ -707,7 +707,7 @@
 .tx-incident-count {
   color: #98a2b3;
 
-  font-size: 8px;
+  font-size: 10px;
 
   font-weight: 650;
 }
@@ -859,7 +859,7 @@
 
   color: #7d8899;
 
-  font-size: 7px;
+  font-size: 12px;
 
   font-weight: 750;
 
@@ -910,7 +910,7 @@
 .tx-incident-id {
   color: #344054;
 
-  font-size: 8px;
+  font-size: 12px;
 
   font-weight: 750;
 
@@ -936,7 +936,7 @@
 .tx-incident-location strong {
   color: #344054;
 
-  font-size: 8px;
+  font-size: 11px;
 
   font-weight: 700;
 }
@@ -993,7 +993,7 @@
 
 .tx-risk-badge.low {
   color: #16a34a;
-
+  font-size: 11px;
   background: #edf9f1;
 }
 
@@ -1011,7 +1011,7 @@
 
 .tx-status-badge.monitoring {
   color: #b77908;
-
+  font-size: 11px;
   background: #fff7e5;
 }
 
@@ -1030,7 +1030,7 @@
 .tx-confidence {
   color: #344054;
 
-  font-size: 8px;
+  font-size: 11px;
 
   font-weight: 700;
 
@@ -1041,7 +1041,7 @@
 .tx-detected {
   color: #667085;
 
-  font-size: 7px;
+  font-size: 11px;
 
   white-space: nowrap;
 }
@@ -1072,7 +1072,7 @@
 
   font-family: inherit;
 
-  font-size: 7px;
+  font-size: 11px;
 
   font-weight: 700;
 
@@ -1125,6 +1125,7 @@
 
 .tx-alerts-footer > div {
   display: flex;
+  font-size: 10px;
 
   flex-direction: column;
 
@@ -1135,7 +1136,7 @@
 .tx-alerts-footer strong {
   color: #667085;
 
-  font-size: 8px;
+  font-size: 10px;
 }
 
 

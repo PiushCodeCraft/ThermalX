@@ -36,6 +36,7 @@ import {
 import "ol/ol.css";
 import "./IndiaFocusedMap.css";
 
+import ThermalSurroundingsPanel from "./ThermalSurroundingsPanel";
 import indiaBoundary from "../../data/indiaBoundary.json";
 
 /* =========================================================
@@ -139,7 +140,10 @@ const IndiaFocusedMap = ({
   height = "100%",
   selectedPoint = null,
   surroundingsData = null,
+  surroundingsLoading,
+  surroundingsError,
   onSelectPoint = null,
+  onClosePoint = null,
   setFocusHandler = null,
 }) => {
   const mapElementRef = useRef(null);
@@ -158,8 +162,65 @@ const IndiaFocusedMap = ({
   const [livePointsCount, setLivePointsCount] = useState(0);
   const [showHotspots, setShowHotspots] = useState(true);
 
+  // Self-contained internal state so the popup works seamlessly in all pages
+  // (User LiveMap, AdminDashboard, AdminLiveMap)
+  const [internalSelectedPoint, setInternalSelectedPoint] = useState(null);
+  const [internalSurroundingsData, setInternalSurroundingsData] = useState(null);
+  const [internalLoading, setInternalLoading] = useState(false);
+  const [internalError, setInternalError] = useState(null);
+
+  const activeSelectedPoint = selectedPoint || internalSelectedPoint;
+  const activeSurroundingsData = surroundingsData || internalSurroundingsData;
+  const activeLoading =
+    surroundingsLoading !== undefined ? surroundingsLoading : internalLoading;
+  const activeError =
+    surroundingsError !== undefined ? surroundingsError : internalError;
+
   const [firmsStatus, setFirmsStatus] = useState(
     FIRMS_MAP_KEY ? "LOADING" : "NO MAP KEY"
+  );
+
+  /* =======================================================
+     INTERNAL 5KM SURROUNDINGS FETCHER
+  ======================================================= */
+
+  const fetchSurroundingsInternal = useCallback(async (lat, lon) => {
+    if (lat === undefined || lon === undefined) return;
+    setInternalLoading(true);
+    setInternalError(null);
+
+    try {
+      const response = await fetch(
+        `http://localhost:5000/api/fire/surroundings?lat=${lat}&lon=${lon}&radius=5000`
+      );
+
+      if (!response.ok) {
+        throw new Error(`Server returned ${response.status}`);
+      }
+
+      const result = await response.json();
+      if (result.success) {
+        setInternalSurroundingsData(result);
+      } else {
+        setInternalError(result.message || "Failed to query 5km surroundings.");
+      }
+    } catch (err) {
+      console.error("Surroundings query error:", err.message);
+      setInternalError("Could not connect to surroundings service.");
+    } finally {
+      setInternalLoading(false);
+    }
+  }, []);
+
+  const handlePointChosen = useCallback(
+    (point) => {
+      setInternalSelectedPoint(point);
+      fetchSurroundingsInternal(point.latitude, point.longitude);
+      if (onSelectPoint) {
+        onSelectPoint(point);
+      }
+    },
+    [fetchSurroundingsInternal, onSelectPoint]
   );
 
   /* =======================================================
@@ -359,7 +420,7 @@ const IndiaFocusedMap = ({
       );
 
       if (clickedHotspot) {
-        if (onSelectPoint) onSelectPoint(clickedHotspot);
+        handlePointChosen(clickedHotspot);
         return;
       }
 
@@ -370,19 +431,17 @@ const IndiaFocusedMap = ({
 
       // If clicked anywhere else on the map, query 5km surrounding around that exact coordinate!
       const [lon, lat] = toLonLat(evt.coordinate);
-      if (onSelectPoint) {
-        onSelectPoint({
-          id: `custom-${Date.now()}`,
-          latitude: lat,
-          longitude: lon,
-          frp: 0,
-          brightness: 0,
-          satellite: "Custom Pin",
-          acq_date: "Live Query",
-          confidence: "custom",
-          isCustom: true,
-        });
-      }
+      handlePointChosen({
+        id: `custom-${Date.now()}`,
+        latitude: lat,
+        longitude: lon,
+        frp: 0,
+        brightness: 0,
+        satellite: "Custom Pin",
+        acq_date: "Live Query",
+        confidence: "custom",
+        isCustom: true,
+      });
     });
 
     /* HOVER CURSOR */
@@ -416,7 +475,7 @@ const IndiaFocusedMap = ({
       map.setTarget(null);
       mapRef.current = null;
     };
-  }, [fetchLivePoints, onSelectPoint]);
+  }, [fetchLivePoints, handlePointChosen]);
 
   /* =======================================================
      EXPOSE FOCUS HANDLER TO PARENT
@@ -444,12 +503,16 @@ const IndiaFocusedMap = ({
     const source = bufferLayerRef.current.getSource();
     source.clear();
 
-    if (!selectedPoint || !selectedPoint.latitude || !selectedPoint.longitude) {
+    if (
+      !activeSelectedPoint ||
+      !activeSelectedPoint.latitude ||
+      !activeSelectedPoint.longitude
+    ) {
       return;
     }
 
-    const lon = selectedPoint.longitude;
-    const lat = selectedPoint.latitude;
+    const lon = activeSelectedPoint.longitude;
+    const lat = activeSelectedPoint.latitude;
 
     // 1. Create a true geodesic 5000 meter (5km) circle polygon
     const circlePolygon = circular([lon, lat], 5000, 72);
@@ -504,7 +567,7 @@ const IndiaFocusedMap = ({
         duration: 600,
       });
     }
-  }, [selectedPoint]);
+  }, [activeSelectedPoint]);
 
   /* =======================================================
      UPDATE SURROUNDINGS POI MARKERS
@@ -516,14 +579,14 @@ const IndiaFocusedMap = ({
     source.clear();
 
     if (
-      !surroundingsData ||
-      !Array.isArray(surroundingsData.surroundings) ||
-      surroundingsData.surroundings.length === 0
+      !activeSurroundingsData ||
+      !Array.isArray(activeSurroundingsData.surroundings) ||
+      activeSurroundingsData.surroundings.length === 0
     ) {
       return;
     }
 
-    const poiFeatures = surroundingsData.surroundings.map((item) => {
+    const poiFeatures = activeSurroundingsData.surroundings.map((item) => {
       const feat = new Feature({
         geometry: new Point(fromLonLat([item.longitude, item.latitude])),
       });
@@ -550,7 +613,7 @@ const IndiaFocusedMap = ({
     });
 
     source.addFeatures(poiFeatures);
-  }, [surroundingsData]);
+  }, [activeSurroundingsData]);
 
   /* =======================================================
      BASEMAP SWITCH
@@ -721,6 +784,38 @@ const IndiaFocusedMap = ({
           <span>India Boundary</span>
         </div>
       </div>
+
+      {/* 5KM SURROUNDINGS SLIDE-OUT INSPECTOR */}
+      {activeSelectedPoint && (
+        <ThermalSurroundingsPanel
+          selectedPoint={activeSelectedPoint}
+          surroundingsData={activeSurroundingsData}
+          loading={activeLoading}
+          error={activeError}
+          onClose={() => {
+            setInternalSelectedPoint(null);
+            setInternalSurroundingsData(null);
+            if (onClosePoint) onClosePoint();
+          }}
+          onRefresh={() => {
+            if (activeSelectedPoint) {
+              fetchSurroundingsInternal(
+                activeSelectedPoint.latitude,
+                activeSelectedPoint.longitude
+              );
+            }
+          }}
+          onFocusItem={(item) => {
+            if (mapRef.current && item.latitude && item.longitude) {
+              mapRef.current.getView().animate({
+                center: fromLonLat([item.longitude, item.latitude]),
+                zoom: Math.max(mapRef.current.getView().getZoom(), 13),
+                duration: 600,
+              });
+            }
+          }}
+        />
+      )}
     </div>
   );
 };
