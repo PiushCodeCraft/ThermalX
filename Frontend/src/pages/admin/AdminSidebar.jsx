@@ -63,12 +63,12 @@ const AdminSidebar = ({
       icon: FileText,
       path: "/admin/reports",
     },
-    {
-      id: "users",
-      label: "Users",
-      icon: Users,
-      path: "/admin/users",
-    },
+    // {
+    //   id: "users",
+    //   label: "Users",
+    //   icon: Users,
+    //   path: "/admin/users",
+    // },
     {
       id: "feedback",
       label: "User Feedback",

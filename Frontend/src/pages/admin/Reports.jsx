@@ -6,518 +6,462 @@ import {
   Filter,
   Search,
   RefreshCw,
+  Check,
+  X,
 } from "lucide-react";
 
-import {
-  getReports,
-  getReport,
-} from "../../services/api";
-
 import "./Reports.css";
+
+const API_URL = "http://localhost:5000";
 
 const Reports = () => {
   const [reports, setReports] = useState([]);
   const [search, setSearch] = useState("");
   const [status, setStatus] = useState("All");
-
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-  const [downloadingId, setDownloadingId] = useState(null);
+  const [updatingId, setUpdatingId] = useState(null);
 
-  const normalizeReports = (response) => {
-    if (Array.isArray(response)) {
-      return response;
-    }
+  // ==================================================
+  // FETCH USER REQUESTS
+  // ==================================================
 
-    if (Array.isArray(response?.reports)) {
-      return response.reports;
-    }
-
-    if (Array.isArray(response?.data)) {
-      return response.data;
-    }
-
-    if (Array.isArray(response?.results)) {
-      return response.results;
-    }
-
-    return [];
-  };
-
-  const getValue = (item, keys, fallback = "N/A") => {
-    for (const key of keys) {
-      if (
-        item?.[key] !== undefined &&
-        item?.[key] !== null &&
-        item?.[key] !== ""
-      ) {
-        return item[key];
-      }
-    }
-
-    return fallback;
-  };
-
-  const normalizeReport = (item) => ({
-    raw: item,
-
-    id: getValue(
-      item,
-      [
-        "id",
-        "reportId",
-        "report_id",
-      ]
-    ),
-
-    title: getValue(
-      item,
-      [
-        "title",
-        "name",
-        "reportTitle",
-        "report_title",
-      ]
-    ),
-
-    type: getValue(
-      item,
-      [
-        "type",
-        "reportType",
-        "report_type",
-        "category",
-      ]
-    ),
-
-    date: getValue(
-      item,
-      [
-        "date",
-        "createdAt",
-        "created_at",
-        "generatedAt",
-        "generated_at",
-        "updatedAt",
-        "updated_at",
-      ]
-    ),
-
-    incidents: getValue(
-      item,
-      [
-        "incidents",
-        "incidentCount",
-        "incident_count",
-        "totalIncidents",
-        "total_incidents",
-      ]
-    ),
-
-    status: getValue(
-      item,
-      [
-        "status",
-        "state",
-      ]
-    ),
-
-    downloadUrl: getValue(
-      item,
-      [
-        "downloadUrl",
-        "download_url",
-        "pdfUrl",
-        "pdf_url",
-        "fileUrl",
-        "file_url",
-      ],
-      null
-    ),
-  });
-
-  const formatDate = (value) => {
-    if (!value || value === "N/A") {
-      return "N/A";
-    }
-
-    const date = new Date(value);
-
-    if (Number.isNaN(date.getTime())) {
-      return String(value);
-    }
-
-    return date.toLocaleDateString([], {
-      day: "2-digit",
-      month: "short",
-      year: "numeric",
-    });
-  };
-
-  const loadReports = async () => {
-    setLoading(true);
-    setError("");
-
+  const fetchRequests = async (showLoader = true) => {
     try {
-      const response = await getReports();
+      if (showLoader) {
+        setLoading(true);
+      }
 
-      const data = normalizeReports(response);
+      setError("");
 
-      setReports(data);
-    } catch (err) {
-      console.error(
-        "Reports loading failed:",
-        err
+      const response = await fetch(
+        `${API_URL}/api/user-requests`
       );
 
-      setReports([]);
+      if (!response.ok) {
+        throw new Error(
+          `Failed to fetch requests (${response.status})`
+        );
+      }
+
+      const result = await response.json();
+
+      console.log("📩 User requests from Supabase:", result);
+
+      if (!result.success) {
+        throw new Error(
+          result.message || "Failed to load requests"
+        );
+      }
+
+      setReports(result.data || []);
+
+    } catch (err) {
+      console.error(
+        "❌ User request fetch error:",
+        err
+      );
 
       setError(
-        err?.message ||
-          "Unable to load reports."
+        err.message || "Failed to load user requests"
       );
     } finally {
-      setLoading(false);
+      if (showLoader) {
+        setLoading(false);
+      }
     }
   };
 
+  // ==================================================
+  // INITIAL LOAD + AUTOMATIC REFRESH
+  // ==================================================
+
   useEffect(() => {
-    loadReports();
+    // Load immediately
+    fetchRequests(true);
+
+    // Check for new requests every 10 seconds
+    const interval = setInterval(() => {
+      fetchRequests(false);
+    }, 10000);
+
+    // Stop polling when leaving Reports page
+    return () => {
+      clearInterval(interval);
+    };
   }, []);
 
-  const normalizedReports = useMemo(
-    () => reports.map(normalizeReport),
-    [reports]
-  );
+  // ==================================================
+  // UPDATE REQUEST STATUS
+  // ==================================================
 
-  const filteredReports = useMemo(() => {
-    const query = search.trim().toLowerCase();
-
-    return normalizedReports.filter(
-      (report) => {
-        const matchesSearch =
-          !query ||
-          String(report.title)
-            .toLowerCase()
-            .includes(query) ||
-          String(report.id)
-            .toLowerCase()
-            .includes(query) ||
-          String(report.type)
-            .toLowerCase()
-            .includes(query);
-
-        const matchesStatus =
-          status === "All" ||
-          String(report.status).toLowerCase() ===
-            status.toLowerCase();
-
-        return (
-          matchesSearch &&
-          matchesStatus
-        );
-      }
-    );
-  }, [
-    normalizedReports,
-    search,
-    status,
-  ]);
-
-  const generatedToday = useMemo(() => {
-    const today = new Date();
-
-    return normalizedReports.filter(
-      (report) => {
-        if (
-          !report.raw?.createdAt &&
-          !report.raw?.created_at &&
-          !report.raw?.generatedAt &&
-          !report.raw?.generated_at &&
-          !report.raw?.date
-        ) {
-          return false;
-        }
-
-        const rawDate = getValue(
-          report.raw,
-          [
-            "createdAt",
-            "created_at",
-            "generatedAt",
-            "generated_at",
-            "date",
-          ],
-          null
-        );
-
-        if (!rawDate) {
-          return false;
-        }
-
-        const date = new Date(rawDate);
-
-        if (Number.isNaN(date.getTime())) {
-          return false;
-        }
-
-        return (
-          date.getFullYear() ===
-            today.getFullYear() &&
-          date.getMonth() ===
-            today.getMonth() &&
-          date.getDate() ===
-            today.getDate()
-        );
-      }
-    ).length;
-  }, [normalizedReports]);
-
-  const availableDownloads = useMemo(
-    () =>
-      normalizedReports.filter(
-        (report) =>
-          String(report.status).toLowerCase() ===
-          "ready"
-      ).length,
-    [normalizedReports]
-  );
-
-  const handleDownload = async (report) => {
-    if (
-      !report ||
-      String(report.status).toLowerCase() !==
-        "ready"
-    ) {
-      return;
-    }
-
-    setDownloadingId(report.id);
-
+  const updateStatus = async (requestId, newStatus) => {
     try {
-      /*
-       * First request the complete report.
-       *
-       * The backend can return:
-       * - downloadUrl
-       * - pdfUrl
-       * - fileUrl
-       * - or the complete report object.
-       */
-      const response =
-        await getReport(report.id);
+      setUpdatingId(requestId);
+      setError("");
 
-      const detail =
-        response?.data ??
-        response?.report ??
-        response;
+      console.log(
+        `🔄 Updating request ${requestId} → ${newStatus}`
+      );
 
-      const downloadUrl =
-        getValue(
-          detail,
-          [
-            "downloadUrl",
-            "download_url",
-            "pdfUrl",
-            "pdf_url",
-            "fileUrl",
-            "file_url",
-          ],
-          report.downloadUrl
+      const response = await fetch(
+        `${API_URL}/api/user-requests/${requestId}/status`,
+        {
+          method: "PUT",
+
+          headers: {
+            "Content-Type": "application/json",
+          },
+
+          body: JSON.stringify({
+            status: newStatus,
+          }),
+        }
+      );
+
+      const result = await response.json();
+
+      console.log(
+        "📩 Status update response:",
+        result
+      );
+
+      if (!response.ok || !result.success) {
+        throw new Error(
+          result.message ||
+            "Failed to update request status"
         );
-
-      if (
-        downloadUrl &&
-        downloadUrl !== "N/A"
-      ) {
-        window.open(
-          downloadUrl,
-          "_blank",
-          "noopener,noreferrer"
-        );
-
-        return;
       }
 
-      /*
-       * No fabricated download is created.
-       * The backend must provide the actual
-       * report/PDF URL.
-       */
-      alert(
-        "The report is ready, but the backend has not provided a PDF download URL."
+      // Update UI immediately
+      setReports((previousReports) =>
+        previousReports.map((request) =>
+          String(request.id) ===
+          String(requestId)
+            ? {
+                ...request,
+                status: newStatus,
+              }
+            : request
+        )
       );
+
     } catch (err) {
       console.error(
-        "Report download failed:",
+        "❌ Status update error:",
         err
       );
 
-      alert(
-        err?.message ||
-          "Unable to download the report."
+      setError(
+        err.message ||
+          "Failed to update request status"
       );
+
     } finally {
-      setDownloadingId(null);
+      setUpdatingId(null);
     }
   };
 
+  // ==================================================
+  // STATUS
+  // ==================================================
+
+  const getStatus = (request) => {
+    return String(
+      request.status || "pending"
+    ).toLowerCase();
+  };
+
+  // ==================================================
+  // FILTER
+  // ==================================================
+
+  const filteredReports = useMemo(() => {
+    const searchText = search
+      .trim()
+      .toLowerCase();
+
+    return reports.filter((request) => {
+      const currentStatus =
+        getStatus(request);
+
+      const requestId = String(
+        request.id || ""
+      ).toLowerCase();
+
+      const name = String(
+        request.name ||
+          request.full_name ||
+          request.username ||
+          ""
+      ).toLowerCase();
+
+      const email = String(
+        request.email || ""
+      ).toLowerCase();
+
+      const requestType = String(
+        request.request_type ||
+          request.type ||
+          ""
+      ).toLowerCase();
+
+      const description = String(
+        request.description ||
+          request.message ||
+          ""
+      ).toLowerCase();
+
+      const matchesSearch =
+        !searchText ||
+        requestId.includes(searchText) ||
+        name.includes(searchText) ||
+        email.includes(searchText) ||
+        requestType.includes(searchText) ||
+        description.includes(searchText);
+
+      const matchesStatus =
+        status === "All" ||
+        currentStatus ===
+          status.toLowerCase();
+
+      return (
+        matchesSearch &&
+        matchesStatus
+      );
+    });
+  }, [reports, search, status]);
+
+  // ==================================================
+  // SUMMARY
+  // ==================================================
+
+  const totalRequests = reports.length;
+
+  const pendingRequests =
+    reports.filter(
+      (request) =>
+        getStatus(request) ===
+        "pending"
+    ).length;
+
+  const approvedRequests =
+    reports.filter(
+      (request) =>
+        getStatus(request) ===
+        "approved"
+    ).length;
+
+  const deniedRequests =
+    reports.filter(
+      (request) =>
+        getStatus(request) ===
+        "denied"
+    ).length;
+
+  // ==================================================
+  // DATE
+  // ==================================================
+
+  const formatDate = (dateValue) => {
+    if (!dateValue) {
+      return "-";
+    }
+
+    const date = new Date(dateValue);
+
+    if (Number.isNaN(date.getTime())) {
+      return "-";
+    }
+
+    return date.toLocaleDateString();
+  };
+
+  // ==================================================
+  // DOWNLOAD
+  // ==================================================
+
+  const downloadRequest = (request) => {
+    try {
+      const fileContent =
+        JSON.stringify(
+          request,
+          null,
+          2
+        );
+
+      const blob = new Blob(
+        [fileContent],
+        {
+          type: "application/json",
+        }
+      );
+
+      const url =
+        window.URL.createObjectURL(
+          blob
+        );
+
+      const link =
+        document.createElement("a");
+
+      link.href = url;
+
+      link.download =
+        `thermalx-request-${request.id}.json`;
+
+      document.body.appendChild(link);
+
+      link.click();
+
+      document.body.removeChild(link);
+
+      window.URL.revokeObjectURL(url);
+
+    } catch (err) {
+      console.error(
+        "❌ Download error:",
+        err
+      );
+    }
+  };
+
+  // ==================================================
+  // RENDER
+  // ==================================================
+
   return (
-    <div className="tx-reports">
+    <main className="tx-reports">
 
       {/* HEADER */}
 
-      <header className="tx-reports-header">
-
+      <div className="tx-reports-header">
         <div>
-          <span className="tx-reports-eyebrow">
-            THERMAL-X / REPORTING
-          </span>
-
           <h1>Reports</h1>
 
           <p>
-            Generate, review and export thermal
-            incident and AI analysis reports.
+            Manage user requests and approvals
           </p>
         </div>
-
-        <button
-          type="button"
-          className="tx-reports-create-button"
-          onClick={() => {
-            /*
-             * Report creation endpoint is not
-             * currently defined in api.js.
-             *
-             * Do not send a fabricated request.
-             */
-            alert(
-              "Report creation will be available when the backend report-generation endpoint is connected."
-            );
-          }}
-        >
-          <FileText size={16} />
-          CREATE REPORT
-        </button>
-
-      </header>
-
-
-      {/* ERROR */}
-
-      {error && (
-        <div className="tx-reports-api-error">
-
-          <div>
-            <strong>
-              Unable to load reports
-            </strong>
-
-            <span>{error}</span>
-          </div>
-
-          <button
-            type="button"
-            onClick={loadReports}
-            disabled={loading}
-          >
-            <RefreshCw size={14} />
-            RETRY
-          </button>
-
-        </div>
-      )}
+      </div>
 
 
       {/* SUMMARY */}
 
-      <section className="tx-reports-summary">
+      <div className="tx-reports-summary">
 
         <div className="tx-reports-summary-card">
+          <span>
+            Total Requests
+          </span>
 
-          <div className="tx-reports-summary-icon">
-            <FileText size={19} />
-          </div>
-
-          <div>
-            <span>Total Reports</span>
-
-            <strong>
-              {loading
-                ? "..."
-                : normalizedReports.length}
-            </strong>
-          </div>
-
+          <strong>
+            {totalRequests}
+          </strong>
         </div>
-
 
         <div className="tx-reports-summary-card">
+          <span>
+            Pending
+          </span>
 
-          <div className="tx-reports-summary-icon">
-            <CalendarDays size={19} />
-          </div>
-
-          <div>
-            <span>Generated Today</span>
-
-            <strong>
-              {loading
-                ? "..."
-                : generatedToday}
-            </strong>
-          </div>
-
+          <strong>
+            {pendingRequests}
+          </strong>
         </div>
-
 
         <div className="tx-reports-summary-card">
+          <span>
+            Approved
+          </span>
 
-          <div className="tx-reports-summary-icon">
-            <Download size={19} />
-          </div>
-
-          <div>
-            <span>Available Downloads</span>
-
-            <strong>
-              {loading
-                ? "..."
-                : availableDownloads}
-            </strong>
-          </div>
-
+          <strong>
+            {approvedRequests}
+          </strong>
         </div>
 
-      </section>
+        <div className="tx-reports-summary-card">
+          <span>
+            Denied
+          </span>
+
+          <strong>
+            {deniedRequests}
+          </strong>
+        </div>
+
+      </div>
 
 
-      {/* REPORT TABLE */}
+      {/* REQUEST CARD */}
 
-      <section className="tx-reports-card">
+      <div className="tx-reports-card">
 
-        <div className="tx-reports-card-header">
+        {/* FILTERS */}
 
-          <div>
-            <span className="tx-reports-card-eyebrow">
-              REPORT ARCHIVE
-            </span>
+        <div className="tx-reports-filters">
 
-            <h2>
-              Generated Reports
-            </h2>
+          <div className="tx-reports-search">
+
+            <Search size={18} />
+
+            <input
+              type="text"
+              placeholder="Search requests..."
+              value={search}
+              onChange={(event) =>
+                setSearch(
+                  event.target.value
+                )
+              }
+            />
+
           </div>
+
+
+          <div className="tx-reports-filter">
+
+            <Filter size={18} />
+
+            <select
+              value={status}
+              onChange={(event) =>
+                setStatus(
+                  event.target.value
+                )
+              }
+            >
+              <option value="All">
+                All
+              </option>
+
+              <option value="Pending">
+                Pending
+              </option>
+
+              <option value="Approved">
+                Approved
+              </option>
+
+              <option value="Denied">
+                Denied
+              </option>
+            </select>
+
+          </div>
+
 
           <button
             type="button"
             className="tx-reports-refresh"
-            onClick={loadReports}
+            onClick={() =>
+              fetchRequests(true)
+            }
             disabled={loading}
-            aria-label="Refresh reports"
+            title="Refresh requests"
           >
             <RefreshCw
-              size={15}
+              size={18}
               className={
                 loading
                   ? "tx-reports-refresh-spin"
@@ -529,221 +473,350 @@ const Reports = () => {
         </div>
 
 
-        {/* FILTERS */}
+        {/* ERROR */}
 
-        <div className="tx-reports-filters">
+        {error && (
+          <div className="tx-reports-api-error">
 
-          <div className="tx-reports-search">
+            <div>
+              <strong>
+                Unable to load requests
+              </strong>
 
-            <Search size={15} />
+              <span>
+                {error}
+              </span>
+            </div>
 
-            <input
-              type="text"
-              placeholder="Search reports..."
-              value={search}
-              onChange={(event) =>
-                setSearch(event.target.value)
+            <button
+              type="button"
+              onClick={() =>
+                fetchRequests(true)
               }
-            />
-
-          </div>
-
-
-          <div className="tx-reports-filter">
-
-            <Filter size={14} />
-
-            <select
-              value={status}
-              onChange={(event) =>
-                setStatus(event.target.value)
-              }
+              disabled={loading}
             >
-              <option value="All">
-                All Status
-              </option>
+              <RefreshCw size={14} />
+              Retry
+            </button>
 
-              <option value="Ready">
-                Ready
-              </option>
+          </div>
+        )}
 
-              <option value="Processing">
-                Processing
-              </option>
-            </select>
+
+        {/* LOADING */}
+
+        {loading ? (
+
+          <div className="tx-reports-empty">
+
+            <strong>
+              Loading user requests...
+            </strong>
+
+            <span>
+              Checking Supabase
+            </span>
 
           </div>
 
-        </div>
+        ) : (
 
+          /* TABLE */
 
-        {/* TABLE */}
+          <div className="tx-reports-table">
 
-        <div className="tx-reports-table-wrapper">
+            <table>
 
-          <table className="tx-reports-table">
-
-            <thead>
-              <tr>
-                <th>REPORT ID</th>
-                <th>REPORT</th>
-                <th>TYPE</th>
-                <th>DATE</th>
-                <th>INCIDENTS</th>
-                <th>STATUS</th>
-                <th>ACTION</th>
-              </tr>
-            </thead>
-
-
-            <tbody>
-
-              {loading ? (
+              <thead>
 
                 <tr>
-                  <td
-                    colSpan="7"
-                    className="tx-reports-empty"
-                  >
-                    <RefreshCw
-                      size={18}
-                      className="tx-reports-refresh-spin"
-                    />
 
-                    <span>
-                      Loading reports...
-                    </span>
-                  </td>
+                  <th>
+                    REQUEST ID
+                  </th>
+
+                  <th>
+                    USER
+                  </th>
+
+                  <th>
+                    EMAIL
+                  </th>
+
+                  <th>
+                    TYPE
+                  </th>
+
+                  <th>
+                    DATE
+                  </th>
+
+                  <th>
+                    STATUS
+                  </th>
+
+                  <th>
+                    ACTION
+                  </th>
+
                 </tr>
 
-              ) : filteredReports.length > 0 ? (
+              </thead>
 
-                filteredReports.map(
-                  (report) => (
 
-                    <tr key={report.id}>
+              <tbody>
 
-                      <td>
-                        <span className="tx-report-id">
-                          {report.id}
-                        </span>
-                      </td>
+                {filteredReports.length === 0 ? (
 
-                      <td>
-                        <div className="tx-report-name">
+                  <tr>
 
-                          <div className="tx-report-file-icon">
-                            <FileText size={15} />
-                          </div>
+                    <td
+                      colSpan="7"
+                      className="tx-reports-empty"
+                    >
 
-                          <strong>
-                            {report.title}
-                          </strong>
+                      <FileText
+                        size={22}
+                      />
 
-                        </div>
-                      </td>
+                      <strong>
+                        No user requests found
+                      </strong>
 
-                      <td>
-                        {report.type}
-                      </td>
+                      <span>
+                        New requests will appear automatically.
+                      </span>
 
-                      <td>
-                        {formatDate(
-                          report.date
-                        )}
-                      </td>
+                    </td>
 
-                      <td>
-                        {report.incidents}
-                      </td>
+                  </tr>
 
-                      <td>
-                        <span
-                          className={`tx-report-status ${
-                            String(
-                              report.status
-                            ).toLowerCase()
-                          }`}
-                        >
-                          {report.status}
-                        </span>
-                      </td>
+                ) : (
 
-                      <td>
+                  filteredReports.map(
+                    (request) => {
 
-                        <button
-                          type="button"
-                          className="tx-report-download"
-                          disabled={
-                            String(
-                              report.status
-                            ).toLowerCase() !==
-                              "ready" ||
-                            downloadingId ===
-                              report.id
-                          }
-                          onClick={() =>
-                            handleDownload(
-                              report
-                            )
+                      const currentStatus =
+                        getStatus(request);
+
+                      const isUpdating =
+                        String(
+                          updatingId
+                        ) ===
+                        String(
+                          request.id
+                        );
+
+                      return (
+
+                        <tr
+                          key={
+                            request.id
                           }
                         >
 
-                          {downloadingId ===
-                          report.id ? (
-                            <RefreshCw
-                              size={14}
-                              className="tx-reports-refresh-spin"
-                            />
-                          ) : (
-                            <Download size={14} />
-                          )}
+                          {/* REQUEST ID */}
 
-                          {downloadingId ===
-                          report.id
-                            ? "..."
-                            : "PDF"}
+                          <td className="tx-report-id">
+                            {request.id ||
+                              "-"}
+                          </td>
 
-                        </button>
 
-                      </td>
+                          {/* USER */}
 
-                    </tr>
+                          <td>
 
+                            <div className="tx-report-name">
+
+                              <div className="tx-report-file-icon">
+                                <FileText
+                                  size={16}
+                                />
+                              </div>
+
+                              <strong>
+                                {request.name ||
+                                  request.full_name ||
+                                  request.username ||
+                                  "-"}
+                              </strong>
+
+                            </div>
+
+                          </td>
+
+
+                          {/* EMAIL */}
+
+                          <td>
+                            {request.email ||
+                              "-"}
+                          </td>
+
+
+                          {/* TYPE */}
+
+                          <td>
+                            {request.request_type ||
+                              request.type ||
+                              "-"}
+                          </td>
+
+
+                          {/* DATE */}
+
+                          <td>
+
+                            <span
+                              style={{
+                                display:
+                                  "inline-flex",
+                                alignItems:
+                                  "center",
+                                gap: "6px",
+                              }}
+                            >
+                              <CalendarDays
+                                size={15}
+                              />
+
+                              {formatDate(
+                                request.created_at
+                              )}
+                            </span>
+
+                          </td>
+
+
+                          {/* STATUS */}
+
+                          <td>
+
+                            <span
+                              className={`tx-report-status ${currentStatus}`}
+                            >
+                              {currentStatus}
+                            </span>
+
+                          </td>
+
+
+                          {/* ACTION */}
+
+                          <td>
+
+                            {currentStatus ===
+                            "pending" ? (
+
+                              <div className="tx-request-actions">
+
+                                {/* PERMIT */}
+
+                                <button
+                                  type="button"
+                                  className="tx-request-permit"
+                                  disabled={
+                                    isUpdating
+                                  }
+                                  onClick={() =>
+                                    updateStatus(
+                                      request.id,
+                                      "approved"
+                                    )
+                                  }
+                                >
+
+                                  <Check
+                                    size={16}
+                                  />
+
+                                  {isUpdating
+                                    ? "..."
+                                    : "Permit"}
+
+                                </button>
+
+
+                                {/* DENY */}
+
+                                <button
+                                  type="button"
+                                  className="tx-request-deny"
+                                  disabled={
+                                    isUpdating
+                                  }
+                                  onClick={() =>
+                                    updateStatus(
+                                      request.id,
+                                      "denied"
+                                    )
+                                  }
+                                >
+
+                                  <X
+                                    size={16}
+                                  />
+
+                                  {isUpdating
+                                    ? "..."
+                                    : "Deny"}
+
+                                </button>
+
+                              </div>
+
+                            ) : (
+
+                              <div className="tx-request-actions">
+
+                                <button
+                                  type="button"
+                                  className="tx-report-download"
+                                  onClick={() =>
+                                    downloadRequest(
+                                      request
+                                    )
+                                  }
+                                >
+
+                                  <Download
+                                    size={16}
+                                  />
+
+                                  Download
+
+                                </button>
+
+                                <span className="tx-request-completed">
+                                  Completed
+                                </span>
+
+                              </div>
+
+                            )}
+
+                          </td>
+
+                        </tr>
+
+                      );
+                    }
                   )
-                )
 
-              ) : (
+                )}
 
-                <tr>
-                  <td
-                    colSpan="7"
-                    className="tx-reports-empty"
-                  >
-                    <FileText size={22} />
+              </tbody>
 
-                    <strong>
-                      No reports found
-                    </strong>
+            </table>
 
-                    <span>
-                      No report records match the
-                      current filters.
-                    </span>
-                  </td>
-                </tr>
+          </div>
 
-              )}
+        )}
 
-            </tbody>
+      </div>
 
-          </table>
-
-        </div>
-
-      </section>
-
-    </div>
+    </main>
   );
 };
 

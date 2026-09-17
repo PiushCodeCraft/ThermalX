@@ -1,13 +1,10 @@
 import React from "react";
 
 import {
-  LayoutDashboard,
   Map,
-  Flame,
   Bell,
   BrainCircuit,
   FileText,
-  Users,
   Settings,
 } from "lucide-react";
 
@@ -19,8 +16,8 @@ const Sidebar = ({
   onNavigate,
 }) => {
   const isAdmin = role === "admin";
+
   const mainNavigation = [
-   
     {
       id: "live-map",
       label: "Live Map",
@@ -31,11 +28,9 @@ const Sidebar = ({
       label: "Alerts",
       icon: Bell,
     },
-    
   ];
 
   const adminNavigation = [
-    
     {
       id: "ai-analysis",
       label: "AI Analysis",
@@ -45,11 +40,6 @@ const Sidebar = ({
       id: "reports",
       label: "Reports",
       icon: FileText,
-    },
-    {
-      id: "users",
-      label: "Users",
-      icon: Users,
     },
     {
       id: "system",
@@ -102,7 +92,7 @@ const Sidebar = ({
         <button
           type="button"
           className="tx-sidebar-brand-button"
-          onClick={() => navigate("/")}
+          onClick={() => handleNavigation("dashboard")}
           aria-label="THERMAL-X Home"
         >
           <img
@@ -155,18 +145,24 @@ const Sidebar = ({
 
 
       {/* =========================
-          SYSTEM STATUS
+          FOOTER
       ========================= */}
 
       <div className="tx-sidebar-footer">
 
-       <div className="tx-sidebar-nameplate">
-       <center> <h5 className="tx-sidebar-nameplate-title"><b>THERMAL-X</b></h5>
-        <p className="tx-sidebar-nameplate-subtitle">Thermal Imaging & AI Analysis</p>
-         </center> 
-        </div>
+        <div className="tx-sidebar-nameplate">
 
-         
+          <center>
+            <h5 className="tx-sidebar-nameplate-title">
+              <b>THERMAL-X</b>
+            </h5>
+
+            <p className="tx-sidebar-nameplate-subtitle">
+              Thermal Imaging & AI Analysis
+            </p>
+          </center>
+
+        </div>
 
       </div>
 

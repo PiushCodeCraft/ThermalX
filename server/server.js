@@ -8,9 +8,10 @@ const { connectPostgreSQL } = require("./postgres");
 const adminRoutes = require("./routes/admin");
 const feedbackRoutes = require("./routes/feedback");
 const userRequestRoutes = require("./routes/userRequests");
-
+const aiAnalysisRoutes = require("./routes/aiAnalysis");
 const fireRoutes = require("./routes/fire");
-
+const incidentRoutes =
+  require("./routes/incidents");
 const app = express();
 
 // =====================================================
@@ -37,10 +38,15 @@ app.get("/", (req, res) => {
 app.use("/api/fire", fireRoutes);
 app.use("/api/admin", adminRoutes);
 app.use("/api/feedback", feedbackRoutes);
-app.use(  "/api/user-requests",
-  userRequestRoutes
+app.use("/api/user-requests", userRequestRoutes);
+app.use(
+  "/api/incidents",
+  incidentRoutes
 );
-
+app.use(
+  "/api/ai-analysis",
+  aiAnalysisRoutes
+);
 // =====================================================
 // SERVER START
 // =====================================================
@@ -53,7 +59,7 @@ const startServer = async () => {
     await connectMongoDB();
 
     // Connect local PostgreSQL
-    await connectPostgreSQL();
+    // await connectPostgreSQL();
 
     app.listen(PORT, () => {
       console.log(`\n🔥 Thermal-X server running on port ${PORT}`);

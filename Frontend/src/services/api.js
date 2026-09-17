@@ -2,6 +2,11 @@ const API_URL =
   import.meta.env.VITE_API_URL ||
   "http://localhost:5000";
 
+
+/* =========================================================
+   GENERIC REQUEST
+========================================================= */
+
 const request = async (
   endpoint,
   options = {}
@@ -86,31 +91,48 @@ export const getFirmsStatus =
 
 
 /* =========================================================
-   AI
+   AI ANALYSIS
 ========================================================= */
 
+/*
+  Reads AI engine status from MongoDB
+*/
 export const getAIStatus =
   () =>
     request(
-      "/api/ai/status"
+      "/api/ai-analysis/status"
     );
 
+
+/*
+  Reads all processed AI predictions
+  from MongoDB firms_raw collection
+*/
 export const getAIAnalyses =
   () =>
     request(
-      "/api/ai/analyses"
+      "/api/ai-analysis"
     );
 
+
+/*
+  Reads one AI prediction by observation_key
+*/
 export const getAIAnalysis =
   (id) =>
     request(
-      `/api/ai/analyses/${id}`
+      `/api/ai-analysis/${encodeURIComponent(id)}`
     );
 
+
+/*
+  Optional:
+  Run AI analysis manually
+*/
 export const runAIAnalysis =
   (data) =>
     request(
-      "/api/ai/analyze",
+      "/api/ai-analysis/analyze",
       {
         method: "POST",
         body: JSON.stringify(data),
@@ -179,6 +201,10 @@ export const getSystemStatus =
       "/api/system/status"
     );
 
+
+/* =========================================================
+   EXPORT
+========================================================= */
 
 export {
   API_URL,
