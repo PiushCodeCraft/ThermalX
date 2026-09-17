@@ -1,121 +1,76 @@
 const express = require("express");
-
 const router = express.Router();
 
-const { pool } = require("../postgres");
+const supabase = require("../supabase");
 
 
-// ============================================================
+// =====================================================
 // ADMIN LOGIN
-// ============================================================
+// =====================================================
 
 router.post("/login", async (req, res) => {
+  try {
+    const { userId, password } = req.body;
 
-    try {
-
-        const { userId, password } = req.body;
-
-
-        // ----------------------------------------------------
-        // VALIDATION
-        // ----------------------------------------------------
-
-        if (!userId || !password) {
-
-            return res.status(400).json({
-                success: false,
-                message: "User ID and password are required"
-            });
-
-        }
-
-
-        // ----------------------------------------------------
-        // FIND ADMIN
-        // ----------------------------------------------------
-
-        const result = await pool.query(
-            `
-            SELECT
-                id,
-                name,
-                email,
-                password
-            FROM public.admin_users
-            WHERE email = $1
-            LIMIT 1
-            `,
-            [userId.trim()]
-        );
-
-
-        // ----------------------------------------------------
-        // ADMIN NOT FOUND
-        // ----------------------------------------------------
-
-        if (result.rows.length === 0) {
-
-            return res.status(401).json({
-                success: false,
-                message: "Invalid user ID or password"
-            });
-
-        }
-
-
-        const admin = result.rows[0];
-
-
-        // ----------------------------------------------------
-        // PASSWORD CHECK
-        // ----------------------------------------------------
-
-        if (admin.password !== password) {
-
-            return res.status(401).json({
-                success: false,
-                message: "Invalid user ID or password"
-            });
-
-        }
-
-
-        // ----------------------------------------------------
-        // SUCCESS
-        // ----------------------------------------------------
-
-        return res.status(200).json({
-
-            success: true,
-
-            message: "Login successful",
-
-            admin: {
-                id: admin.id,
-                name: admin.name,
-                email: admin.email
-            }
-
-        });
-
-    } catch (error) {
-
-        console.error(
-            "❌ Admin login error:",
-            error.message
-        );
-
-
-        return res.status(500).json({
-
-            success: false,
-
-            message: "Internal server error"
-
-        });
-
+    if (!userId || !password) {
+      return res.status(400).json({
+        success: false,
+        message: "Please enter your email and password.",
+      });
     }
 
+    console.log("🔐 Admin login attempt:", userId);
+
+    // Check email + password in Supabase
+    const { data, error } = await supabase
+      .from("admin_users")
+      .select("id, name, email, password")
+      .eq("email", userId.trim())
+      .eq("password", password)
+      .maybeSingle();
+
+    if (error) {
+      console.error("❌ Supabase admin login error:", error);
+
+      return res.status(500).json({
+        success: false,
+        message: "Failed to verify admin credentials.",
+      });
+    }
+
+    // No matching email/password
+    if (!data) {
+      console.log("❌ Invalid admin credentials");
+
+      return res.status(401).json({
+        success: false,
+        message: "Invalid user ID or password.",
+      });
+    }
+
+    console.log("✅ Admin login successful:", data.email);
+
+    // Never send password back to frontend
+    const admin = {
+      id: data.id,
+      name: data.name,
+      email: data.email,
+    };
+
+    return res.status(200).json({
+      success: true,
+      message: "Admin login successful.",
+      admin,
+    });
+
+  } catch (error) {
+    console.error("🔥 Admin login error:", error);
+
+    return res.status(500).json({
+      success: false,
+      message: "Internal server error.",
+    });
+  }
 });
 
 

@@ -256,136 +256,221 @@
   cursor: pointer;
 }
 
-
 /* =========================================================
    TABLE
 ========================================================= */
 
-.tx-reports-table-wrapper {
-  width: 100%;
-  overflow-x: auto;
-}
-
 .tx-reports-table {
-  width: 100%;
-  min-width: 850px;
-
-  border-collapse: collapse;
+  display: block;
+  width: 100% !important;
+  max-width: 100% !important;
+  overflow-x: auto;
+  box-sizing: border-box;
 }
+
+.tx-reports-table table {
+  display: table;
+  width: 100% !important;
+  min-width: 100% !important;
+  max-width: none !important;
+  border-collapse: collapse;
+  border-spacing: 0;
+  table-layout: fixed;
+}
+
+/* =========================================================
+   TABLE HEADER
+========================================================= */
 
 .tx-reports-table th {
   padding: 13px 15px;
-
   background: #fafcfd;
-
   border-bottom: 1px solid #e8eef0;
-
   color: #91a0a7;
-
   font-size: 8px;
   font-weight: 800;
-
   letter-spacing: 0.08em;
-
   text-align: left;
+  vertical-align: middle;
+  box-sizing: border-box;
 }
+
+/* =========================================================
+   TABLE BODY
+========================================================= */
 
 .tx-reports-table td {
   padding: 15px;
-
   border-bottom: 1px solid #edf1f3;
-
   color: #6e828d;
-
   font-size: 10px;
+  text-align: left;
+  vertical-align: middle;
+  box-sizing: border-box;
 }
 
 .tx-reports-table tbody tr:hover {
   background: #fbfcfd;
 }
 
+/* =========================================================
+   COLUMN WIDTHS
+========================================================= */
 
-/* REPORT ID */
+/* Request ID */
+.tx-reports-table th:nth-child(1),
+.tx-reports-table td:nth-child(1) {
+  width: 10%;
+}
+
+/* User */
+.tx-reports-table th:nth-child(2),
+.tx-reports-table td:nth-child(2) {
+  width: 16%;
+}
+
+/* Email */
+.tx-reports-table th:nth-child(3),
+.tx-reports-table td:nth-child(3) {
+  width: 21%;
+}
+
+/* Type */
+.tx-reports-table th:nth-child(4),
+.tx-reports-table td:nth-child(4) {
+  width: 10%;
+}
+
+/* Date */
+.tx-reports-table th:nth-child(5),
+.tx-reports-table td:nth-child(5) {
+  width: 15%;
+}
+
+/* Status */
+.tx-reports-table th:nth-child(6),
+.tx-reports-table td:nth-child(6) {
+  width: 12%;
+}
+
+/* Action */
+.tx-reports-table th:nth-child(7),
+.tx-reports-table td:nth-child(7) {
+  width: 16%;
+}
+
+/* =========================================================
+   REQUEST ID
+========================================================= */
 
 .tx-report-id {
   color: #718792;
-
   font-family: monospace;
-
   font-size: 9px;
 }
 
-
-/* REPORT NAME */
+/* =========================================================
+   USER / REPORT NAME
+========================================================= */
 
 .tx-report-name {
   display: flex;
   align-items: center;
   gap: 10px;
+  min-width: 0;
 }
 
 .tx-report-file-icon {
   width: 30px;
   height: 30px;
-
   display: flex;
   align-items: center;
   justify-content: center;
-
+  flex-shrink: 0;
   border-radius: 4px;
-
   background: #f0f4f5;
-
   color: #65808d;
 }
 
 .tx-report-name strong {
   color: #405e6d;
-
   font-size: 10px;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
+/* =========================================================
+   DATE
+========================================================= */
 
-/* STATUS */
+.tx-reports-table td:nth-child(5) > span {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  white-space: nowrap;
+}
+
+/* =========================================================
+   STATUS
+========================================================= */
 
 .tx-report-status {
-  display: inline-block;
-
-  padding: 5px 8px;
-
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 5px 9px;
   border-radius: 3px;
-
   font-size: 8px;
   font-weight: 800;
+  text-transform: lowercase;
+  white-space: nowrap;
 }
 
-.tx-report-status.ready {
-  background: #eef6f1;
-  color: #4b8261;
-}
-
-.tx-report-status.processing {
+.tx-report-status.pending {
   background: #faf5e9;
   color: #9a773e;
 }
 
+.tx-report-status.approved {
+  background: #eef6f1;
+  color: #4b8261;
+}
 
-/* DOWNLOAD */
+.tx-report-status.denied {
+  background: #fff0f0;
+  color: #9a5555;
+}
 
-.tx-report-download {
+/* =========================================================
+   ACTIONS
+========================================================= */
+
+.tx-request-actions {
   display: flex;
   align-items: center;
+  gap: 8px;
+  flex-wrap: nowrap;
+  white-space: nowrap;
+}
 
+/* =========================================================
+   PERMIT
+========================================================= */
+
+.tx-request-permit {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   gap: 5px;
 
-  padding: 6px 8px;
+  min-width: 65px;
+  padding: 6px 9px;
 
-  border: 1px solid #dce6ea;
-  border-radius: 3px;
+  border: 1px solid #cfded5;
+  border-radius: 4px;
 
   background: #ffffff;
-
-  color: #486b7b;
+  color: #4b8261;
 
   font-size: 8px;
   font-weight: 800;
@@ -393,26 +478,95 @@
   cursor: pointer;
 }
 
+.tx-request-permit:hover:not(:disabled) {
+  background: #eef6f1;
+}
+
+/* =========================================================
+   DENY
+========================================================= */
+
+.tx-request-deny {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+
+  min-width: 60px;
+  padding: 6px 9px;
+
+  border: 1px solid #e2cccc;
+  border-radius: 4px;
+
+  background: #ffffff;
+  color: #9a5555;
+
+  font-size: 8px;
+  font-weight: 800;
+
+  cursor: pointer;
+}
+
+.tx-request-deny:hover:not(:disabled) {
+  background: #fff5f5;
+}
+
+/* =========================================================
+   DISABLED
+========================================================= */
+
+.tx-request-permit:disabled,
+.tx-request-deny:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+/* =========================================================
+   DOWNLOAD
+========================================================= */
+
+.tx-report-download {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+
+  padding: 6px 9px;
+
+  border: 1px solid #dce6ea;
+  border-radius: 3px;
+
+  background: #ffffff;
+  color: #486b7b;
+
+  font-size: 8px;
+  font-weight: 800;
+
+  cursor: pointer;
+  white-space: nowrap;
+}
+
 .tx-report-download:hover:not(:disabled) {
   background: #f1f6f8;
 }
 
 .tx-report-download:disabled {
-  opacity: 0.4;
+  opacity: 0.45;
   cursor: not-allowed;
 }
 
+/* =========================================================
+   COMPLETED
+========================================================= */
 
-/* EMPTY */
-
-.tx-reports-empty {
-  height: 150px;
-
-  text-align: center !important;
-
-  color: #9aa8ae !important;
+.tx-request-completed {
+  display: block;
+  margin-top: 5px;
+  color: #899aa4;
+  font-size: 8px;
+  font-weight: 700;
+  white-space: nowrap;
 }
-
 
 /* =========================================================
    RESPONSIVE
@@ -438,5 +592,149 @@
 
   .tx-reports-search {
     width: auto;
+  }
+}
+/* =================================
+   API ERROR
+================================= */
+
+.tx-reports-api-error {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  padding: 14px 16px;
+  margin-bottom: 22px;
+  border: 1px solid #e4cccc;
+  border-radius: 8px;
+  background: #fff8f8;
+}
+
+.tx-reports-api-error > div {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.tx-reports-api-error strong {
+  font-size: 13px;
+  color: #8f2525;
+}
+
+.tx-reports-api-error span {
+  font-size: 12px;
+  color: #666;
+}
+
+.tx-reports-api-error button {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 8px 12px;
+  border: 1px solid #d4d4d4;
+  border-radius: 6px;
+  background: #fff;
+  color: #333;
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.tx-reports-api-error button:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+
+/* =================================
+   REFRESH
+================================= */
+
+.tx-reports-refresh {
+  width: 32px;
+  height: 32px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  background: #fff;
+  cursor: pointer;
+}
+
+.tx-reports-refresh:hover {
+  background: #f5f5f5;
+}
+
+.tx-reports-refresh:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.tx-reports-refresh-spin {
+  animation: tx-reports-spin 0.9s linear infinite;
+}
+
+@keyframes tx-reports-spin {
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+
+/* =================================
+   EMPTY / LOADING TABLE
+================================= */
+
+.tx-reports-empty {
+  height: 220px;
+  text-align: center;
+  vertical-align: middle;
+}
+
+.tx-reports-empty strong,
+.tx-reports-empty span {
+  display: block;
+  margin-top: 7px;
+}
+
+.tx-reports-empty strong {
+  font-size: 13px;
+  color: #444;
+}
+
+.tx-reports-empty span {
+  font-size: 11px;
+  color: #888;
+}
+
+
+/* =================================
+   DOWNLOAD BUTTON
+================================= */
+
+.tx-report-download:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+
+/* =================================
+   RESPONSIVE
+================================= */
+
+@media (max-width: 700px) {
+  .tx-reports-api-error {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .tx-reports-api-error button {
+    width: 100%;
+    justify-content: center;
   }
 }

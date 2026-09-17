@@ -1,15 +1,14 @@
 /* =========================================================
-   THERMAL-X SYSTEM
+   THERMAL-X ADMIN SYSTEM PAGE
 ========================================================= */
 
-.tx-system {
+.tx-system-page {
+  width: 100%;
   min-height: 100vh;
-
-  padding: 34px 40px 50px;
-
+  padding: 28px 24px 40px;
   box-sizing: border-box;
-
   background: #f7f9fa;
+  color: #123b56;
 }
 
 
@@ -21,490 +20,668 @@
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
-
-  gap: 25px;
-
-  margin-bottom: 25px;
+  gap: 24px;
+  margin-bottom: 28px;
 }
 
 .tx-system-eyebrow {
   display: block;
-
-  margin-bottom: 8px;
-
-  color: #899aa4;
-
-  font-size: 9px;
-  font-weight: 800;
-
-  letter-spacing: 0.14em;
+  margin-bottom: 7px;
+  color: #718b9d;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
 }
 
 .tx-system-header h1 {
   margin: 0;
-
-  color: #173b52;
-
-  font-size: 29px;
-  font-weight: 700;
-
+  color: #103b59;
+  font-size: 36px;
+  line-height: 1.05;
+  font-weight: 800;
   letter-spacing: -0.03em;
 }
 
 .tx-system-header p {
-  margin: 8px 0 0;
-
-  color: #728590;
-
-  font-size: 13px;
-}
-
-
-/* =========================================================
-   REFRESH
-========================================================= */
-
-.tx-system-refresh {
-  display: flex;
-  align-items: center;
-
-  gap: 8px;
-
-  padding: 10px 13px;
-
-  border: 1px solid #d8e3e7;
-  border-radius: 4px;
-
-  background: #ffffff;
-
-  color: #315b70;
-
-  font-size: 9px;
-  font-weight: 800;
-
-  letter-spacing: 0.06em;
-
-  cursor: pointer;
-}
-
-.tx-system-refresh:hover {
-  background: #f1f6f8;
-}
-
-
-/* =========================================================
-   HEALTH
-========================================================= */
-
-.tx-system-health {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-
-  margin-bottom: 16px;
-
-  padding: 12px 16px;
-
-  border: 1px solid #dfe8e3;
-  border-radius: 5px;
-
-  background: #f8fbf9;
-}
-
-.tx-system-health-indicator {
-  display: flex;
-  align-items: center;
-
-  gap: 8px;
-
-  color: #4c8061;
-
-  font-size: 9px;
-  font-weight: 800;
-
-  letter-spacing: 0.08em;
-}
-
-.tx-system-health-dot {
-  width: 7px;
-  height: 7px;
-
-  border-radius: 50%;
-
-  background: #4a9b68;
-}
-
-.tx-system-last-update {
-  display: flex;
-  align-items: center;
-
-  gap: 6px;
-
-  color: #8a9aa2;
-
-  font-size: 9px;
-}
-
-
-/* =========================================================
-   METRICS
-========================================================= */
-
-.tx-system-metrics {
-  display: grid;
-
-  grid-template-columns:
-    repeat(4, minmax(0, 1fr));
-
-  gap: 15px;
-
-  margin-bottom: 20px;
-}
-
-.tx-system-metric-card {
-  min-height: 90px;
-
-  display: flex;
-  align-items: center;
-
-  gap: 13px;
-
-  padding: 17px;
-
-  box-sizing: border-box;
-
-  background: #ffffff;
-
-  border: 1px solid #e1e8eb;
-
-  border-radius: 5px;
-}
-
-.tx-system-metric-icon {
-  width: 40px;
-  height: 40px;
-
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  flex-shrink: 0;
-
-  border-radius: 4px;
-
-  background: #eef4f6;
-
-  color: #315b70;
-}
-
-.tx-system-metric-card div:last-child {
-  display: flex;
-  flex-direction: column;
-
-  gap: 5px;
-}
-
-.tx-system-metric-card span {
-  color: #899aa3;
-
-  font-size: 8px;
-  font-weight: 800;
-
-  text-transform: uppercase;
-
-  letter-spacing: 0.06em;
-}
-
-.tx-system-metric-card strong {
-  color: #24495b;
-
-  font-size: 14px;
-}
-
-
-/* =========================================================
-   CARDS
-========================================================= */
-
-.tx-system-services-card,
-.tx-system-config-card {
-  margin-bottom: 20px;
-
-  overflow: hidden;
-
-  background: #ffffff;
-
-  border: 1px solid #e1e8eb;
-
-  border-radius: 5px;
-}
-
-.tx-system-card-header {
-  min-height: 72px;
-
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-
-  padding: 17px 20px;
-
-  box-sizing: border-box;
-
-  border-bottom: 1px solid #edf1f3;
-}
-
-.tx-system-card-eyebrow {
-  display: block;
-
-  margin-bottom: 5px;
-
-  color: #98a6ad;
-
-  font-size: 8px;
-  font-weight: 800;
-
-  letter-spacing: 0.13em;
-}
-
-.tx-system-card-header h2 {
-  margin: 0;
-
-  color: #24475a;
-
+  margin: 7px 0 0;
+  color: #658097;
   font-size: 16px;
-}
-
-.tx-system-online-badge {
-  padding: 5px 8px;
-
-  border: 1px solid #dce9e1;
-  border-radius: 3px;
-
-  background: #f5faf7;
-
-  color: #39805a;
-
-  font-size: 8px;
-  font-weight: 800;
-
-  letter-spacing: 0.08em;
-}
-
-
-/* =========================================================
-   SERVICES
-========================================================= */
-
-.tx-system-services {
-  padding: 5px 20px;
-}
-
-.tx-system-service {
-  min-height: 72px;
-
-  display: flex;
-  align-items: center;
-
-  gap: 13px;
-
-  border-bottom: 1px solid #edf1f3;
-}
-
-.tx-system-service:last-child {
-  border-bottom: none;
-}
-
-.tx-system-service-icon {
-  width: 38px;
-  height: 38px;
-
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  flex-shrink: 0;
-
-  border-radius: 4px;
-
-  background: #eef4f6;
-
-  color: #315b70;
-}
-
-.tx-system-service-info {
-  display: flex;
-  flex-direction: column;
-
-  gap: 5px;
-
-  flex: 1;
-}
-
-.tx-system-service-info strong {
-  color: #405e6d;
-
-  font-size: 11px;
-}
-
-.tx-system-service-info span {
-  color: #8d9ca3;
-
-  font-size: 9px;
-}
-
-.tx-system-service-status {
-  display: flex;
-  align-items: center;
-
-  gap: 6px;
-
-  color: #4a8060;
-
-  font-size: 8px;
-  font-weight: 800;
-
-  letter-spacing: 0.07em;
-}
-
-.tx-system-service-status span {
-  width: 6px;
-  height: 6px;
-
-  border-radius: 50%;
-
-  background: #4a9b68;
-}
-
-
-/* =========================================================
-   CONFIGURATION
-========================================================= */
-
-.tx-system-config-grid {
-  display: grid;
-
-  grid-template-columns:
-    repeat(3, 1fr);
-
-  padding: 5px 20px;
-}
-
-.tx-system-config-item {
-  display: flex;
-  flex-direction: column;
-
-  gap: 6px;
-
-  padding: 16px 15px;
-
-  border-bottom: 1px solid #edf1f3;
-}
-
-.tx-system-config-item:nth-child(3n + 1) {
-  padding-left: 0;
-}
-
-.tx-system-config-item:nth-child(3n) {
-  padding-right: 0;
-}
-
-.tx-system-config-item span {
-  color: #98a6ad;
-
-  font-size: 8px;
-  font-weight: 800;
-
-  text-transform: uppercase;
-}
-
-.tx-system-config-item strong {
-  color: #536e7b;
-
-  font-size: 10px;
-}
-
-
-/* =========================================================
-   NOTE
-========================================================= */
-
-.tx-system-note {
-  display: flex;
-  flex-direction: column;
-
-  gap: 5px;
-
-  padding: 14px 16px;
-
-  border-left: 3px solid #d9e4e8;
-
-  background: #ffffff;
-}
-
-.tx-system-note strong {
-  color: #526f7d;
-
-  font-size: 10px;
-}
-
-.tx-system-note span {
-  color: #8d9ba2;
-
-  font-size: 9px;
-
   line-height: 1.5;
 }
 
 
 /* =========================================================
-   RESPONSIVE
+   HEADER ACTIONS
 ========================================================= */
 
-@media (max-width: 1000px) {
-  .tx-system-metrics {
-    grid-template-columns:
-      repeat(2, minmax(0, 1fr));
+.tx-system-header-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.tx-system-auto-refresh {
+  min-height: 42px;
+  padding: 0 12px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  border: 1px solid #d8e2e8;
+  background: #ffffff;
+  color: #47677d;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  cursor: pointer;
+}
+
+.tx-system-auto-refresh input {
+  width: 15px;
+  height: 15px;
+  margin: 0;
+  accent-color: #164b6d;
+  cursor: pointer;
+}
+
+.tx-system-refresh-button {
+  min-height: 42px;
+  padding: 0 17px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  border: 1px solid #d3dfe6;
+  background: #ffffff;
+  color: #164b6d;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.07em;
+  cursor: pointer;
+  transition:
+    background 0.2s ease,
+    border-color 0.2s ease,
+    transform 0.2s ease;
+}
+
+.tx-system-refresh-button:hover:not(:disabled) {
+  background: #f2f6f8;
+  border-color: #164b6d;
+  transform: translateY(-1px);
+}
+
+.tx-system-refresh-button:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+}
+
+.tx-system-spin {
+  animation: tx-system-spin 0.9s linear infinite;
+}
+
+@keyframes tx-system-spin {
+  from {
+    transform: rotate(0deg);
   }
 
-  .tx-system-config-grid {
-    grid-template-columns:
-      repeat(2, 1fr);
-  }
-
-  .tx-system-config-item:nth-child(3n + 1),
-  .tx-system-config-item:nth-child(3n) {
-    padding-left: 15px;
-    padding-right: 15px;
+  to {
+    transform: rotate(360deg);
   }
 }
 
-@media (max-width: 700px) {
-  .tx-system {
-    padding: 25px 18px 40px;
+
+/* =========================================================
+   ERROR
+========================================================= */
+
+.tx-system-error {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  margin-bottom: 18px;
+  padding: 14px 16px;
+  border: 1px solid #e3cfcf;
+  background: #fffafa;
+  color: #7a4141;
+}
+
+.tx-system-error svg {
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+.tx-system-error div {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.tx-system-error strong {
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.tx-system-error span {
+  font-size: 12px;
+  color: #916969;
+}
+
+
+/* =========================================================
+   GLOBAL STATUS
+========================================================= */
+
+.tx-system-global-status {
+  min-height: 56px;
+  padding: 0 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  box-sizing: border-box;
+
+  border: 1px solid #dce5e9;
+  background: #fbfdfd;
+}
+
+.tx-system-global-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.tx-system-global-left strong {
+  color: #376477;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+}
+
+.tx-system-global-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.tx-system-global-dot.online {
+  background: #45a16e;
+}
+
+.tx-system-global-dot.offline {
+  background: #c85b5b;
+}
+
+.tx-system-global-dot.unknown {
+  background: #a6b3bb;
+}
+
+.tx-system-last-check {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  color: #78909f;
+  font-size: 11px;
+  white-space: nowrap;
+}
+
+.tx-system-last-check svg {
+  color: #8ca1ad;
+}
+
+.tx-system-last-check strong {
+  color: #647f90;
+  font-weight: 600;
+}
+
+
+/* =========================================================
+   OVERVIEW
+========================================================= */
+
+.tx-system-overview {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 18px;
+  margin-top: 20px;
+}
+
+
+/* =========================================================
+   SERVICE CARD
+========================================================= */
+
+.tx-system-service-card {
+  min-width: 0;
+  min-height: 108px;
+  padding: 20px;
+  box-sizing: border-box;
+
+  display: flex;
+  align-items: center;
+  gap: 15px;
+
+  border: 1px solid #dce4e8;
+  background: #ffffff;
+}
+
+.tx-system-service-icon {
+  width: 48px;
+  height: 48px;
+  flex-shrink: 0;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  background: #eef4f7;
+  color: #32647c;
+}
+
+.tx-system-service-content {
+  min-width: 0;
+  flex: 1;
+}
+
+.tx-system-service-title {
+  margin-bottom: 5px;
+  color: #648095;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.tx-system-service-description {
+  color: #163f5b;
+  font-size: 16px;
+  line-height: 1.25;
+  font-weight: 700;
+}
+
+.tx-system-service-detail {
+  margin-top: 6px;
+  color: #7891a1;
+  font-size: 10px;
+  line-height: 1.4;
+}
+
+.tx-system-service-status {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+}
+
+.tx-system-status-icon.online {
+  color: #43a16c;
+}
+
+.tx-system-status-icon.offline {
+  color: #c85c5c;
+}
+
+.tx-system-status-icon.unknown {
+  color: #9aaab4;
+}
+
+.tx-system-service-status.online {
+  color: #347955;
+}
+
+.tx-system-service-status.offline {
+  color: #a04d4d;
+}
+
+.tx-system-service-status.configured {
+  color: #52758a;
+}
+
+.tx-system-service-status.unknown {
+  color: #7d909c;
+}
+
+
+/* =========================================================
+   SERVICES PANEL
+========================================================= */
+
+.tx-system-services-panel {
+  margin-top: 24px;
+  border: 1px solid #dce4e8;
+  background: #ffffff;
+}
+
+.tx-system-panel-header {
+  min-height: 94px;
+  padding: 22px 25px;
+  box-sizing: border-box;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+
+  border-bottom: 1px solid #e4eaed;
+}
+
+.tx-system-panel-eyebrow {
+  display: block;
+  margin-bottom: 6px;
+  color: #8298a6;
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+}
+
+.tx-system-panel-header h2 {
+  margin: 0;
+  color: #163f5b;
+  font-size: 21px;
+  line-height: 1.2;
+  font-weight: 500;
+}
+
+.tx-system-panel-header p {
+  margin: 5px 0 0;
+  color: #8095a3;
+  font-size: 11px;
+}
+
+.tx-system-service-count {
+  min-height: 34px;
+  padding: 0 12px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  border: 1px solid #d9e5df;
+  background: #fbfdfc;
+
+  color: #3e775c;
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  white-space: nowrap;
+}
+
+
+/* =========================================================
+   SERVICE LIST
+========================================================= */
+
+.tx-system-services-list {
+  padding: 0 25px;
+}
+
+.tx-system-services-list .tx-system-service-card {
+  min-height: 88px;
+  padding: 16px 0;
+  border: 0;
+  border-bottom: 1px solid #e6ecef;
+}
+
+.tx-system-services-list
+  .tx-system-service-card:last-child {
+  border-bottom: 0;
+}
+
+.tx-system-services-list
+  .tx-system-service-icon {
+  width: 47px;
+  height: 47px;
+}
+
+
+/* =========================================================
+   CONNECTION PANEL
+========================================================= */
+
+.tx-system-connection-panel {
+  margin-top: 24px;
+  border: 1px solid #dce4e8;
+  background: #ffffff;
+}
+
+.tx-system-connection-panel
+  .tx-system-panel-header {
+  min-height: 76px;
+}
+
+.tx-system-connection-panel
+  .tx-system-panel-header
+  > svg {
+  color: #52778d;
+}
+
+.tx-system-connection-grid {
+  padding: 0 25px;
+}
+
+.tx-system-connection-row {
+  min-height: 56px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+
+  border-bottom: 1px solid #e6ecef;
+}
+
+.tx-system-connection-row:last-child {
+  border-bottom: 0;
+}
+
+.tx-system-connection-row span {
+  color: #78909f;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.tx-system-connection-row strong {
+  color: #294f67;
+  font-size: 11px;
+  font-weight: 700;
+  text-align: right;
+  word-break: break-word;
+}
+
+.tx-system-connection-row strong.connected {
+  color: #3d835d;
+}
+
+.tx-system-connection-row strong.disconnected {
+  color: #a45454;
+}
+
+
+/* =========================================================
+   FOCUS
+========================================================= */
+
+.tx-system-refresh-button:focus-visible,
+.tx-system-auto-refresh:focus-within {
+  outline: 2px solid #4c7890;
+  outline-offset: 2px;
+}
+
+
+/* =========================================================
+   TABLET
+========================================================= */
+
+@media (max-width: 1150px) {
+
+  .tx-system-overview {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+}
+
+
+/* =========================================================
+   SMALL TABLET
+========================================================= */
+
+@media (max-width: 850px) {
+
+  .tx-system-page {
+    padding: 22px 18px 32px;
   }
 
   .tx-system-header {
     flex-direction: column;
   }
 
-  .tx-system-health {
+  .tx-system-header-actions {
+    width: 100%;
+    justify-content: flex-start;
+  }
+
+  .tx-system-global-status {
     align-items: flex-start;
     flex-direction: column;
-    gap: 10px;
+    padding: 15px 17px;
   }
 
-  .tx-system-metrics {
+  .tx-system-last-check {
+    white-space: normal;
+  }
+
+  .tx-system-service-card {
+    padding: 17px;
+  }
+
+}
+
+
+/* =========================================================
+   MOBILE
+========================================================= */
+
+@media (max-width: 600px) {
+
+  .tx-system-page {
+    padding: 18px 14px 28px;
+  }
+
+  .tx-system-header h1 {
+    font-size: 30px;
+  }
+
+  .tx-system-header p {
+    font-size: 14px;
+  }
+
+  .tx-system-header-actions {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .tx-system-auto-refresh,
+  .tx-system-refresh-button {
+    width: 100%;
+    box-sizing: border-box;
+  }
+
+  .tx-system-overview {
     grid-template-columns: 1fr;
+    gap: 12px;
   }
 
-  .tx-system-config-grid {
-    grid-template-columns: 1fr;
+  .tx-system-service-card {
+    min-height: 96px;
   }
 
-  .tx-system-config-item,
-  .tx-system-config-item:nth-child(3n + 1),
-  .tx-system-config-item:nth-child(3n) {
-    padding-left: 0;
-    padding-right: 0;
+  .tx-system-panel-header {
+    align-items: flex-start;
+    flex-direction: column;
+    padding: 19px;
   }
+
+  .tx-system-service-count {
+    align-self: flex-start;
+  }
+
+  .tx-system-services-list {
+    padding: 0 19px;
+  }
+
+  .tx-system-services-list
+    .tx-system-service-card {
+    align-items: flex-start;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+
+  .tx-system-services-list
+    .tx-system-service-content {
+    min-width: calc(100% - 64px);
+  }
+
+  .tx-system-services-list
+    .tx-system-service-status {
+    margin-left: 59px;
+  }
+
+  .tx-system-connection-grid {
+    padding: 0 19px;
+  }
+
+  .tx-system-connection-row {
+    min-height: auto;
+    padding: 14px 0;
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 5px;
+  }
+
+  .tx-system-connection-row strong {
+    text-align: left;
+  }
+
+}
+
+
+/* =========================================================
+   VERY SMALL SCREENS
+========================================================= */
+
+@media (max-width: 400px) {
+
+  .tx-system-page {
+    padding-left: 10px;
+    padding-right: 10px;
+  }
+
+  .tx-system-header h1 {
+    font-size: 27px;
+  }
+
+  .tx-system-service-card {
+    padding: 14px;
+    gap: 11px;
+  }
+
+  .tx-system-service-icon {
+    width: 42px;
+    height: 42px;
+  }
+
+  .tx-system-service-description {
+    font-size: 14px;
+  }
+
+  .tx-system-services-list
+    .tx-system-service-status {
+    margin-left: 53px;
+  }
+
 }

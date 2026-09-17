@@ -1,102 +1,109 @@
 const express = require("express");
 const router = express.Router();
 
-const { pool } = require("../postgres");
+const supabase = require("../supabase");
 
-// =====================================================
-// CREATE EXPORT REQUEST
-// =====================================================
-
-router.post("/", async (req, res) => {
-  console.log("\n======================================");
-  console.log("📤 EXPORT REQUEST RECEIVED");
-  console.log("======================================");
-  console.log("Request body:", req.body);
-
+/*
+==================================================
+GET ALL USER REQUESTS
+==================================================
+*/
+router.get("/", async (req, res) => {
   try {
-    const { name, email, reason } = req.body;
+    const { data, error } = await supabase
+      .from("user_requests")
+      .select("*")
+      .order("created_at", { ascending: false });
 
-    // Validation
-    if (!name || !email || !reason) {
-      return res.status(400).json({
+    if (error) {
+      console.error("❌ Supabase fetch error:", error);
+
+      return res.status(500).json({
         success: false,
-        message: "Name, email and reason are required.",
+        message: "Failed to fetch user requests",
+        error: error.message,
       });
     }
 
-    const result = await pool.query(
-      `
-      INSERT INTO public.user_requests
-      (
-        name,
-        email,
-        reason
-      )
-      VALUES ($1, $2, $3)
-      RETURNING id, name, email, reason, created_at
-      `,
-      [
-        name.trim(),
-        email.trim(),
-        reason.trim(),
-      ]
-    );
-
-    console.log("✅ Export request saved:");
-    console.log(result.rows[0]);
-    console.log("======================================\n");
-
-    res.status(201).json({
+    res.json({
       success: true,
-      message: "Export request submitted successfully.",
-      data: result.rows[0],
+      data: data || [],
     });
 
   } catch (error) {
-    console.error("❌ EXPORT REQUEST DATABASE ERROR:");
-    console.error(error);
+    console.error("❌ User requests error:", error);
 
     res.status(500).json({
       success: false,
-      message: "Failed to save export request.",
+      message: "Server error",
       error: error.message,
     });
   }
 });
 
 
-// =====================================================
-// GET ALL USER REQUESTS
-// =====================================================
-
-router.get("/", async (req, res) => {
+/*
+==================================================
+UPDATE REQUEST STATUS
+==================================================
+*/
+router.put("/:id/status", async (req, res) => {
   try {
-    const result = await pool.query(
-      `
-      SELECT
-        id,
-        name,
-        email,
-        reason,
-        created_at
-      FROM public.user_requests
-      ORDER BY created_at DESC
-      `
-    );
+    const { id } = req.params;
+    const { status } = req.body;
+
+    if (!status) {
+      return res.status(400).json({
+        success: false,
+        message: "Status is required",
+      });
+    }
+
+    const allowedStatuses = [
+      "approved",
+      "denied",
+      "pending",
+    ];
+
+    if (!allowedStatuses.includes(status)) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid status",
+      });
+    }
+
+    const { data, error } = await supabase
+      .from("user_requests")
+      .update({
+        status: status,
+      })
+      .eq("id", id)
+      .select()
+      .single();
+
+    if (error) {
+      console.error("❌ Supabase update error:", error);
+
+      return res.status(500).json({
+        success: false,
+        message: "Failed to update request",
+        error: error.message,
+      });
+    }
 
     res.json({
       success: true,
-      count: result.rows.length,
-      data: result.rows,
+      message: `Request ${status} successfully`,
+      data,
     });
 
   } catch (error) {
-    console.error("❌ GET USER REQUESTS ERROR:");
-    console.error(error);
+    console.error("❌ Status update error:", error);
 
     res.status(500).json({
       success: false,
-      message: "Failed to fetch user requests.",
+      message: "Server error",
+      error: error.message,
     });
   }
 });

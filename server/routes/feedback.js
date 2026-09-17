@@ -1,11 +1,9 @@
 const express = require("express");
 const router = express.Router();
-const { pool } = require("../postgres");
 
-// =====================================================
-// POST FEEDBACK
-// =====================================================
+const supabase = require("../supabase");
 
+// POST /api/feedback
 router.post("/", async (req, res) => {
   try {
     const { name, email, message } = req.body;
@@ -13,73 +11,81 @@ router.post("/", async (req, res) => {
     if (!name || !email || !message) {
       return res.status(400).json({
         success: false,
-        message: "Name, email and feedback are required.",
+        message: "Name, email and message are required.",
       });
     }
 
-    const result = await pool.query(
-      `
-      INSERT INTO public.feedback
-      (name, email, message)
-      VALUES ($1, $2, $3)
-      RETURNING id, name, email, message, created_at
-      `,
-      [
-        name.trim(),
-        email.trim(),
-        message.trim(),
-      ]
-    );
-
-    console.log("✅ Feedback saved:", result.rows[0]);
-
-    res.status(201).json({
-      success: true,
-      message: "Feedback submitted successfully.",
-      data: result.rows[0],
+    console.log("📩 Feedback received:", {
+      name,
+      email,
+      message,
     });
 
-  } catch (error) {
-    console.error("❌ Feedback insert error:", error);
+    const { data, error } = await supabase
+      .from("feedback")
+      .insert([
+        {
+          name: name.trim(),
+          email: email.trim(),
+          message: message.trim(),
+        },
+      ])
+      .select()
+      .single();
 
-    res.status(500).json({
+    if (error) {
+      console.error("❌ Supabase INSERT error:", error);
+
+      return res.status(500).json({
+        success: false,
+        message: error.message,
+      });
+    }
+
+    console.log("✅ Feedback saved:", data);
+
+    return res.status(201).json({
+      success: true,
+      message: "Feedback submitted successfully.",
+      data,
+    });
+  } catch (error) {
+    console.error("❌ Feedback API error:", error);
+
+    return res.status(500).json({
       success: false,
-      message: "Failed to save feedback.",
+      message: error.message || "Internal server error.",
     });
   }
 });
 
-// =====================================================
-// GET ALL FEEDBACK
-// =====================================================
-
+// GET /api/feedback
 router.get("/", async (req, res) => {
   try {
-    const result = await pool.query(
-      `
-      SELECT
-        id,
-        name,
-        email,
-        message,
-        created_at
-      FROM public.feedback
-      ORDER BY created_at DESC
-      `
-    );
+    const { data, error } = await supabase
+      .from("feedback")
+      .select("id, name, email, message, created_at")
+      .order("created_at", { ascending: false });
 
-    res.json({
+    if (error) {
+      console.error("❌ Supabase SELECT error:", error);
+
+      return res.status(500).json({
+        success: false,
+        message: error.message,
+      });
+    }
+
+    return res.json({
       success: true,
-      count: result.rows.length,
-      data: result.rows,
+      data,
     });
-
   } catch (error) {
-    console.error("❌ Get feedback error:", error);
+    console.error("❌ Feedback GET error:", error);
 
-    res.status(500).json({
+    return res.status(500).json({
       success: false,
-      message: "Failed to fetch feedback.",
+      message: error.message || "Internal server error.",
     });
   }
 });

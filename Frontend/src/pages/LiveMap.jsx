@@ -84,6 +84,7 @@ const LiveMap = ({ role = "basic" }) => {
       ================================================== */}
 
       <div className="tx-live-map-background">
+
         <video
           className="tx-live-map-background-video"
           autoPlay
@@ -93,11 +94,16 @@ const LiveMap = ({ role = "basic" }) => {
           preload="auto"
           aria-hidden="true"
         >
-          <source src="/earth-space.mp4" type="video/mp4" />
+          <source
+            src="/earth-space.mp4"
+            type="video/mp4"
+          />
         </video>
 
         <div className="tx-live-map-video-overlay" />
+
       </div>
+
 
       {/* ==================================================
           PAGE CONTENT
@@ -124,6 +130,7 @@ const LiveMap = ({ role = "basic" }) => {
             </p>
           </div>
 
+
           <div className="tx-live-map-header-right">
             <div className="tx-live-map-live-status">
               <span className="tx-live-dot" />
@@ -133,6 +140,7 @@ const LiveMap = ({ role = "basic" }) => {
                 <small>NASA FIRMS & 5km Overpass</small>
               </div>
             </div>
+
 
             <button
               type="button"
@@ -161,33 +169,46 @@ const LiveMap = ({ role = "basic" }) => {
             </div>
           </div>
 
+
           <div className="tx-live-map-info-divider" />
 
+
           <div className="tx-live-map-info-item">
+
             <div>
               <span>SATELLITE</span>
               <strong>VIIRS NOAA-21</strong>
             </div>
+
           </div>
+
 
           <div className="tx-live-map-info-divider" />
 
+
           <div className="tx-live-map-info-item">
+
             <div>
               <span>SURROUNDING RADIUS</span>
               <strong style={{ color: "#ea580c" }}>5.0 KM Geodesic Zone</strong>
             </div>
+
           </div>
+
 
           <div className="tx-live-map-info-divider" />
 
+
           <div className="tx-live-map-info-item">
+
             <div>
               <span>VULNERABILITY POIS</span>
               <strong>Industrial • Schools • Hospitals</strong>
             </div>
+
           </div>
         </section>
+
 
         {/* ==================================================
             LIVE MAP
@@ -212,6 +233,9 @@ const LiveMap = ({ role = "basic" }) => {
               <span>Live Interactive</span>
             </div>
           </div>
+
+
+          {/* REAL NASA FIRMS MAP */}
 
           <div className="tx-live-map-container">
             <IndiaFocusedMap
@@ -239,6 +263,7 @@ const LiveMap = ({ role = "basic" }) => {
           </div>
         </section>
 
+
         {/* ==================================================
             BOTTOM INFORMATION
         ================================================== */}
@@ -250,7 +275,9 @@ const LiveMap = ({ role = "basic" }) => {
               Fire Information for Resource Management System & OpenStreetMap
               Overpass API
             </span>
+
           </div>
+
 
           <div className="tx-live-map-footer-right">
             5km Geodesic buffer calculated in real time around each thermal anomaly.
