@@ -296,24 +296,94 @@
 .tx-legend-fire {
   width: 9px;
   height: 9px;
-
   display: block;
-
   border-radius: 50%;
-
   background: #ef4444;
+  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.15);
+}
 
-  box-shadow:
-    0 0 0 3px rgba(239, 68, 68, 0.15);
+.tx-legend-hotspot {
+  width: 10px;
+  height: 10px;
+  display: block;
+  border-radius: 50%;
+  background: #ea580c;
+  border: 2px solid #ffffff;
+  box-shadow: 0 0 0 2px #ea580c;
+}
+
+.tx-legend-circle-5km {
+  width: 14px;
+  height: 14px;
+  display: block;
+  border-radius: 50%;
+  border: 2px dashed #ea580c;
+  background: rgba(234, 88, 12, 0.15);
+}
+
+.tx-legend-poi-dots {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+}
+
+.tx-legend-poi-dots span {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  display: block;
 }
 
 .tx-legend-boundary {
   width: 18px;
   height: 0;
-
   display: block;
-
   border-top: 2px solid #ff7a00;
+}
+
+/* =========================================================
+   INTERACTIVE MAP HINT PILL
+========================================================= */
+
+.tx-map-interactive-hint {
+  position: absolute;
+  top: 14px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 999;
+
+  display: flex;
+  align-items: center;
+  gap: 7px;
+
+  padding: 6px 14px;
+  border-radius: 20px;
+  background: rgba(15, 23, 42, 0.85);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  color: #f8fafc;
+  font-size: 11px;
+  font-weight: 600;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.2);
+  pointer-events: none;
+  animation: txPulseSoft 3s infinite ease-in-out;
+}
+
+@keyframes txPulseSoft {
+  0%, 100% {
+    opacity: 0.92;
+  }
+  50% {
+    opacity: 1;
+    box-shadow: 0 4px 18px rgba(234, 88, 12, 0.35);
+  }
+}
+
+@media (max-width: 900px) {
+  .tx-map-interactive-hint {
+    display: none;
+  }
 }
 
 /* =========================================================

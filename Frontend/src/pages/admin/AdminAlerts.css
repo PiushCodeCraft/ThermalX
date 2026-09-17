@@ -861,3 +861,46 @@
     padding: 22px;
   }
 }
+/* =========================================================
+   API / LIVE DATA STATES
+========================================================= */
+
+.tx-admin-alerts-error {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+
+  margin-bottom: 18px;
+  padding: 13px 16px;
+
+  border: 1px solid #e4cccc;
+  background: #fffafa;
+
+  color: #914f4f;
+
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.tx-admin-alerts-error svg {
+  flex-shrink: 0;
+}
+
+.tx-admin-alert-loading-icon {
+  animation: tx-admin-alert-spin 1s linear infinite;
+}
+
+@keyframes tx-admin-alert-spin {
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.tx-admin-alerts-export:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}

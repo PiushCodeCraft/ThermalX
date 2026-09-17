@@ -1,4 +1,8 @@
-import React from "react";
+import React, {
+  useCallback,
+  useEffect,
+  useState,
+} from "react";
 
 import {
   Activity,
@@ -7,54 +11,427 @@ import {
   FileText,
   Map,
   Users,
+  RefreshCw,
+  XCircle,
 } from "lucide-react";
+
+import {
+  getDashboard,
+} from "../../services/api";
 
 import IndiaFocusedMap from "../../components/map/IndiaFocusedMap";
 
 import "./AdminDashboard.css";
 
+
+/* =========================================================
+   HELPERS
+========================================================= */
+
+const getArray = (value) => {
+  if (Array.isArray(value)) {
+    return value;
+  }
+
+  return [];
+};
+
+
+const formatNumber = (value) => {
+  if (
+    value === null ||
+    value === undefined ||
+    value === ""
+  ) {
+    return "—";
+  }
+
+  const number = Number(value);
+
+  if (!Number.isFinite(number)) {
+    return String(value);
+  }
+
+  return number.toLocaleString();
+};
+
+
+const getValue = (
+  object,
+  keys,
+  fallback = null
+) => {
+  if (!object) {
+    return fallback;
+  }
+
+  for (const key of keys) {
+    if (
+      object[key] !== undefined &&
+      object[key] !== null
+    ) {
+      return object[key];
+    }
+  }
+
+  return fallback;
+};
+
+
+const formatTime = (value) => {
+  if (!value) {
+    return "Time unavailable";
+  }
+
+  const date = new Date(value);
+
+  if (Number.isNaN(date.getTime())) {
+    return String(value);
+  }
+
+  return date.toLocaleTimeString(
+    undefined,
+    {
+      hour: "2-digit",
+      minute: "2-digit",
+    }
+  );
+};
+
+
+const getSeverityClass = (
+  severity
+) => {
+  const value =
+    String(severity || "")
+      .toLowerCase();
+
+  if (
+    value.includes("high") ||
+    value.includes("critical")
+  ) {
+    return "high";
+  }
+
+  if (
+    value.includes("medium") ||
+    value.includes("moderate")
+  ) {
+    return "medium";
+  }
+
+  if (
+    value.includes("low")
+  ) {
+    return "low";
+  }
+
+  return "";
+};
+
+
+/* =========================================================
+   COMPONENT
+========================================================= */
+
 const AdminDashboard = () => {
+
+  const [dashboard, setDashboard] =
+    useState(null);
+
+  const [loading, setLoading] =
+    useState(true);
+
+  const [refreshing, setRefreshing] =
+    useState(false);
+
+  const [error, setError] =
+    useState("");
+
+
+  /* =======================================================
+     LOAD DASHBOARD DATA
+  ======================================================= */
+
+  const loadDashboard =
+    useCallback(async () => {
+
+      try {
+
+        setRefreshing(true);
+        setError("");
+
+        const response =
+          await getDashboard();
+
+        setDashboard(
+          response?.data ??
+          response
+        );
+
+      } catch (requestError) {
+
+        console.error(
+          "Failed to load dashboard:",
+          requestError
+        );
+
+        setDashboard(null);
+
+        setError(
+          "Unable to retrieve dashboard data from the backend."
+        );
+
+      } finally {
+
+        setLoading(false);
+        setRefreshing(false);
+
+      }
+
+    }, []);
+
+
+  /* =======================================================
+     INITIAL LOAD
+  ======================================================= */
+
+  useEffect(() => {
+
+    loadDashboard();
+
+  }, [loadDashboard]);
+
+
+  /* =======================================================
+     READ BACKEND DATA
+  ======================================================= */
+
+  const statistics =
+    dashboard?.statistics ??
+    dashboard?.stats ??
+    {};
+
+
+  const recentIncidents =
+    getArray(
+      dashboard?.recentIncidents ??
+      dashboard?.recent_incidents ??
+      dashboard?.incidents
+    );
+
+
+  const activities =
+    getArray(
+      dashboard?.recentActivity ??
+      dashboard?.recentActivities ??
+      dashboard?.activities ??
+      dashboard?.adminActivity
+    );
+
+
+  const systemStatus =
+    dashboard?.systemStatus ??
+    dashboard?.system_status ??
+    {};
+
+
+  /* =======================================================
+     STATISTICS
+  ======================================================= */
+
   const stats = [
     {
       title: "Active Incidents",
-      value: "24",
-      detail: "Currently detected",
+
+      value: getValue(
+        statistics,
+        [
+          "activeIncidents",
+          "active_incidents",
+        ]
+      ),
+
+      detail:
+        "Currently detected",
+
       icon: AlertTriangle,
     },
+
     {
       title: "Thermal Detections",
-      value: "186",
-      detail: "Last 24 hours",
+
+      value: getValue(
+        statistics,
+        [
+          "thermalDetections",
+          "thermal_detections",
+          "detections",
+        ]
+      ),
+
+      detail:
+        "Last 24 hours",
+
       icon: Activity,
     },
+
     {
       title: "AI Analyses",
-      value: "73",
-      detail: "Completed today",
+
+      value: getValue(
+        statistics,
+        [
+          "aiAnalyses",
+          "ai_analyses",
+          "analyses",
+        ]
+      ),
+
+      detail:
+        "Completed today",
+
       icon: BrainCircuit,
     },
+
     {
       title: "Registered Users",
-      value: "1,248",
-      detail: "Total users",
+
+      value: getValue(
+        statistics,
+        [
+          "registeredUsers",
+          "registered_users",
+          "users",
+          "totalUsers",
+          "total_users",
+        ]
+      ),
+
+      detail:
+        "Total users",
+
       icon: Users,
     },
   ];
 
+
+  /* =======================================================
+     SYSTEM STATUS
+  ======================================================= */
+
+  const systemItems = [
+    {
+      label: "NASA FIRMS Data",
+
+      value:
+        getValue(
+          systemStatus,
+          [
+            "nasaFirms",
+            "nasa_firms",
+            "firms",
+          ]
+        ),
+    },
+
+    {
+      label: "AI Detection Model",
+
+      value:
+        getValue(
+          systemStatus,
+          [
+            "aiDetection",
+            "ai_detection",
+            "ai",
+          ]
+        ),
+    },
+
+    {
+      label: "Thermal Data Collector",
+
+      value:
+        getValue(
+          systemStatus,
+          [
+            "thermalCollector",
+            "thermal_collector",
+            "collector",
+          ]
+        ),
+    },
+
+    {
+      label: "Alert Processing",
+
+      value:
+        getValue(
+          systemStatus,
+          [
+            "alertProcessing",
+            "alert_processing",
+            "alerts",
+          ]
+        ),
+    },
+
+    {
+      label: "Database",
+
+      value:
+        getValue(
+          systemStatus,
+          [
+            "database",
+            "db",
+        ]
+        ),
+    },
+  ];
+
+
+  /* =======================================================
+     SYSTEM OPERATIONAL STATUS
+  ======================================================= */
+
+  const systemOperational =
+    getValue(
+      systemStatus,
+      [
+        "operational",
+        "isOperational",
+        "is_operational",
+      ]
+    );
+
+
+  /* =======================================================
+     VIEW MAP
+  ======================================================= */
+
   const handleViewMap = () => {
-    window.location.href = "/admin/live-map";
+    window.location.href =
+      "/admin/live-map";
   };
+
+
+  /* =======================================================
+     RENDER
+  ======================================================= */
 
   return (
     <div className="tx-admin-dashboard">
 
-      {/* =====================================================
+      {/* ===================================================
           HEADER
-      ===================================================== */}
+      =================================================== */}
 
       <header className="tx-admin-dashboard-header">
 
         <div>
+
           <span className="tx-admin-dashboard-eyebrow">
             THERMAL-X / ADMINISTRATION
           </span>
@@ -67,36 +444,79 @@ const AdminDashboard = () => {
             Monitor thermal incidents, AI analysis,
             reports and system activity.
           </p>
+
         </div>
 
-        <div className="tx-admin-system-status">
-          <span className="tx-admin-status-dot" />
 
-          SYSTEM OPERATIONAL
+        <div className="tx-admin-system-status">
+
+          <span
+            className="tx-admin-status-dot"
+          />
+
+          {loading
+            ? "CHECKING SYSTEM"
+            : systemOperational === false
+              ? "SYSTEM ATTENTION REQUIRED"
+              : "SYSTEM STATUS AVAILABLE"}
+
         </div>
 
       </header>
 
 
-      {/* =====================================================
+      {/* ===================================================
+          ERROR
+      =================================================== */}
+
+      {error && (
+
+        <div
+          className="tx-admin-dashboard-error"
+        >
+
+          <XCircle size={18} />
+
+          <span>
+            {error}
+          </span>
+
+          <button
+            type="button"
+            onClick={loadDashboard}
+          >
+            RETRY
+          </button>
+
+        </div>
+
+      )}
+
+
+      {/* ===================================================
           STATISTICS
-      ===================================================== */}
+      =================================================== */}
 
       <section className="tx-admin-statistics">
 
         {stats.map((stat) => {
 
-          const Icon = stat.icon;
+          const Icon =
+            stat.icon;
 
           return (
+
             <article
               className="tx-admin-stat-card"
               key={stat.title}
             >
 
               <div className="tx-admin-stat-icon">
+
                 <Icon size={20} />
+
               </div>
+
 
               <div className="tx-admin-stat-content">
 
@@ -104,32 +524,45 @@ const AdminDashboard = () => {
                   {stat.title}
                 </span>
 
+
                 <strong className="tx-admin-stat-value">
-                  {stat.value}
+
+                  {loading
+                    ? "—"
+                    : formatNumber(
+                        stat.value
+                      )}
+
                 </strong>
 
+
                 <span className="tx-admin-stat-detail">
+
                   {stat.detail}
+
                 </span>
 
               </div>
 
             </article>
+
           );
+
         })}
 
       </section>
 
 
-      {/* =====================================================
+      {/* ===================================================
           MAP + SYSTEM STATUS
-      ===================================================== */}
+      =================================================== */}
 
       <section className="tx-admin-dashboard-grid">
 
-        {/* ---------------------------------------------------
+
+        {/* =================================================
             REAL NASA FIRMS MAP
-        --------------------------------------------------- */}
+        ================================================= */}
 
         <article className="tx-admin-map-card">
 
@@ -147,17 +580,21 @@ const AdminDashboard = () => {
 
             </div>
 
+
             <button
               type="button"
               className="tx-admin-view-map-button"
               onClick={handleViewMap}
             >
+
               <Map size={16} />
 
               VIEW MAP
+
             </button>
 
           </div>
+
 
           <div className="tx-admin-map-container">
 
@@ -168,9 +605,9 @@ const AdminDashboard = () => {
         </article>
 
 
-        {/* ---------------------------------------------------
+        {/* =================================================
             SYSTEM STATUS
-        --------------------------------------------------- */}
+        ================================================= */}
 
         <article className="tx-admin-system-card">
 
@@ -188,64 +625,61 @@ const AdminDashboard = () => {
 
             </div>
 
+
+            <button
+              type="button"
+              className="tx-admin-system-refresh"
+              onClick={loadDashboard}
+              disabled={refreshing}
+              title="Refresh dashboard"
+            >
+
+              <RefreshCw
+                size={16}
+                className={
+                  refreshing
+                    ? "tx-admin-refresh-spin"
+                    : ""
+                }
+              />
+
+            </button>
+
           </div>
 
 
           <div className="tx-admin-system-list">
 
-            <div className="tx-admin-system-row">
-              <span>
-                NASA FIRMS Data
-              </span>
+            {systemItems.map(
+              (item) => (
 
-              <strong>
-                ONLINE
-              </strong>
-            </div>
+                <div
+                  className="tx-admin-system-row"
+                  key={item.label}
+                >
 
-
-            <div className="tx-admin-system-row">
-              <span>
-                AI Detection Model
-              </span>
-
-              <strong>
-                ACTIVE
-              </strong>
-            </div>
+                  <span>
+                    {item.label}
+                  </span>
 
 
-            <div className="tx-admin-system-row">
-              <span>
-                Thermal Data Collector
-              </span>
+                  <strong>
 
-              <strong>
-                RUNNING
-              </strong>
-            </div>
+                    {loading
+                      ? "CHECKING..."
+                      : item.value !== null &&
+                        item.value !== undefined
+                        ? String(
+                            item.value
+                          ).toUpperCase()
+                        : "NOT AVAILABLE"}
 
+                  </strong>
 
-            <div className="tx-admin-system-row">
-              <span>
-                Alert Processing
-              </span>
+                </div>
 
-              <strong>
-                ACTIVE
-              </strong>
-            </div>
-
-
-            <div className="tx-admin-system-row">
-              <span>
-                Database
-              </span>
-
-              <strong>
-                CONNECTED
-              </strong>
-            </div>
+              )
+            )}
 
           </div>
 
@@ -254,15 +688,16 @@ const AdminDashboard = () => {
       </section>
 
 
-      {/* =====================================================
+      {/* ===================================================
           LOWER DASHBOARD
-      ===================================================== */}
+      =================================================== */}
 
       <section className="tx-admin-lower-grid">
 
-        {/* ---------------------------------------------------
+
+        {/* =================================================
             RECENT INCIDENTS
-        --------------------------------------------------- */}
+        ================================================= */}
 
         <article className="tx-admin-panel">
 
@@ -280,8 +715,13 @@ const AdminDashboard = () => {
 
             </div>
 
+
             <span className="tx-admin-live-label">
-              LIVE
+
+              {loading
+                ? "LOADING"
+                : "LIVE"}
+
             </span>
 
           </div>
@@ -289,88 +729,162 @@ const AdminDashboard = () => {
 
           <div className="tx-admin-incident-list">
 
-            <div className="tx-admin-incident-row">
+            {loading ? (
 
-              <span className="tx-admin-incident-time">
-                10:42
-              </span>
+              <div className="tx-admin-dashboard-empty">
 
-              <div>
-
-                <strong>
-                  Thermal anomaly detected
-                </strong>
+                <RefreshCw
+                  size={22}
+                  className="tx-admin-refresh-spin"
+                />
 
                 <span>
-                  Northern India monitoring region
+                  Loading incident data...
                 </span>
 
               </div>
 
-              <b className="high">
-                HIGH
-              </b>
+            ) : recentIncidents.length > 0 ? (
 
-            </div>
+              recentIncidents
+                .slice(0, 5)
+                .map(
+                  (incident, index) => {
+
+                    const id =
+                      getValue(
+                        incident,
+                        [
+                          "id",
+                          "incidentId",
+                          "incident_id",
+                          "_id",
+                        ],
+                        `Incident ${index + 1}`
+                      );
+
+                    const title =
+                      getValue(
+                        incident,
+                        [
+                          "title",
+                          "event",
+                          "description",
+                          "type",
+                        ],
+                        "Thermal event detected"
+                      );
+
+                    const location =
+                      getValue(
+                        incident,
+                        [
+                          "location",
+                          "region",
+                          "place",
+                        ],
+                        "Location unavailable"
+                      );
+
+                    const severity =
+                      getValue(
+                        incident,
+                        [
+                          "severity",
+                          "riskLevel",
+                          "risk_level",
+                        ],
+                        "Unknown"
+                      );
+
+                    const timestamp =
+                      getValue(
+                        incident,
+                        [
+                          "timestamp",
+                          "detectedAt",
+                          "detected_at",
+                          "time",
+                        ]
+                      );
+
+                    return (
+
+                      <div
+                        className="tx-admin-incident-row"
+                        key={id}
+                      >
+
+                        <span className="tx-admin-incident-time">
+
+                          {formatTime(
+                            timestamp
+                          )}
+
+                        </span>
 
 
-            <div className="tx-admin-incident-row">
+                        <div>
 
-              <span className="tx-admin-incident-time">
-                10:36
-              </span>
+                          <strong>
+                            {title}
+                          </strong>
 
-              <div>
+                          <span>
+                            {location}
+                          </span>
+
+                        </div>
+
+
+                        <b
+                          className={getSeverityClass(
+                            severity
+                          )}
+                        >
+
+                          {String(
+                            severity
+                          ).toUpperCase()}
+
+                        </b>
+
+                      </div>
+
+                    );
+
+                  }
+                )
+
+            ) : (
+
+              <div className="tx-admin-dashboard-empty">
+
+                <AlertTriangle
+                  size={24}
+                />
 
                 <strong>
-                  Fire detection confirmed
+                  No recent incidents
                 </strong>
 
                 <span>
-                  Satellite thermal observation
+                  No incident records were returned
+                  by the backend.
                 </span>
 
               </div>
 
-              <b className="medium">
-                MEDIUM
-              </b>
-
-            </div>
-
-
-            <div className="tx-admin-incident-row">
-
-              <span className="tx-admin-incident-time">
-                10:21
-              </span>
-
-              <div>
-
-                <strong>
-                  Thermal activity detected
-                </strong>
-
-                <span>
-                  Central monitoring region
-                </span>
-
-              </div>
-
-              <b className="low">
-                LOW
-              </b>
-
-            </div>
+            )}
 
           </div>
 
         </article>
 
 
-        {/* ---------------------------------------------------
+        {/* =================================================
             ADMIN ACTIVITY
-        --------------------------------------------------- */}
+        ================================================= */}
 
         <article className="tx-admin-panel">
 
@@ -393,61 +907,150 @@ const AdminDashboard = () => {
 
           <div className="tx-admin-activity-list">
 
-            <div className="tx-admin-activity-row">
+            {loading ? (
 
-              <BrainCircuit size={17} />
+              <div className="tx-admin-dashboard-empty">
 
-              <div>
-
-                <strong>
-                  AI analysis completed
-                </strong>
+                <RefreshCw
+                  size={22}
+                  className="tx-admin-refresh-spin"
+                />
 
                 <span>
-                  10:36 AM
+                  Loading activity...
                 </span>
 
               </div>
 
-            </div>
+            ) : activities.length > 0 ? (
+
+              activities
+                .slice(0, 5)
+                .map(
+                  (activity, index) => {
+
+                    const type =
+                      String(
+                        getValue(
+                          activity,
+                          [
+                            "type",
+                            "category",
+                            "action",
+                          ],
+                          ""
+                        )
+                      ).toLowerCase();
 
 
-            <div className="tx-admin-activity-row">
+                    let Icon =
+                      Activity;
 
-              <FileText size={17} />
+                    if (
+                      type.includes("ai") ||
+                      type.includes("analysis")
+                    ) {
+                      Icon =
+                        BrainCircuit;
+                    } else if (
+                      type.includes("report")
+                    ) {
+                      Icon =
+                        FileText;
+                    } else if (
+                      type.includes("user")
+                    ) {
+                      Icon =
+                        Users;
+                    }
 
-              <div>
+
+                    const title =
+                      getValue(
+                        activity,
+                        [
+                          "title",
+                          "message",
+                          "action",
+                          "description",
+                        ],
+                        "System activity"
+                      );
+
+
+                    const timestamp =
+                      getValue(
+                        activity,
+                        [
+                          "timestamp",
+                          "createdAt",
+                          "created_at",
+                          "time",
+                        ]
+                      );
+
+
+                    return (
+
+                      <div
+                        className="tx-admin-activity-row"
+                        key={
+                          activity.id ??
+                          activity._id ??
+                          index
+                        }
+                      >
+
+                        <Icon
+                          size={17}
+                        />
+
+
+                        <div>
+
+                          <strong>
+                            {title}
+                          </strong>
+
+                          <span>
+
+                            {timestamp
+                              ? formatTime(
+                                  timestamp
+                                )
+                              : "Time unavailable"}
+
+                          </span>
+
+                        </div>
+
+                      </div>
+
+                    );
+
+                  }
+                )
+
+            ) : (
+
+              <div className="tx-admin-dashboard-empty">
+
+                <Activity
+                  size={24}
+                />
 
                 <strong>
-                  Report generated
+                  No recent activity
                 </strong>
 
                 <span>
-                  10:28 AM
+                  No activity records were returned
+                  by the backend.
                 </span>
 
               </div>
 
-            </div>
-
-
-            <div className="tx-admin-activity-row">
-
-              <Users size={17} />
-
-              <div>
-
-                <strong>
-                  User activity detected
-                </strong>
-
-                <span>
-                  10:17 AM
-                </span>
-
-              </div>
-
-            </div>
+            )}
 
           </div>
 

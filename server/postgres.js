@@ -5,13 +5,11 @@ const { Pool } = require("pg");
 // LOCAL POSTGRESQL CONNECTION
 // =====================================================
 
+const isLocal = !process.env.DATABASE_URL || process.env.DATABASE_URL.includes("localhost") || process.env.DATABASE_URL.includes("127.0.0.1");
+
 const pool = new Pool({
-
   connectionString: process.env.DATABASE_URL,
-
-  // Local PostgreSQL does NOT use SSL
-  ssl: false,
-
+  ssl: isLocal ? false : { rejectUnauthorized: false },
 });
 
 
@@ -59,19 +57,8 @@ const connectPostgreSQL = async () => {
     client.release();
 
   } catch (error) {
-
-    console.error(
-      "❌ PostgreSQL connection failed:"
-    );
-
-    console.error(
-      error.message
-    );
-
-    throw error;
-
+    console.warn("⚠️ PostgreSQL connection failed (continuing with MongoDB):", error.message);
   }
-
 };
 
 
