@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState, useCallback } from "react";
 
 import Map from "ol/Map";
 import View from "ol/View";
@@ -11,9 +11,12 @@ import TileWMS from "ol/source/TileWMS";
 import VectorSource from "ol/source/Vector";
 
 import GeoJSON from "ol/format/GeoJSON";
+import Feature from "ol/Feature";
+import Point from "ol/geom/Point";
+import { circular } from "ol/geom/Polygon";
 
-import { Fill, Stroke, Style } from "ol/style";
-import { fromLonLat } from "ol/proj";
+import { Fill, Stroke, Style, Circle as CircleStyle, Text } from "ol/style";
+import { fromLonLat, toLonLat } from "ol/proj";
 
 import {
   defaults as defaultControls,
@@ -25,6 +28,9 @@ import {
   Map as MapIcon,
   RefreshCw,
   Radio,
+  Flame,
+  Layers,
+  Crosshair,
 } from "lucide-react";
 
 import "ol/ol.css";
@@ -93,401 +99,477 @@ const createIndiaSource = () => {
 };
 
 /* =========================================================
+   HOTSPOT STYLES
+========================================================= */
+
+const createHotspotStyle = (frp = 0) => {
+  const radius = Math.min(Math.max(5 + Math.sqrt(frp || 1) * 2, 6), 16);
+
+  return [
+    // Outer halo
+    new Style({
+      image: new CircleStyle({
+        radius: radius + 4,
+        fill: new Fill({
+          color: "rgba(239, 68, 68, 0.25)",
+        }),
+      }),
+    }),
+    // Main dot
+    new Style({
+      image: new CircleStyle({
+        radius: radius,
+        fill: new Fill({
+          color: frp > 15 ? "#dc2626" : frp > 5 ? "#ea580c" : "#f97316",
+        }),
+        stroke: new Stroke({
+          color: "#ffffff",
+          width: 1.8,
+        }),
+      }),
+    }),
+  ];
+};
+
+/* =========================================================
    COMPONENT
 ========================================================= */
 
 const IndiaFocusedMap = ({
   height = "100%",
+  selectedPoint = null,
+  surroundingsData = null,
+  onSelectPoint = null,
+  setFocusHandler = null,
 }) => {
-  const mapElementRef =
-    useRef(null);
+  const mapElementRef = useRef(null);
+  const mapRef = useRef(null);
 
-  const mapRef =
-    useRef(null);
+  const satelliteLayerRef = useRef(null);
+  const streetLayerRef = useRef(null);
+  const firmsLayerRef = useRef(null);
 
-  const satelliteLayerRef =
-    useRef(null);
+  // Vector layers for interactive points & 5km buffer
+  const hotspotsLayerRef = useRef(null);
+  const bufferLayerRef = useRef(null);
+  const surroundingsLayerRef = useRef(null);
 
-  const streetLayerRef =
-    useRef(null);
+  const [mapMode, setMapMode] = useState("satellite");
+  const [livePointsCount, setLivePointsCount] = useState(0);
+  const [showHotspots, setShowHotspots] = useState(true);
 
-  const firmsLayerRef =
-    useRef(null);
+  const [firmsStatus, setFirmsStatus] = useState(
+    FIRMS_MAP_KEY ? "LOADING" : "NO MAP KEY"
+  );
 
-  const [mapMode, setMapMode] =
-    useState("satellite");
+  /* =======================================================
+     FETCH MONGODB LIVE THERMAL POINTS
+  ======================================================= */
 
-  const [firmsStatus, setFirmsStatus] =
-    useState(
-      FIRMS_MAP_KEY
-        ? "LOADING"
-        : "NO MAP KEY"
-    );
+  const fetchLivePoints = useCallback(async () => {
+    try {
+      const res = await fetch("http://localhost:5000/api/fire/live-points?limit=300");
+      if (!res.ok) return;
+
+      const result = await res.json();
+      if (!result.success || !Array.isArray(result.data)) return;
+
+      setLivePointsCount(result.data.length);
+
+      if (hotspotsLayerRef.current) {
+        const source = hotspotsLayerRef.current.getSource();
+        source.clear();
+
+        const features = result.data.map((pt) => {
+          const feature = new Feature({
+            geometry: new Point(fromLonLat([pt.longitude, pt.latitude])),
+          });
+          feature.set("type", "hotspot");
+          feature.set("data", pt);
+          feature.setStyle(createHotspotStyle(pt.frp));
+          return feature;
+        });
+
+        source.addFeatures(features);
+      }
+    } catch (err) {
+      console.warn("Could not fetch live points:", err.message);
+    }
+  }, []);
 
   /* =======================================================
      CREATE MAP
   ======================================================= */
 
   useEffect(() => {
-    if (
-      !mapElementRef.current ||
-      mapRef.current
-    ) {
+    if (!mapElementRef.current || mapRef.current) {
       return;
     }
 
-    /* =====================================================
-       ESRI SATELLITE
-    ===================================================== */
+    /* ESRI SATELLITE */
+    const satelliteLayer = new TileLayer({
+      source: new XYZ({
+        url:
+          "https://server.arcgisonline.com/" +
+          "ArcGIS/rest/services/World_Imagery/" +
+          "MapServer/tile/{z}/{y}/{x}",
+        maxZoom: 19,
+        crossOrigin: "anonymous",
+        attributions: "Tiles © Esri",
+      }),
+      visible: true,
+      opacity: 1,
+      zIndex: 0,
+    });
+    satelliteLayerRef.current = satelliteLayer;
 
-    const satelliteLayer =
-      new TileLayer({
-        source: new XYZ({
-          url:
-            "https://server.arcgisonline.com/" +
-            "ArcGIS/rest/services/World_Imagery/" +
-            "MapServer/tile/{z}/{y}/{x}",
+    /* OPENSTREETMAP */
+    const streetLayer = new TileLayer({
+      source: new XYZ({
+        url: "https://tile.openstreetmap.org/{z}/{x}/{y}.png",
+        maxZoom: 19,
+        crossOrigin: "anonymous",
+        attributions: "© OpenStreetMap contributors",
+      }),
+      visible: false,
+      opacity: 1,
+      zIndex: 0,
+    });
+    streetLayerRef.current = streetLayer;
 
-          maxZoom: 19,
-
-          crossOrigin: "anonymous",
-
-          attributions:
-            "Tiles © Esri",
-        }),
-
-        visible: true,
-
-        opacity: 1,
-
-        zIndex: 0,
-      });
-
-    satelliteLayerRef.current =
-      satelliteLayer;
-
-    /* =====================================================
-       OPENSTREETMAP
-    ===================================================== */
-
-    const streetLayer =
-      new TileLayer({
-        source: new XYZ({
-          url:
-            "https://tile.openstreetmap.org/" +
-            "{z}/{x}/{y}.png",
-
-          maxZoom: 19,
-
-          crossOrigin: "anonymous",
-
-          attributions:
-            "© OpenStreetMap contributors",
-        }),
-
-        visible: false,
-
-        opacity: 1,
-
-        zIndex: 0,
-      });
-
-    streetLayerRef.current =
-      streetLayer;
-
-    /* =====================================================
-       SATELLITE ERROR HANDLER
-    ===================================================== */
-
-    satelliteLayer
-      .getSource()
-      .on(
-        "tileloaderror",
-        () => {
-          console.warn(
-            "Esri satellite tile failed."
-          );
-        }
-      );
-
-    /* =====================================================
-       NASA FIRMS
-    ===================================================== */
-
+    /* NASA FIRMS WMS */
     let firmsLayer = null;
-
     if (FIRMS_MAP_KEY) {
-      firmsLayer =
-        new TileLayer({
-          source: new TileWMS({
-            url: FIRMS_WMS_URL,
+      firmsLayer = new TileLayer({
+        source: new TileWMS({
+          url: FIRMS_WMS_URL,
+          params: {
+            LAYERS: FIRMS_LAYER,
+            VERSION: "1.1.1",
+            FORMAT: "image/png",
+            TRANSPARENT: true,
+          },
+          serverType: "mapserver",
+          crossOrigin: "anonymous",
+          transition: 0,
+          tilePixelRatio: 1,
+        }),
+        visible: true,
+        opacity: 0.85,
+        zIndex: 10,
+      });
+      firmsLayerRef.current = firmsLayer;
 
-            params: {
-              LAYERS:
-                FIRMS_LAYER,
-
-              VERSION:
-                "1.1.1",
-
-              FORMAT:
-                "image/png",
-
-              TRANSPARENT:
-                true,
-            },
-
-            serverType:
-              "mapserver",
-
-            crossOrigin:
-              "anonymous",
-
-            transition: 0,
-
-            tilePixelRatio: 1,
-          }),
-
-          visible: true,
-
-          opacity: 1,
-
-          zIndex: 20,
-        });
-
-      firmsLayerRef.current =
-        firmsLayer;
-
-      const firmsSource =
-        firmsLayer.getSource();
-
-      firmsSource.on(
-        "tileloadstart",
-        () => {
-          setFirmsStatus(
-            "LOADING"
-          );
-        }
-      );
-
-      firmsSource.on(
-        "tileloadend",
-        () => {
-          setFirmsStatus(
-            "LIVE"
-          );
-        }
-      );
-
-      firmsSource.on(
-        "tileloaderror",
-        () => {
-          setFirmsStatus(
-            "ERROR"
-          );
-
-          console.error(
-            "NASA FIRMS WMS tile failed."
-          );
-        }
-      );
+      const firmsSource = firmsLayer.getSource();
+      firmsSource.on("tileloadstart", () => setFirmsStatus("LOADING"));
+      firmsSource.on("tileloadend", () => setFirmsStatus("LIVE"));
+      firmsSource.on("tileloaderror", () => setFirmsStatus("ERROR"));
     }
 
-    /* =====================================================
-       INDIA BORDER
-    ===================================================== */
+    /* INDIA BORDER */
+    const indiaLayer = new VectorLayer({
+      source: createIndiaSource(),
+      style: INDIA_STYLE,
+      zIndex: 15,
+    });
 
-    const indiaLayer =
-      new VectorLayer({
-        source:
-          createIndiaSource(),
+    /* 5KM BUFFER RING & SELECTED POINT LAYER */
+    const bufferSource = new VectorSource();
+    const bufferLayer = new VectorLayer({
+      source: bufferSource,
+      zIndex: 25,
+    });
+    bufferLayerRef.current = bufferLayer;
 
-        style:
-          INDIA_STYLE,
+    /* SURROUNDING POIS LAYER (within 5km) */
+    const surroundingsSource = new VectorSource();
+    const surroundingsLayer = new VectorLayer({
+      source: surroundingsSource,
+      zIndex: 30,
+    });
+    surroundingsLayerRef.current = surroundingsLayer;
 
-        zIndex: 30,
+    /* LIVE HOTSPOTS VECTOR LAYER */
+    const hotspotsSource = new VectorSource();
+    const hotspotsLayer = new VectorLayer({
+      source: hotspotsSource,
+      zIndex: 35,
+      visible: true,
+    });
+    hotspotsLayerRef.current = hotspotsLayer;
+
+    /* MAP INITIALIZATION */
+    const map = new Map({
+      target: mapElementRef.current,
+      layers: [
+        satelliteLayer,
+        streetLayer,
+        ...(firmsLayer ? [firmsLayer] : []),
+        indiaLayer,
+        bufferLayer,
+        surroundingsLayer,
+        hotspotsLayer,
+      ],
+      controls: defaultControls({
+        zoom: false,
+        rotate: false,
+        attribution: true,
+      }).extend([
+        new Zoom({
+          className: "tx-openlayers-zoom",
+        }),
+      ]),
+      view: new View({
+        center: fromLonLat(INDIA_CENTER),
+        zoom: INDIA_ZOOM,
+        minZoom: 3,
+        maxZoom: 19,
+        constrainResolution: false,
+      }),
+    });
+
+    mapRef.current = map;
+
+    /* FIT INDIA EXTENT */
+    const extent = indiaLayer.getSource().getExtent();
+    if (extent && extent.every(Number.isFinite)) {
+      map.getView().fit(extent, {
+        padding: [30, 30, 30, 30],
+        maxZoom: 5.1,
+        duration: 0,
       });
+    }
 
-    /* =====================================================
-       MAP
-    ===================================================== */
+    /* MAP CLICK INTERACTION */
+    map.on("singleclick", (evt) => {
+      let clickedHotspot = null;
+      let clickedPoi = null;
 
-    const map =
-      new Map({
-        target:
-          mapElementRef.current,
-
-        layers: [
-          satelliteLayer,
-          streetLayer,
-          ...(firmsLayer
-            ? [firmsLayer]
-            : []),
-          indiaLayer,
-        ],
-
-        controls:
-          defaultControls({
-            zoom: false,
-            rotate: false,
-            attribution: true,
-          }).extend([
-            new Zoom({
-              className:
-                "tx-openlayers-zoom",
-            }),
-          ]),
-
-        view:
-          new View({
-            center:
-              fromLonLat(
-                INDIA_CENTER
-              ),
-
-            zoom:
-              INDIA_ZOOM,
-
-            minZoom: 3,
-
-            maxZoom: 19,
-
-            constrainResolution:
-              false,
-          }),
-      });
-
-    mapRef.current =
-      map;
-
-    /* =====================================================
-       FIT INDIA
-    ===================================================== */
-
-    const indiaSource =
-      indiaLayer.getSource();
-
-    const extent =
-      indiaSource.getExtent();
-
-    if (
-      extent &&
-      extent.every(
-        Number.isFinite
-      )
-    ) {
-      map
-        .getView()
-        .fit(
-          extent,
-          {
-            padding: [
-              30,
-              30,
-              30,
-              30,
-            ],
-
-            maxZoom:
-              5.1,
-
-            duration: 0,
+      map.forEachFeatureAtPixel(
+        evt.pixel,
+        (feature) => {
+          const type = feature.get("type");
+          if (type === "hotspot" && !clickedHotspot) {
+            clickedHotspot = feature.get("data");
+          } else if (type === "poi" && !clickedPoi) {
+            clickedPoi = feature.get("data");
           }
-        );
-    }
+        },
+        { hitTolerance: 6 }
+      );
 
-    /* =====================================================
-       FORCE MAP RESIZE
-    ===================================================== */
+      if (clickedHotspot) {
+        if (onSelectPoint) onSelectPoint(clickedHotspot);
+        return;
+      }
 
+      if (clickedPoi) {
+        // Clicked a surrounding POI
+        return;
+      }
+
+      // If clicked anywhere else on the map, query 5km surrounding around that exact coordinate!
+      const [lon, lat] = toLonLat(evt.coordinate);
+      if (onSelectPoint) {
+        onSelectPoint({
+          id: `custom-${Date.now()}`,
+          latitude: lat,
+          longitude: lon,
+          frp: 0,
+          brightness: 0,
+          satellite: "Custom Pin",
+          acq_date: "Live Query",
+          confidence: "custom",
+          isCustom: true,
+        });
+      }
+    });
+
+    /* HOVER CURSOR */
+    map.on("pointermove", (evt) => {
+      if (evt.dragging) return;
+      const hit = map.hasFeatureAtPixel(evt.pixel, {
+        layerFilter: (layer) =>
+          layer === hotspotsLayerRef.current ||
+          layer === surroundingsLayerRef.current,
+        hitTolerance: 6,
+      });
+      map.getTargetElement().style.cursor = hit ? "pointer" : "";
+    });
+
+    /* RESIZE LISTENERS */
     const resizeMap = () => {
-      if (
-        mapRef.current
-      ) {
+      if (mapRef.current) {
         mapRef.current.updateSize();
         mapRef.current.renderSync();
       }
     };
 
-    window.addEventListener(
-      "resize",
-      resizeMap
-    );
+    window.addEventListener("resize", resizeMap);
+    setTimeout(resizeMap, 200);
 
-    /* Dashboard layout can change size after mount */
-    requestAnimationFrame(
-      resizeMap
-    );
-
-    setTimeout(
-      resizeMap,
-      100
-    );
-
-    setTimeout(
-      resizeMap,
-      300
-    );
-
-    setTimeout(
-      resizeMap,
-      700
-    );
-
-    /* =====================================================
-       CLEANUP
-    ===================================================== */
+    // Initial fetch of points
+    fetchLivePoints();
 
     return () => {
-      window.removeEventListener(
-        "resize",
-        resizeMap
-      );
-
-      map.setTarget(
-        null
-      );
-
-      mapRef.current =
-        null;
+      window.removeEventListener("resize", resizeMap);
+      map.setTarget(null);
+      mapRef.current = null;
     };
-  }, []);
+  }, [fetchLivePoints, onSelectPoint]);
+
+  /* =======================================================
+     EXPOSE FOCUS HANDLER TO PARENT
+  ======================================================= */
+
+  useEffect(() => {
+    if (!setFocusHandler) return;
+
+    setFocusHandler((item) => {
+      if (!mapRef.current || !item.latitude || !item.longitude) return;
+      mapRef.current.getView().animate({
+        center: fromLonLat([item.longitude, item.latitude]),
+        zoom: Math.max(mapRef.current.getView().getZoom(), 13),
+        duration: 700,
+      });
+    });
+  }, [setFocusHandler]);
+
+  /* =======================================================
+     UPDATE 5KM BUFFER RING WHEN POINT IS SELECTED
+  ======================================================= */
+
+  useEffect(() => {
+    if (!bufferLayerRef.current) return;
+    const source = bufferLayerRef.current.getSource();
+    source.clear();
+
+    if (!selectedPoint || !selectedPoint.latitude || !selectedPoint.longitude) {
+      return;
+    }
+
+    const lon = selectedPoint.longitude;
+    const lat = selectedPoint.latitude;
+
+    // 1. Create a true geodesic 5000 meter (5km) circle polygon
+    const circlePolygon = circular([lon, lat], 5000, 72);
+    circlePolygon.transform("EPSG:4326", "EPSG:3857");
+
+    const circleFeature = new Feature({
+      geometry: circlePolygon,
+    });
+    circleFeature.setStyle(
+      new Style({
+        stroke: new Stroke({
+          color: "#ea580c",
+          width: 2,
+          lineDash: [6, 4],
+        }),
+        fill: new Fill({
+          color: "rgba(234, 88, 12, 0.08)",
+        }),
+      })
+    );
+
+    // 2. Central Pin Marker
+    const centerPointFeature = new Feature({
+      geometry: new Point(fromLonLat([lon, lat])),
+    });
+    centerPointFeature.setStyle([
+      // Outer pulse ring
+      new Style({
+        image: new CircleStyle({
+          radius: 14,
+          fill: new Fill({ color: "rgba(234, 88, 12, 0.25)" }),
+          stroke: new Stroke({ color: "#ea580c", width: 1.5 }),
+        }),
+      }),
+      // Inner glowing core
+      new Style({
+        image: new CircleStyle({
+          radius: 7,
+          fill: new Fill({ color: "#dc2626" }),
+          stroke: new Stroke({ color: "#ffffff", width: 2 }),
+        }),
+      }),
+    ]);
+
+    source.addFeatures([circleFeature, centerPointFeature]);
+
+    // Animate map view to center the 5km zone nicely
+    if (mapRef.current) {
+      mapRef.current.getView().animate({
+        center: fromLonLat([lon, lat]),
+        zoom: Math.max(mapRef.current.getView().getZoom(), 11.5),
+        duration: 600,
+      });
+    }
+  }, [selectedPoint]);
+
+  /* =======================================================
+     UPDATE SURROUNDINGS POI MARKERS
+  ======================================================= */
+
+  useEffect(() => {
+    if (!surroundingsLayerRef.current) return;
+    const source = surroundingsLayerRef.current.getSource();
+    source.clear();
+
+    if (
+      !surroundingsData ||
+      !Array.isArray(surroundingsData.surroundings) ||
+      surroundingsData.surroundings.length === 0
+    ) {
+      return;
+    }
+
+    const poiFeatures = surroundingsData.surroundings.map((item) => {
+      const feat = new Feature({
+        geometry: new Point(fromLonLat([item.longitude, item.latitude])),
+      });
+      feat.set("type", "poi");
+      feat.set("data", item);
+
+      // Distinct styling by category
+      feat.setStyle(
+        new Style({
+          image: new CircleStyle({
+            radius: 6,
+            fill: new Fill({
+              color: item.badgeColor || "#3b82f6",
+            }),
+            stroke: new Stroke({
+              color: "#ffffff",
+              width: 2,
+            }),
+          }),
+        })
+      );
+
+      return feat;
+    });
+
+    source.addFeatures(poiFeatures);
+  }, [surroundingsData]);
 
   /* =======================================================
      BASEMAP SWITCH
   ======================================================= */
 
   useEffect(() => {
-    if (
-      !satelliteLayerRef.current ||
-      !streetLayerRef.current
-    ) {
+    if (!satelliteLayerRef.current || !streetLayerRef.current) {
       return;
     }
 
-    const satellite =
-      satelliteLayerRef.current;
+    const satellite = satelliteLayerRef.current;
+    const street = streetLayerRef.current;
 
-    const street =
-      streetLayerRef.current;
-
-    if (
-      mapMode === "satellite"
-    ) {
-      satellite.setVisible(
-        true
-      );
-
-      street.setVisible(
-        false
-      );
+    if (mapMode === "satellite") {
+      satellite.setVisible(true);
+      street.setVisible(false);
     } else {
-      satellite.setVisible(
-        false
-      );
-
-      street.setVisible(
-        true
-      );
+      satellite.setVisible(false);
+      street.setVisible(true);
     }
 
     if (mapRef.current) {
@@ -497,23 +579,15 @@ const IndiaFocusedMap = ({
   }, [mapMode]);
 
   /* =======================================================
-     REFRESH FIRMS
+     REFRESH FIRMS & POINTS
   ======================================================= */
 
-  const refreshFirms = () => {
-    if (
-      !firmsLayerRef.current
-    ) {
-      return;
+  const refreshAll = () => {
+    if (firmsLayerRef.current) {
+      setFirmsStatus("LOADING");
+      firmsLayerRef.current.getSource().refresh();
     }
-
-    setFirmsStatus(
-      "LOADING"
-    );
-
-    firmsLayerRef.current
-      .getSource()
-      .refresh();
+    fetchLivePoints();
   };
 
   /* =======================================================
@@ -521,41 +595,16 @@ const IndiaFocusedMap = ({
   ======================================================= */
 
   const getStatusClass = () => {
-    if (
-      firmsStatus === "LIVE"
-    ) {
-      return "tx-firms-live";
-    }
-
-    if (
-      firmsStatus === "ERROR" ||
-      firmsStatus === "NO MAP KEY"
-    ) {
+    if (firmsStatus === "LIVE") return "tx-firms-live";
+    if (firmsStatus === "ERROR" || firmsStatus === "NO MAP KEY")
       return "tx-firms-error";
-    }
-
     return "tx-firms-loading";
   };
 
   const getStatusText = () => {
-    if (
-      firmsStatus === "LIVE"
-    ) {
-      return "NASA FIRMS LIVE";
-    }
-
-    if (
-      firmsStatus === "ERROR"
-    ) {
-      return "NASA FIRMS ERROR";
-    }
-
-    if (
-      firmsStatus === "NO MAP KEY"
-    ) {
-      return "NASA FIRMS KEY MISSING";
-    }
-
+    if (firmsStatus === "LIVE") return "NASA FIRMS LIVE";
+    if (firmsStatus === "ERROR") return "NASA FIRMS ERROR";
+    if (firmsStatus === "NO MAP KEY") return "NASA FIRMS KEY MISSING";
     return "NASA FIRMS LOADING";
   };
 
@@ -570,127 +619,108 @@ const IndiaFocusedMap = ({
         height,
       }}
     >
+      {/* OPENLAYERS MAP */}
+      <div ref={mapElementRef} className="tx-india-map" />
 
-      {/* MAP */}
-
-      <div
-        ref={mapElementRef}
-        className="tx-india-map"
-      />
-
-      {/* BASEMAP SWITCH */}
-
+      {/* TOP CONTROLS */}
       <div className="tx-map-top-controls">
-
         <div className="tx-map-mode-switch">
-
+          {/* HOTSPOTS TOGGLE */}
           <button
             type="button"
-            className={
-              mapMode === "satellite"
-                ? "active"
-                : ""
-            }
-            onClick={() =>
-              setMapMode(
-                "satellite"
-              )
-            }
+            className={showHotspots ? "active" : ""}
+            onClick={() => {
+              const next = !showHotspots;
+              setShowHotspots(next);
+              if (hotspotsLayerRef.current) {
+                hotspotsLayerRef.current.setVisible(next);
+              }
+            }}
+            title="Toggle Live Thermal Points from MongoDB"
           >
-            <Satellite
-              size={15}
-            />
+            <Flame size={14} />
+            Hotspots ({livePointsCount})
+          </button>
 
+          {/* SATELLITE SWITCH */}
+          <button
+            type="button"
+            className={mapMode === "satellite" ? "active" : ""}
+            onClick={() => setMapMode("satellite")}
+          >
+            <Satellite size={14} />
             Satellite
           </button>
 
+          {/* STREET SWITCH */}
           <button
             type="button"
-            className={
-              mapMode === "street"
-                ? "active"
-                : ""
-            }
-            onClick={() =>
-              setMapMode(
-                "street"
-              )
-            }
+            className={mapMode === "street" ? "active" : ""}
+            onClick={() => setMapMode("street")}
           >
-            <MapIcon
-              size={15}
-            />
-
+            <MapIcon size={14} />
             Street
           </button>
-
         </div>
+      </div>
 
+      {/* INTERACTION HINT PILL */}
+      <div className="tx-map-interactive-hint">
+        <Crosshair size={12} />
+        <span>Click any thermal point or map area to inspect 5km surroundings</span>
       </div>
 
       {/* NASA STATUS */}
-
       <div className="tx-firms-status">
+        <div className={`tx-firms-status-indicator ${getStatusClass()}`}>
+          <Radio size={13} />
+          <span>{getStatusText()}</span>
+        </div>
 
-        <div
-          className={`tx-firms-status-indicator ${getStatusClass()}`}
+        <button
+          type="button"
+          className="tx-firms-refresh"
+          onClick={refreshAll}
+          title="Refresh NASA FIRMS & Live Hotspots"
         >
-          <Radio
-            size={13}
-          />
-
-          <span>
-            {getStatusText()}
-          </span>
-        </div>
-
-        {FIRMS_MAP_KEY && (
-          <button
-            type="button"
-            className="tx-firms-refresh"
-            onClick={
-              refreshFirms
-            }
-            title="Refresh NASA FIRMS"
-          >
-            <RefreshCw
-              size={14}
-            />
-          </button>
-        )}
-
+          <RefreshCw size={14} />
+        </button>
       </div>
 
-      {/* LEGEND */}
-
+      {/* ENHANCED MAP LEGEND */}
       <div className="tx-map-legend">
+        <div className="tx-map-legend-title">Map Layers & 5km Surroundings</div>
 
-        <div className="tx-map-legend-title">
-          Thermal Activity
+        <div className="tx-map-legend-item">
+          <span className="tx-legend-hotspot" />
+          <span>MongoDB Thermal Hotspot</span>
         </div>
 
         <div className="tx-map-legend-item">
-
           <span className="tx-legend-fire" />
-
-          <span>
-            NASA FIRMS Detection
-          </span>
-
+          <span>NASA FIRMS WMS Overlay</span>
         </div>
 
         <div className="tx-map-legend-item">
-
-          <span className="tx-legend-boundary" />
-
-          <span>
-            India Boundary
-          </span>
-
+          <span className="tx-legend-circle-5km" />
+          <span>5km Vulnerability Buffer Ring</span>
         </div>
 
-      </div>
+        <div className="tx-map-legend-item">
+          <div className="tx-legend-poi-dots">
+            <span style={{ background: "#ea580c" }} title="Industrial" />
+            <span style={{ background: "#3b82f6" }} title="Education" />
+            <span style={{ background: "#ec4899" }} title="Healthcare" />
+            <span style={{ background: "#8b5cf6" }} title="Residential" />
+          </div>
+          <span>Surrounding POIs (5km)</span>
+        </div>
 
+        <div className="tx-map-legend-item">
+          <span className="tx-legend-boundary" />
+          <span>India Boundary</span>
+        </div>
+      </div>
     </div>
   );
 };
