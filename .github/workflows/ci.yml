@@ -41,8 +41,14 @@ jobs:
           test -f Frontend/package.json
           test -f server/package.json
           test -f server/server.js
-          test -f datasets/detection.py
+
+          test -f datasets/check_data.py
+          test -f datasets/create_future_fire_target.py
           test -f datasets/feature_engineering.py
+          test -f datasets/merge_data.py
+          test -f datasets/preprocess_data.py
+          test -f datasets/train_model.py
+          test -f datasets/train_ensemble.py
 
           echo "Required files: OK"
 

@@ -34,20 +34,20 @@ jobs:
 
       - name: Install dependencies
         run: |
-          if [ -f requirements.txt ]; then
-            pip install -r requirements.txt
-          else
-            pip install pandas numpy scikit-learn xgboost openpyxl
-          fi
+          pip install pandas numpy scikit-learn xgboost openpyxl joblib
 
-      - name: Check Python files
+      - name: Check Python syntax
         run: |
+          python -m py_compile check_data.py
+          python -m py_compile create_future_fire_target.py
           python -m py_compile feature_engineering.py
-          python -m py_compile detection.py
-          python -m py_compile preprocess_data.py
           python -m py_compile merge_data.py
+          python -m py_compile preprocess_data.py
+          python -m py_compile train_model.py
+          python -m py_compile train_ensemble.py
 
-      - name: Verify Python environment
+      - name: Python CI validation complete
         run: |
-          python --version
-          pip list
+          echo "======================================"
+          echo "THERMAL-X PYTHON CI PASSED"
+          echo "======================================"
