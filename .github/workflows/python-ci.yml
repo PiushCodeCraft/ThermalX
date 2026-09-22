@@ -1,0 +1,53 @@
+name: Python CI
+
+on:
+  push:
+    branches:
+      - main
+      - Branch_Piush
+
+  pull_request:
+    branches:
+      - main
+      - Branch_Piush
+
+jobs:
+  python:
+    name: Python Pipeline Validation
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: datasets
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Upgrade pip
+        run: python -m pip install --upgrade pip
+
+      - name: Install dependencies
+        run: |
+          if [ -f requirements.txt ]; then
+            pip install -r requirements.txt
+          else
+            pip install pandas numpy scikit-learn xgboost openpyxl
+          fi
+
+      - name: Check Python files
+        run: |
+          python -m py_compile feature_engineering.py
+          python -m py_compile detection.py
+          python -m py_compile preprocess_data.py
+          python -m py_compile merge_data.py
+
+      - name: Verify Python environment
+        run: |
+          python --version
+          pip list

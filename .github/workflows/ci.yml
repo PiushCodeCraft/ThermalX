@@ -1,0 +1,53 @@
+name: THERMAL-X CI
+
+on:
+  push:
+    branches:
+      - main
+      - Branch_Piush
+
+  pull_request:
+    branches:
+      - main
+      - Branch_Piush
+
+jobs:
+  project-validation:
+    name: Project Validation
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Check project structure
+        run: |
+          echo "Checking THERMAL-X project structure..."
+
+          test -d Frontend
+          test -d server
+          test -d datasets
+          test -d models
+
+          echo "Frontend directory: OK"
+          echo "Server directory: OK"
+          echo "Datasets directory: OK"
+          echo "Models directory: OK"
+
+      - name: Check required files
+        run: |
+          echo "Checking required files..."
+
+          test -f Frontend/package.json
+          test -f server/package.json
+          test -f server/server.js
+          test -f datasets/detection.py
+          test -f datasets/feature_engineering.py
+
+          echo "Required files: OK"
+
+      - name: CI validation complete
+        run: |
+          echo "===================================="
+          echo "THERMAL-X CI VALIDATION PASSED"
+          echo "===================================="
