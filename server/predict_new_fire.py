@@ -132,10 +132,16 @@ def create_features(detection):
     # TIMESTAMP
     # --------------------------------------------------------
 
-    timestamp = pd.to_datetime(
-        df.get("timestamp"),
-        errors="coerce"
-    )
+    if "timestamp" in df.columns:
+        timestamp = pd.to_datetime(
+            df["timestamp"],
+            errors="coerce"
+        )
+    else:
+        timestamp = pd.Series(
+            pd.NaT,
+            index=df.index
+        )
 
 
     # --------------------------------------------------------

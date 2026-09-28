@@ -1047,34 +1047,21 @@ router.get(
         );
 
 
-      const south =
-        lat - dLat;
-
-      const north =
-        lat + dLat;
-
-      const west =
-        lon - dLon;
-
-      const east =
-        lon + dLon;
-
-
-      const bbox =
-        `${south.toFixed(5)},${west.toFixed(5)},${north.toFixed(5)},${east.toFixed(5)}`;
-
-
-      const overpassQuery =
-        `[out:json][timeout:20];
+/*
+ * Use Overpass "around" queries instead of a large bounding box.
+ * This keeps the query focused on the requested 5km radius.
+ */
+const overpassQuery =
+  `[out:json][timeout:60];
 (
-  nwr["amenity"~"school|college|university|hospital|clinic|fire_station|police"](${bbox});
-  nwr["landuse"~"industrial|residential|forest"](${bbox});
-  nwr["industrial"](${bbox});
-  nwr["man_made"~"works|factory|pipeline|storage_tank"](${bbox});
-  nwr["power"~"plant|substation"](${bbox});
-  nwr["natural"~"wood"](${bbox});
+  nwr(around:${radiusMeters},${lat},${lon})["amenity"~"school|college|university|kindergarten|hospital|clinic|doctors|pharmacy|fire_station|police"];
+  nwr(around:${radiusMeters},${lat},${lon})["landuse"~"industrial|residential|forest"];
+  nwr(around:${radiusMeters},${lat},${lon})["industrial"];
+  nwr(around:${radiusMeters},${lat},${lon})["man_made"~"works|factory|pipeline|storage_tank|gasometer|chimney|wastewater_plant"];
+  nwr(around:${radiusMeters},${lat},${lon})["power"~"plant|substation|generator"];
+  nwr(around:${radiusMeters},${lat},${lon})["natural"~"wood|scrub"];
 );
-out tags center 50;`;
+out tags center qt 500;`;
 
 
       let osmElements = [];
@@ -1095,16 +1082,21 @@ out tags center 50;`;
       ) {
 
         try {
+              console.log(
+      `🌐 Trying Overpass endpoint: ${ep}`
+    );
 
-          const controller =
-            new AbortController();
+const controller = new AbortController();
 
-          const timeout =
-            setTimeout(
-              () =>
-                controller.abort(),
-              8000
-            );
+const timeout = setTimeout(
+  () => {
+    console.warn(
+      `⏰ Overpass request timed out after 60s: ${ep}`
+    );
+    controller.abort();
+  },
+  60000
+);
 
 
           const response =
@@ -1153,17 +1145,21 @@ out tags center 50;`;
             osmElements =
               json.elements ||
               [];
+            console.log(
+            `🗺️ Overpass returned ${osmElements.length} raw elements for ${lat}, ${lon} (${radiusMeters}m)`
+            );
 
             break;
           }
 
-        } catch (err) {
-
-          console.warn(
-            `⚠️ Overpass endpoint ${ep} failed:`,
-            err.message
-          );
-        }
+          } catch (err) {
+            console.warn(
+              `⚠️ Overpass endpoint ${ep} failed:`,
+              err.name === "AbortError"
+                ? "Request was aborted by the 60-second timeout."
+                : err.message
+            );
+          }
       }
 
 
@@ -1180,7 +1176,7 @@ out tags center 50;`;
           setTimeout(
             () =>
               controller.abort(),
-            3000
+            30000
           );
 
 
@@ -1359,7 +1355,9 @@ out tags center 50;`;
         });
       }
 
-
+      console.log(
+  `📍 Surroundings classified: ${surroundings.length} | industrial=${surroundings.filter((s) => s.category === "industrial").length} | education=${surroundings.filter((s) => s.category === "education").length} | healthcare=${surroundings.filter((s) => s.category === "healthcare").length} | residential=${surroundings.filter((s) => s.category === "residential").length}`
+);
       surroundings.sort(
         (a, b) =>
           a.distanceMeters -

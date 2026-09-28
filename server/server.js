@@ -1,3 +1,4 @@
+const { startCollector } = require("./services/firmsCollector");
 const express = require("express");
 const cors = require("cors");
 require("dotenv").config();
@@ -57,6 +58,7 @@ const startServer = async () => {
   try {
     // Connect MongoDB Atlas
     await connectMongoDB();
+    startCollector();
 
     // Connect local PostgreSQL
     // await connectPostgreSQL();

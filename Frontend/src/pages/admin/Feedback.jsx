@@ -27,7 +27,7 @@ const Feedback = () => {
         setError("");
 
         const response = await fetch(
-          "http://localhost:5000/api/feedback"
+          `${import.meta.env.VITE_API_URL}/api/feedback`
         );
 
         if (!response.ok) {

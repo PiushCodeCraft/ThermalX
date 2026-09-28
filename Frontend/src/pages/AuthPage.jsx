@@ -68,8 +68,8 @@ function AuthPage({ onLogin }) {
           },
 
           body: JSON.stringify({
-            email,
-            password,
+            userId: formData.userId.trim(),
+            password: formData.password,
           }),
         }
       );

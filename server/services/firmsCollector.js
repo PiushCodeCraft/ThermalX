@@ -1374,64 +1374,49 @@ async function collectFirmsData() {
 /* =========================================================
    START
 ========================================================= */
-
-console.log(
-  "\n======================================"
-);
-
-console.log(
-  "🚀 THERMAL-X FIRMS COLLECTOR"
-);
-
-console.log(
-  "======================================"
-);
-
-console.log(
-  "⏱️ Collection interval: 15 minutes"
-);
-
-console.log(
-  `🛰️ Satellite source: ${SOURCE}`
-);
-
-console.log(
-  `📍 FIRMS bounding area: ${AREA}`
-);
-
-console.log(
-  "🇮🇳 India coordinate filter: ENABLED"
-);
-
-console.log(
-  "🧠 Preprocessing: ENABLED"
-);
-
-console.log(
-  "🤖 ML prediction: ENABLED"
-);
-
-console.log(
-  `📊 ML features: ${FEATURES.length}`
-);
-
 console.log(
   "======================================"
 );
 
 
 /* =========================================================
-   FIRST RUN
+   COLLECTOR START
 ========================================================= */
 
-collectFirmsData();
+async function startCollector() {
+  console.log("\n🚀 Starting NASA FIRMS collector...");
+
+  // Run immediately when the server starts
+  try {
+    await collectFirmsData();
+  } catch (error) {
+    console.error(
+      "❌ Initial FIRMS collection failed:",
+      error.message
+    );
+  }
+
+  // Run every 15 minutes
+  setInterval(
+    async () => {
+      try {
+        await collectFirmsData();
+      } catch (error) {
+        console.error(
+          "❌ Scheduled FIRMS collection failed:",
+          error.message
+        );
+      }
+    },
+    COLLECTION_INTERVAL
+  );
+}
 
 
 /* =========================================================
-   EVERY 15 MINUTES
+   EXPORT
 ========================================================= */
 
-setInterval(
-  collectFirmsData,
-  COLLECTION_INTERVAL
-);
+module.exports = {
+  startCollector,
+};
