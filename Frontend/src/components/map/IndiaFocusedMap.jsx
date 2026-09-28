@@ -54,6 +54,12 @@ const FIRMS_LAYER =
   "fires_viirs_noaa21_24";
 
 /* =========================================================
+   API URL
+========================================================= */
+
+const API_URL =
+  import.meta.env.VITE_API_URL || "http://localhost:5000";
+/* =========================================================
    INDIA
 ========================================================= */
 
@@ -191,7 +197,7 @@ const IndiaFocusedMap = ({
 
     try {
       const response = await fetch(
-        `http://localhost:5000/api/fire/surroundings?lat=${lat}&lon=${lon}&radius=5000`
+      `${API_URL}/api/fire/surroundings?lat=${lat}&lon=${lon}&radius=5000`
       );
 
       if (!response.ok) {
@@ -229,7 +235,9 @@ const IndiaFocusedMap = ({
 
   const fetchLivePoints = useCallback(async () => {
     try {
-      const res = await fetch("http://localhost:5000/api/fire/live-points?limit=300");
+      const res = await fetch(
+        `${API_URL}/api/fire/live-points?limit=300`
+      );
       if (!res.ok) return;
 
       const result = await res.json();
